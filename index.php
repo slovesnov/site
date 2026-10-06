@@ -221,7 +221,7 @@ $caption = '<table style="width:100%"><tr><td><h3 style="margin:3px 0 3px 0;">' 
 
 if ($mobile_mode != MOBILE_MODE_OFFLINE) {
 	$c = [];
-	if ($LOCAL) {
+	if (IS_LOCAL) {
 		$c[] = "<a href='" . REMOTE . "?$name,$language' target='_blank'><img src='img/globe16.png'></a>";
 	}
 	if ($save_button) {

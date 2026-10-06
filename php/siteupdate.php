@@ -50,7 +50,7 @@ connect();
 $qs = prepareQueryString();
 
 //after include("calorieCommon.php")
-$EXERCISE = ($LOCAL ? '../..' : '..') . '/exercise.txt';
+$EXERCISE = (IS_LOCAL ? '../..' : '..') . '/exercise.txt';
 const EXERCISE_TEMPLATES = 3;
 
 //local+remote
@@ -1033,7 +1033,7 @@ if ($qs == 'exercise') {
 	// <!--<table id='t' class='table_border table_color3' style='margin:0'>$q</table>-->
 }
 
-if ($LOCAL) {
+if (IS_LOCAL) {
 
 	//  var_dump($_POST);
 	//  exit;
@@ -2673,7 +2673,7 @@ function dateSring($s)
 
 function defaultBody()
 {
-	global $mysqli, $LOCAL;
+	global $mysqli;
 	$tablesList = [];
 	$r = $mysqli->query("show tables");
 	$exclude = ["ip", "counters"];
@@ -2686,7 +2686,7 @@ function defaultBody()
 	$op = '<option>' . implode('</option><option>', $tablesList) . '</option>';
 	$opt = '<option>' . implode('</option><option>', ['pages', 'menus', 'versions', 'videos']) . '</option>';
 
-	if ($LOCAL) {
+	if (IS_LOCAL) {
 		$h = HEAD;
 		$b = "<button onclick='query()'>query</button>";
 		$r = "<td rowspan=7 id='o'>

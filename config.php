@@ -7,31 +7,18 @@ const TYPE_NOMENU = 2;
 const TYPE_PRESENTATION = 3;
 const REMOTE = 'https://slovesnov.rf.gd';
 const FTP_URL = 'ftpupload.net';
-// define('IS_LOCAL', 
-//     ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || 
-//     str_starts_with($_SERVER['SERVER_NAME'] ?? '', "192.168.1.")
-// );
-// if (IS_LOCAL) {
-//     define('DB_HOST', 'localhost');
-//     define('DB_USER', 'root');
-//     define('DB_PASS', ''); // Обычно на локалке пароль пустой
-//     define('DB_NAME', 'my_local_db');
-// } else {
-//     define('DB_HOST', 'sql104.infinityfree.com');
-//     define('DB_USER', 'if0_34567890_user'); // Ваши данные от InfinityFree
-//     define('DB_PASS', 'your_production_password');
-//     define('DB_NAME', 'if0_34567890_db');
-// }
-
-$LOCAL = $_SERVER['SERVER_NAME'] === 'localhost' || str_starts_with($_SERVER['SERVER_NAME'], "192.168.1.");
-if ($LOCAL) {
-	$db_host = 'localhost';
+define('IS_LOCAL', 
+    ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || 
+    str_starts_with($_SERVER['SERVER_NAME'] ?? '', "192.168.1.")
+);
+if (IS_LOCAL) {
+    define('DB_HOST', 'localhost');
 } else {
-	$db_host = 'sql104.infinityfree.com';
+    define('DB_HOST', 'sql104.infinityfree.com');
 }
 
 const ALWAYS_ADMIN_LOCAL = 0; //if ALWAYS_ADMIN_LOCAL=1 then not need to login for edit jm on localhost, test for potencial other users
-$ALWAYS_ADMIN = $LOCAL ? ALWAYS_ADMIN_LOCAL : 0;
+$ALWAYS_ADMIN = IS_LOCAL ? ALWAYS_ADMIN_LOCAL : 0;
 
 function isJmValidUser()
 {
@@ -233,8 +220,8 @@ function getSimilarPages($n, $language, $index)
 
 function connect()
 {
-	global $mysqli, $db_host;
-	$mysqli = new mysqli($db_host, DB_LOGIN, DB_PASS, DB_NAME);
+	global $mysqli;
+	$mysqli = new mysqli(DB_HOST, DB_LOGIN, DB_PASS, DB_NAME);
 	if ($mysqli->connect_errno) {
 		die('error on line' . __LINE__ . ' ' . $mysqli->connect_error);
 	}

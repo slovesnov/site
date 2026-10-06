@@ -1,7 +1,7 @@
 <?php
 include("../config.php");
 
-if (!$LOCAL) {
+if (!IS_LOCAL) {
     die('not local');
 }
 $l = $_POST['gLanguage'] == 'russian' ? [
