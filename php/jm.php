@@ -70,7 +70,7 @@ if ($s == 'checkgoodsincomments') {
 	exit;
 }
 
-$login = $ALWAYS_ADMIN;
+$login = ALWAYS_ADMIN;
 if (isset($_COOKIE[JM_USER_COOKIE]) && isset($_COOKIE[JM_PWD_COOKIE])) {
 	$jm_user = $_COOKIE[JM_USER_COOKIE];
 	$jm_pwd = $_COOKIE[JM_PWD_COOKIE];

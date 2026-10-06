@@ -18,12 +18,12 @@ if (IS_LOCAL) {
 }
 
 const ALWAYS_ADMIN_LOCAL = 0; //if ALWAYS_ADMIN_LOCAL=1 then not need to login for edit jm on localhost, test for potencial other users
-$ALWAYS_ADMIN = IS_LOCAL ? ALWAYS_ADMIN_LOCAL : 0;
+define('ALWAYS_ADMIN', IS_LOCAL ? ALWAYS_ADMIN_LOCAL : 0);
 
 function isJmValidUser()
 {
-	global $ALWAYS_ADMIN, $jm_user, $jm_pwd;
-	if ($ALWAYS_ADMIN) {
+	global $jm_user, $jm_pwd;
+	if (ALWAYS_ADMIN) {
 		return true;
 	}
 	return isset($_COOKIE[JM_USER_COOKIE]) && isset($_COOKIE[JM_PWD_COOKIE])
