@@ -1,0 +1,17 @@
+.redtext{
+	color:red;
+}
+
+.out{
+    vertical-align: sub;
+    font-size: 0.70em;
+	/*background-color: #AAB7B8;*/
+}
+
+.s{
+	margin-right: 4px;
+}
+
+.s1{
+	margin-top: 5px;
+}

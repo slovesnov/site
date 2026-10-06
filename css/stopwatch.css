@@ -1,0 +1,19 @@
+.b{
+	background:LemonChiffon/* #FDF2E9 */;
+}
+
+div.b{
+	white-space: pre;
+}
+
+@media only screen and (max-width: 799px) {
+	div.b{
+		width:100%;
+	}
+}
+
+@media only screen and (min-width: 800px) {
+	div.b{
+		width:400px;
+	}
+}

@@ -1,0 +1,8 @@
+.t tbody tr td:nth-child(n+2),
+.q tbody tr td:nth-child(n+3) {
+	text-align: right;
+}
+
+.table_color th {
+	text-align: center;
+}

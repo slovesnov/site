@@ -1,0 +1,230 @@
+td,
+#RESULT,
+#MEMORY {
+	padding: 0;
+}
+
+#calculatorTable {
+	/*main table of calculator*/
+	margin-top: 0;
+	border-collapse: collapse;
+}
+
+#calculatorTable>tbody>tr>td {
+	padding: 2px 0px;
+}
+
+/*BEGIN table with a, b, c, d entries */
+#abcd {
+	width: 100%;
+	margin-top: 0;
+}
+
+#abcd td:nth-child(1),
+#abcd td:nth-child(2) {
+	width: 287px;
+}
+
+#abcd tr:nth-child(2) td {
+	padding-top: 4px;
+}
+
+/*END table with a, b, c, d entries */
+
+table.calculator {
+	border-collapse: collapse;
+}
+
+#tablebuffer {
+	margin: 2px 0 0 0;
+	border-collapse: collapse;
+}
+
+#tablebuffer tbody tr:first-child {
+	vertical-align: top;
+}
+
+#tablebuffer tbody tr:last-child {
+	vertical-align: bottom;
+}
+
+#tbuffer {
+	height: 180px;
+	display: block;
+}
+
+/*left big font for language selector so set style for all other buttons*/
+.b4,
+.b6,
+#CLEAR,
+#RECOUNT,
+#COPY_TO_MEMORY,
+#ADD_TO_BUFFER {
+	font-size: 10.5pt;
+}
+
+/* table with buttons inside field set. Occupied width 387 
+387=93*4+5*3 - 
+387=61*6+7*3
+4 buttons with width 93+5 margins with width 3 or
+6 buttons with width 61+7 margins with width 3
+padding-right = 3 for all+padding-left=3 for first
+*/
+table.buttons {
+	margin-top: 2px;
+	width: 100%;
+}
+
+input {
+	box-sizing: border-box;
+	/*for firefox*/
+	padding: 2px;
+}
+
+#txta,
+#txtb,
+#txtc,
+#txtd {
+	display: inline-block;
+	width: 20px;
+}
+
+#tamemory {
+	margin-top: 0px;
+}
+
+@media only screen and (max-width: 799px) {
+
+	div.content>table,
+	table.buttons,
+	table.calculator {
+		margin-top: 0;
+	}
+
+	#CLEAR,
+	#RECOUNT,
+	#COPY_TO_MEMORY,
+	#ADD_TO_BUFFER,
+	#CLEAR_BUFFER {
+		margin: 0 0 0 4px;
+	}
+
+	#CLEAR,
+	#RECOUNT {
+		width: 24px;
+	}
+
+	#COPY_TO_MEMORY,
+	#ADD_TO_BUFFER,
+	#CLEAR_BUFFER {
+		width: 90px;
+		/*on smartphone expression="выражение" wider then on desctop emulator*/
+	}
+
+	table.calculator {
+		width: calc(100vw);
+	}
+
+	#texpression {
+		width: calc(100vw - 146px);
+	}
+
+	#tmemory {
+		width: calc(100vw - 184px - 94px);
+	}
+
+	#tresult {
+		width: calc(100vw - 184px);
+	}
+
+	#tbuffer {
+		width: calc(100vw - 96px);
+		/*2px border, 1px padding*/
+	}
+
+	#EXPRESSION,
+	#MEMORY,
+	#RESULT,
+	#tablebuffer tbody tr td:first-child {
+		width: 90px;
+	}
+
+	table.buttons td {
+		text-align: center;
+		padding-right: 1px;
+		padding-bottom: 2px;
+	}
+
+	table.buttons td:first-child {
+		padding-left: 1px;
+	}
+}
+
+@media only screen and (min-width: 800px) {
+
+	#a,
+	#b,
+	#c,
+	#d {
+		width: 372px;
+		/*784/2-width('a=')*/
+	}
+
+	#CLEAR,
+	#RECOUNT,
+	#COPY_TO_MEMORY,
+	#ADD_TO_BUFFER,
+	#CLEAR_BUFFER {
+		margin: 0 0 0 5px;
+	}
+
+	#CLEAR,
+	#RECOUNT {
+		width: 95px;
+		/*firefox most wide text*/
+	}
+
+	#COPY_TO_MEMORY,
+	#ADD_TO_BUFFER,
+	#CLEAR_BUFFER {
+		width: 195px;
+	}
+
+	table.calculator {
+		margin-top: 3px;
+		width: 784px;
+	}
+
+	#texpression {
+		width: 484px;
+	}
+
+	#tmemory {
+		width: 284px;
+	}
+
+	#tresult {
+		width: 484px;
+	}
+
+	#tbuffer {
+		width: 678px;
+	}
+
+	#EXPRESSION,
+	#RESULT,
+	#MEMORY,
+	#tablebuffer tbody tr td:first-child {
+		width: 100px;
+	}
+
+	table.buttons td {
+		text-align: center;
+		padding-right: 3px;
+		padding-bottom: 5px;
+	}
+
+	table.buttons td:first-child {
+		padding-left: 3px;
+	}
+}

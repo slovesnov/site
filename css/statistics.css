@@ -1,0 +1,45 @@
+#o{/*allow table fit width Arial font is much wider*/
+	font-family:"Times New Roman";
+}
+
+table.single{/*override from common.css*/
+	margin-top:0px; 
+}
+
+table.single th{
+	text-align:center;
+}
+
+table.single td, table.alignright tbody td{
+	text-align:right;
+}
+
+#table > tbody > tr > td{/*> tbody > tr > td because of calendar component inside*/
+	height: 30px;
+}
+
+font.sm{
+	font-size: 10pt; 
+}
+
+font.ssm{
+	font-size: 8pt; 
+}
+
+.daybyday > tbody>tr> td:nth-child(2n+2){
+	border-right: 3px double black;
+}
+
+.attendance thead table.table_noborder>tbody>tr> th{
+	font-size: 70%;
+}
+
+/* .link { 
+	font-weight: 700;
+	color:rgb(5,116,205)
+}
+.link:hover{
+	cursor: pointer;
+	color:rgb(0,54,97)
+}
+ */

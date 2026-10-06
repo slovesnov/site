@@ -1,0 +1,181 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	font-family: sans-serif;
+	/* transition: all 0.5s ease; */
+}
+
+p,ul,ol{
+	text-align: justify;
+}
+
+p,table,li{
+	font-size: 20pt;
+	margin-top: 0;/*override from common.css*/
+}
+
+ul,ol{
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    padding-inline-start: 40px;	
+}
+
+body.presentation {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.container {
+	background: #212121;
+	width: 100%;
+	height: 100%;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#presentation-area {
+	width: 1100px;
+	height: 550px;
+	position: relative;
+}
+
+/* Styling all three sections */
+#presentation-area .presentation {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	position: relative;
+}
+
+#presentation-area .navigation,#presentation-area .navigation_pages {
+	position: absolute;
+	bottom: -35px;
+}
+
+#presentation-area .navigation {
+	right: 3px;
+}
+
+#presentation-area .navigation_pages {
+	left: 3px;
+}
+
+/* On full screen mode */
+#presentation-area.full-screen {
+	width: 100%;
+	height: calc(100% - 100px);
+	/* overflow: hidden; comment because of navigation buttons*/
+}
+
+#presentation-area.full-screen *{
+	font-size: 27pt;
+}
+
+#presentation-area.full-screen .content .title {
+	font-size: 49pt;/*20*250%= 250% in css 50 sometimes bigger then needs so use 49*/
+}
+
+#presentation-area.full-screen .page_button {
+	font-size:17pt;/*(12*1.30).full-screen*/
+}
+
+#presentation-area.full-screen .navigation, #presentation-area.full-screen .navigation_pages {
+	/* z-index: 12; */
+	bottom: -45px;
+}
+
+/* End full screen mode */
+
+/* Buttons */
+.navigation .btn,#presentation-area .page_button {
+	border: none;
+	outline: none;
+	text-align: center;
+	cursor: pointer;
+	background: #464646;
+	color: #b6b6b6;
+	border-radius: 0.25rem;
+}
+
+.navigation .btn{
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	margin-left: 0.5rem;
+	font-size: 1.5rem;
+}
+
+#presentation-area .page_button {
+	padding: 5px;
+	font-size:12pt;
+}
+
+.navigation .btn:hover,#presentation-area .page_button:hover {
+	color: white;
+}
+
+/* after #presentation-area .page_button:hover */
+#presentation-area .page_button.current {
+	color:#FFEA00;
+	font-weight: bold;
+}
+/* End Buttons */
+
+/* content */
+.presentation .content {
+	margin:0;/*override from common.css*/
+	padding: 2em;
+	width: 100%;
+	height: calc(100% - 100px);
+	/* z-index: 11; */
+	display: grid;
+}
+
+.presentation .content.center {
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+}
+
+.content .title {
+	font-size: 250%;
+	text-align: center;
+	color:black;
+} 
+/* End Content Stylesheet */
+
+/* Slide */
+.presentation .slide {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background:#e8e4e5;
+	/* display: none; not good*/
+	opacity: 0;
+	visibility: none;
+}
+
+.slide.show {
+	/* display: block;  not good*/
+	opacity: 1;
+	visibility: visible;
+	z-index: 11;/*allow copy of content by mouse*/
+}
+
+.slide .heading {
+	padding: .6rem;
+	background:linear-gradient(to right,rgb(51,51,178), black);
+	font-size: 2em;
+	font-weight: bold;
+	color: #ffffff;
+}

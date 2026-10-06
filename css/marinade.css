@@ -1,0 +1,86 @@
+table.nm{
+	margin-top: 2px;
+}
+
+/* from js=m */
+.se0 input {
+	/* width:40px; */
+	width:35px;
+}
+
+.se0, .se0 select{
+	width:50px;/*+15px*/
+}
+
+.se1 input {
+	width:50px;
+}
+
+.se1, .se1 select{
+	width:65px;
+}
+
+.select-editable {
+	display: inline-block;	
+	vertical-align: middle;
+	position:relative;
+	background-color:white;
+	border:solid grey 1px;
+	height:18px;
+}
+
+.select-editable select {
+	position:absolute;
+	top:0px;
+	left:0px;
+	border:none;
+	margin:0;
+}
+
+.select-editable input {
+	position:absolute;
+	top:0px;
+	left:0px;
+	padding:1px;
+	border:none;
+}
+
+.select-editable select:focus, .select-editable input:focus {
+	outline:none;
+}
+
+
+.tab {
+	overflow: hidden;
+	border: 1px solid #ccc;
+	background-color: #f1f1f1;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+	background-color: inherit;
+	float: left;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	padding: 10px 16px;
+	transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+	background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+	background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+	display: none;
+	/* padding: 6px 12px; */
+	border: 1px solid #ccc;
+	border-top: none;
+}

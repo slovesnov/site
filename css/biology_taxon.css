@@ -1,0 +1,20 @@
+table.s {
+	border-top:1px solid black;
+	border-left:1px solid black;
+}
+
+table.s td
+,table.s th
+{
+	border-right:1px solid black;
+	border-bottom:1px solid black;
+}
+ 
+table.s td:nth-child(3)
+,table.s td:nth-child(6)
+,table.s th:nth-child(3)
+,table.s th:nth-child(6)
+{
+  border-right: 3px double black;
+}
+

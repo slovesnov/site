@@ -1,0 +1,362 @@
+@media only screen and (max-width: 799px) {
+	div.main {
+		width: calc(100vw);
+		margin-left: calc(-100vw/2);
+	}
+
+	div.content {
+		margin: 0;
+	}
+
+	.shift {
+		margin-left: 0;
+		padding-right: 0;
+	}
+
+	div.content>table {
+		margin-top: 0;
+	}
+
+	h3 {
+		font-size: 5vw;
+	}
+
+	h4 {
+		font-size: 4.5vw;
+	}
+
+	h5 {
+		font-size: 4vw;
+	}
+
+	img {
+		width: auto;
+		max-width: 100%;
+		height: auto;
+	}
+
+	body {
+		/*for pages which wider then full width of smartphone*/
+		background: #e8e4e5;
+	}
+
+	#totop {
+		/*for pages which wider then full width of smartphone*/
+		left: calc(100vw - 56px);
+		/*right: calc(100vw - 86px);*/
+	}
+}
+
+@media only screen and (min-width: 800px) {
+	div.main {
+		margin-left: -400px;
+		width: 800px;
+	}
+
+	div.content {
+		margin: 7px;
+	}
+
+	.shift {
+		margin-left: 25px;
+		padding-right: 5px;
+	}
+
+	.shifttop tr:not(:first-child) td {
+		padding-top: 10px;
+	}
+
+	h3 {
+		font-size: 24px;
+	}
+
+	h4 {
+		font-size: 18px;
+	}
+
+	h5 {
+		font-size: 14px;
+	}
+
+	body.normal {
+		background-image: url('../img/bg60.jpg');
+	}
+
+	body.fullscreen {
+		background: #e8e4e5;
+	}
+
+	#totop {
+		right: 20px;
+	}
+}
+
+div.main {
+	position: absolute;
+	left: 50%;
+	padding: 0px;
+	background: #e8e4e5;
+	min-height: 100%;
+	_height: 100%;
+}
+
+body {
+	color: rgb(0, 0, 0);
+	font-family: Arial;
+	font-size: 12pt;
+	text-align: left;
+	padding: 0;
+	margin: 0;
+	text-indent: 0;
+	text-align: justify;
+	height: 100%;
+}
+
+table,
+p,
+div.applet,
+pre {
+	margin-top: 7px;
+}
+
+/*9dec2023 add :not(.table_border) for correct borders of table js component in firefox*/
+table:not(.single):not(.table_border),
+table:not(.single):not(.table_border) td {
+	border-collapse: collapse;
+}
+
+table.topmenu {
+	width: 100%;
+}
+
+table.topmenu td {
+	text-align: center;
+}
+
+pre {
+	font-size: 10pt;
+}
+
+h3,
+h4,
+h5 {
+	color: rgb(5, 116, 205);
+	text-align: left;
+}
+
+.margin {
+	margin-top: 7px;
+}
+
+table.single {
+	border-top: 1px solid black;
+	border-left: 1px solid black;
+	border-spacing: 0px;
+}
+
+/* table.single tr td, table.single tr th ?cube5 26jan2024*/
+table.single>tbody>tr>td,
+table.single>tbody>tr>th,
+table.single>thead>tr>td,
+table.single>thead>tr>th {
+	border-right: 1px solid black;
+	border-bottom: 1px solid black;
+}
+
+.outer {
+	border-collapse: separate;
+	border: 1px solid black;
+}
+
+div.fullscreen {
+	/*full screen style uses for jurassic,yahoo_hears,yahoo_spades*/
+	margin-left: 0;
+	position: absolute;
+	left: 0%;
+	min-width: 100%;
+	min-height: 100%;
+	padding: 0px;
+	background: #e8e4e5;
+	_height: 100%;
+	/*ie*/
+}
+
+a {
+	text-decoration: none;
+	font-weight: 700;
+	outline: none;
+}
+
+a:active,
+a:link,
+a:visited {
+	color: rgb(5, 116, 205)
+}
+
+a:hover {
+	color: rgb(0, 54, 97)
+}
+
+img,
+table.noborder td,
+table.noborder {
+	border: 0;
+	/*ie img*/
+}
+
+img.va {
+	vertical-align: middle;
+}
+
+#totop {
+	display: block;
+	position: fixed;
+	z-index: 99;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	bottom: -60px;
+	/*invisible at start*/
+	padding: 15px;
+}
+
+.frac {
+	display: inline-block;
+	position: relative;
+	vertical-align: middle;
+	letter-spacing: 0.001em;
+	text-align: left;
+	font-size: 9px;
+}
+
+.frac>span {
+	display: block;
+}
+
+.fracb {
+	display: inline-block;
+	position: relative;
+	vertical-align: middle;
+	letter-spacing: 0.001em;
+	text-align: center;
+}
+
+.fracb>span:first-child {
+	border-bottom: 1px solid black;
+}
+
+.fracb>span {
+	display: block;
+}
+
+.checkboxes label {
+	display: inline-block;
+	padding-right: 0px;
+	white-space: nowrap;
+}
+
+.checkboxes input {
+	vertical-align: middle;
+}
+
+.checkboxes label span {
+	vertical-align: middle;
+}
+
+img.ma {
+	margin-left: 1px;
+}
+
+/*BEGIN popup window (modified by aslov)
+url https://www.w3schools.com/howto/howto_css_modals.asp
+*/
+.modal {
+	display: none;
+	position: fixed;
+	z-index: 1;
+	padding-top: 100px;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: rgb(0, 0, 0);
+	background-color: rgba(0, 0, 0, 0.4);
+}
+
+#params,
+.modal,
+.comboboxbutton {
+	font-size: 18px;
+}
+
+/* Modal Content */
+.modal-content {
+	position: relative;
+	background-color: #fefefe;
+	margin: auto;
+	padding: 0;
+	border: 1px solid #888;
+	display: table;
+
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	-webkit-animation-name: animatetop;
+	-webkit-animation-duration: 0.4s;
+	animation-name: animatetop;
+	animation-duration: 0.4s
+}
+
+
+/* Add Animation */
+@-webkit-keyframes animatetop {
+	from {
+		top: -300px;
+		opacity: 0
+	}
+
+	to {
+		top: 0;
+		opacity: 1
+	}
+}
+
+@keyframes animatetop {
+	from {
+		top: -300px;
+		opacity: 0
+	}
+
+	to {
+		top: 0;
+		opacity: 1
+	}
+}
+
+/* The Close Button */
+.close {
+	color: white;
+	float: right;
+	font-weight: bold;
+	margin-left: 7px;
+}
+
+.close:hover,
+.close:focus {
+	color: #aaa;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.modal-header {
+	padding: 2px 16px;
+	background-color: #333
+		/*  #4CAF50 */
+	;
+	color: white;
+}
+
+.modal-body {
+	padding: 2px 16px;
+}
+
+/*end popup modal*/

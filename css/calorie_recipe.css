@@ -1,0 +1,95 @@
+h3 {
+	margin-top: 4px;
+	margin-bottom: 4px;
+}
+
+/*added .table_common for popup dialog*/
+table.table_common tr:not(.bold) td:nth-child(n+2) {
+	text-align: right;
+}
+
+table tr th {
+	text-align: center;
+	/* font-size: 75%; */
+}
+
+tr.c0 {
+	background: rgb(197, 217, 241);
+	/*changed from jm Azure moved to tr.c3*/
+}
+
+tr.c1 {
+	background: rgb(253, 233, 217);
+}
+
+tr.c2 {
+	background: rgb(238, 210, 238);
+}
+
+tr.c3 {
+	background: Azure;
+}
+
+tr.c-1 {
+	background: LemonChiffon;
+}
+
+#t {
+	vertical-align: top;
+	text-align: left;
+}
+
+tr.bold td {
+	text-align: center;
+}
+
+tr.bold td {
+	font-weight: bold;
+}
+
+#mass,
+#days {
+	width: 30px;
+}
+
+#pricec{
+	width: 120px;
+}
+
+a.ra {
+	font-size: 70%;
+	color: #222;
+}
+
+a.ra:hover {
+	color: rgb(0, 54, 97)
+}
+
+.predefined {
+	margin-top: 0;
+}
+
+.predefined tr td {
+	text-align: left;
+	vertical-align: top;
+}
+
+#recipes{
+	margin: 0;
+	height:290px;
+	overflow:auto;
+	/* background-color: red; */
+}
+
+textarea {
+	width: 475px;
+	height: 375px;
+}
+
+.tabledialog td:not(:first-child){
+	padding-left: 30px;
+}
+
+input[type="checkbox"] {
+	vertical-align: middle;
+}

@@ -1,0 +1,34 @@
+td.m{
+	padding-top:6px
+}
+
+table.b,table#t{
+	margin-top:0;
+	border-collapse: collapse;
+}
+
+.comboboxbutton{
+	font-family: "Times New Roman", Times, serif;
+	padding:2px
+}
+
+#speed{/*firefox*/
+	width:50px
+}
+
+.w{
+	width:37px
+}
+
+#text,#inverse{
+	width: 430px;
+	font-size:16px;
+}
+
+#bplay,#bplayi{
+	font-size:14px
+}
+
+#bclearip{
+	line-height:20px;
+}

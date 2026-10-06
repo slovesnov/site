@@ -1,0 +1,12 @@
+.t th,.t td:nth-child(2) {
+	text-align:center;
+}
+
+.t{
+	/* border:1px solid black; */
+	margin-bottom: 30px;
+}
+
+input{
+	width:100px
+}

@@ -1,0 +1,12 @@
+table.t {
+	border-spacing: 0;
+	border-collapse: collapse;
+}
+
+table.t td {
+	padding: 0px;
+}
+
+table.t td img {
+	display: block;
+}

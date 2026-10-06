@@ -1,0 +1,3 @@
+p:not(#p) {
+	width: 800px;
+}

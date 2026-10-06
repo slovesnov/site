@@ -1,0 +1,156 @@
+table.t {
+	border-collapse: collapse;
+}
+
+table.t>tbody>tr:not(:first-child)>td:first-child {
+	border-top: solid;
+	border-width: 1px 0;
+}
+
+table.t>tbody>tr>td {
+	padding: 5px;
+	padding-top: 3px;
+}
+
+button {
+	margin-top: 3px;
+}
+
+.directory td:nth-child(n+3) {
+	text-align: right;
+}
+
+.table td:nth-child(n+3) {
+	text-align: center;
+}
+
+/*redefine from common.css*/
+/* body{
+	margin: 8px;
+}
+ */
+table.tml td a,
+.ml {
+	margin-left: 15px;
+}
+
+table.multy_query td {
+	max-width: 600px;
+	white-space: pre-line;
+}
+
+.cellw {
+	width: 600px;
+	margin-top: 3px;
+	margin-bottom: 0;
+}
+
+/*end directories*/
+
+input[type="checkbox"] {
+	vertical-align: middle;
+}
+
+.smallfont {
+	font-size: 13px;
+}
+
+/* http://localhost/php/siteupdate.php?exchange */
+table#t tr {
+	border-bottom: 1px solid black;
+}
+
+table#t tr td {
+	white-space: pre;
+}
+
+/*?exercise*/
+table.table_color3>tbody>tr:nth-child(3n+1),
+.ex0 {
+	background: LemonChiffon;
+}
+
+table.table_color3>tbody>tr:nth-child(3n+2),
+.ex1 {
+	background: Azure;
+}
+
+table.table_color3>tbody>tr:nth-child(3n+3),
+.ex2 {
+	background: rgb(253, 233, 217);
+}
+
+table.table_color3 {
+	margin: 0;
+}
+
+.c {
+	/* max-width: 1000px; */
+	white-space: pre;
+	display: none;
+}
+
+.fs0 {
+	/*exercise*/
+	font-size: 75%;
+}
+
+.fs1 {
+	/*exercise*/
+	font-size: 60%;
+}
+
+.calorie_ta {
+	height: 200px;
+	width: 460px;
+}
+
+.calorie_m {
+	width: 50px;
+}
+
+.calorie_b {
+	vertical-align: bottom;
+}
+
+.calorie_sortable_list {
+	/*	columns: 2;
+			-webkit-columns: 2;
+			-moz-columns: 2;*/
+
+	list-style: none;
+	padding: 0;
+	width: 270px;
+	margin: auto;
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 10px;
+	box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.calorie_sortable_list>li {
+	/* text-align: center; */
+	margin: 2px 0;
+	background: rgba(255, 255, 255, 0.8);
+	border-radius: 5px;
+	cursor: grab;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	transition: background 0.2s, transform 0.2s;
+}
+
+.calorie_sortable_list>li:hover {
+	background: #e8f0ff;
+}
+
+/*
+.calorie_over {
+	border: 2px dashed #ff8c42;
+	background: #fff3e0;
+}*/
+
+.calorie_dragging {
+	/* opacity: 0.7;
+	font-weight: bold;
+	transform: rotate(-2deg);
+	*/
+	border: 3px dashed #ff8c42;
+}

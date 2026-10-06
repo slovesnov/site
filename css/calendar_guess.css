@@ -1,0 +1,8 @@
+@media only screen and (max-width: 799px) {
+    #o,
+    #p,
+    input[type="number"],
+    .comboboxbutton {
+        font-size: x-large
+    }
+}

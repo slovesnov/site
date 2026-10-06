@@ -1,0 +1,52 @@
+/*columns of main table from 6*/
+/* .m th:nth-child(n+6)
+{
+	font-size: 90%;
+} */
+
+/*first columns main table*/
+/* .m>thead>tr>th:nth-child(2) >table>tbody th
+{
+	font-size: 90%;
+}  */
+
+.m th:nth-child(3) {
+	font-size: 90%;/*years*/
+}
+
+.m td:nth-child(n+3),
+.gm td:nth-child(n+3),
+.sa>tbody td:nth-child(n+2) {
+	text-align: right;
+}
+
+.m td:nth-child(2n+8),
+.m th:nth-child(2n+8),
+.m td:nth-child(5),
+.m th:nth-child(5) {
+	border-right: 1px solid black;
+}
+
+.live {
+	display: block;
+	overflow: auto;
+	width: 100%;
+	background-color: rgb(153, 255, 153);
+}
+
+.t>tbody>tr>td {
+	vertical-align: top;
+	padding-right: 5px;
+}
+
+.t>tbody>tr>td>table>tbody>tr>td:nth-child(n+2) {
+	text-align: right;
+}
+
+.st thead:first-child th {
+	font-size: 90%;
+}
+
+.ml {
+	margin-right: 25px;
+}

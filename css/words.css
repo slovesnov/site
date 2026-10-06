@@ -1,0 +1,46 @@
+.table_color td:nth-child(n+2) {
+    text-align: right;
+}
+
+.table_color th {
+    text-align: center;
+}
+
+.keyboard-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.keyboard-row {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+}
+
+.key {
+    width: 50px;
+    height: 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+.key-prob {
+    font-size: 10px;
+    font-weight: normal;
+    color: #444;
+    margin-top: 2px;
+}

@@ -1,0 +1,20 @@
+/*need to override from commmon.css because need border-spacing*/
+table.ph {
+	border-top:1px solid black;
+	border-left:1px solid black;
+	border-collapse: separate;
+	margin: 17px 0;
+}
+
+table.ph tr td, table.ph tr th{
+	border-right:1px solid black;
+	border-bottom:1px solid black;
+}
+
+table.ph tr:first-child td{
+	text-align: center;
+}
+
+table.ph tr td{
+	padding:4px;
+}

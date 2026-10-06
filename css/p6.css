@@ -1,0 +1,7 @@
+#p{
+	margin:0;
+}
+
+#t td:not(:last-child){
+	padding-right: 17px;
+}

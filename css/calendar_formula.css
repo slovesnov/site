@@ -1,0 +1,17 @@
+#t tr:nth-child(odd) {
+	background: #CCC
+}
+
+@media only screen and (max-width: 799px) {
+	ol{
+		padding-left: 1.0em;
+	}
+
+	#t tr:nth-child(odd) {
+		font-size: 10pt;
+	}
+}
+
+.m{
+	margin-left:20px;
+}

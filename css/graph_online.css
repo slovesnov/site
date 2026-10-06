@@ -1,0 +1,29 @@
+#table{
+	width:100%; 
+}
+
+table.nm,#table{
+	margin-top:0
+}
+
+img.va{
+	vertical-align:middle
+}
+
+#plus,#zoom0,#zoom1,#reset{
+	height:23px;
+}
+
+#m0,#m1,#m2,#m3{
+	width:80px;/*ff chrome opera*/
+	padding:0;/*ff chrome opera*/
+}
+
+.ml{
+	margin-left:10px
+}
+
+button:disabled{
+	border: solid 1px #222222;
+	background: linear-gradient(to bottom, #222222, #dddddd);
+}

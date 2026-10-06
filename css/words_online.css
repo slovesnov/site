@@ -1,0 +1,24 @@
+.ml{
+	/*if want to make more check in firefox words_online,english*/
+	margin-left:8px;
+}
+
+/*align for all browsers*/
+.comboboxbutton{
+	height: 34px;
+	padding:0;
+}
+
+#comboText0
+,#comboText1
+,#comboText2{
+	padding:0 4px 0 4px;
+}
+
+#result{
+	margin-top:8px;
+	display:block;
+	white-space:pre;
+	/*font name is differ from gtk application but i like it more on html pages*/
+	font-family:"Lucida Console", Monaco, monospace;
+}

@@ -1,0 +1,17 @@
+select option:checked{
+	background-color:rgb(30,144,255);
+	color:white;
+}
+
+.year tr:not(:first-child), #calc td{
+	text-align: right;
+}
+
+.year th,.firstc tr:first-child td{
+	text-align: center;
+}
+
+.year tr:nth-child(n+7) , #calc tr:nth-child(n+6){
+	color: red;
+}
+

@@ -1,0 +1,441 @@
+/*begin override from common.css*/
+body{
+	margin: 7px;
+	font-family:'Times New Roman', Times, serif; 
+}
+
+a{
+	font-weight:normal;
+}
+/*bnd override from common.css*/
+
+/*comment in table category :nth-child(14)*/
+table.tc tr td{
+	font-size: small;
+}
+
+span.smallsort{
+	font-size: 100%;
+}
+
+button, input[type=text]{
+	vertical-align:middle;
+}
+
+img:hover{
+	cursor: pointer;
+}
+
+.mt {
+	border-top:1px solid black;
+    border-spacing: 0px;
+}
+
+.mt > tbody > tr > td{ 
+	border-bottom:1px solid black;
+}
+
+table.a{
+	display:inline-table;
+	border-collapse: collapse;
+}
+
+table.a > tbody > tr > td:first-child{
+	padding-left:0;	
+}
+
+table.np > tbody > tr >td{
+	padding-top:2px;
+	padding-bottom:2px;	
+}
+
+
+button#globusCheckParse, button#save, button#save1, button#delete{
+	margin-right:10px;
+	margin-top:3px;
+}	
+
+a{
+	text-decoration:none; 
+	outline:none;
+}
+
+a:active,a:link,a:visited{
+	color:rgb(5,116,205)
+}
+
+a:hover{
+	color:rgb(0,54,97)
+}
+
+.itable{
+	display: inline-block;
+	height:100%;
+	border-collapse: collapse;
+}
+
+.itable > td{
+	padding:0 6px 0 0; 
+	margin:0;
+}
+
+/*BEGIN for money*/
+#sum{
+	padding: 34 0 34 0;/*make space between rows date, sum, type*/
+}
+/*END for money*/
+
+/*BEGIN for money statistics & calorie*/
+.ms {
+	border-top:1px solid black;
+	border-left:1px solid black;
+    border-spacing: 0px;
+/* 	border-collapse: collapse;*/
+}
+
+/* .ms , */
+.ms > tbody > tr > td
+,.ms > tbody > tr > th
+,.ms > thead > tr > th
+,.ms > thead > tr > td /*price/mass equivalent*/
+{
+	border-right:1px solid black;
+	border-bottom:1px solid black;
+	/* 	border:1px solid #000; */
+}
+
+.ms > tbody > tr > td
+,.ms > thead > tr > td /*price/mass equivalent*/
+{
+	text-align:right;
+}
+
+/*END for money statistics & calorie*/
+
+/*BEGIN for money find*/
+table#mf tr td:nth-child(1)
+,table#mf tr td:nth-child(3)
+,table#mf tr td:nth-child(6)
+,table#mf tr td:nth-child(11)/*id*/
+{
+	text-align:right;
+}
+
+table#mf thead th:nth-child(5)
+,table#mf thead th:nth-child(8)
+{
+	text-align:left;
+}
+
+table#mf tr td:nth-child(9)
+,table#mf tr td:nth-child(10)
+{
+	text-align:center;
+}
+
+/*END for money find*/
+
+/*BEGIN for calorie*/
+/* goods0
+1 - N
+2 - text
+3 - calorie
+4 - type
+5-  total
+6 - space
+7 - kilocalories
+8 - roubles
+9 - /
+10 - 1000 kilocalories
+11 - date
+*/
+table#goods0 tr td:nth-child(1)
+,table#goods0 tr td:nth-child(3)
+,table#goods0 tr td:nth-child(5)
+,table#goods0 thead th:nth-child(5)
+,table#goods0 tr td:nth-child(8)
+,table#goods0 thead th:nth-child(8)
+,table#goods0 tr td:nth-child(12)
+{
+	text-align:right;
+}
+
+table#goods0 tr td:nth-child(4)
+{
+	text-align:center;
+}
+
+table#goods1 tr td:nth-child(1)
+,table#goods2 tr td:nth-child(1)
+,table#goods1 tr td:nth-child(11)
+,table#goods2 tr td:nth-child(11)
+,table#goods0 thead th:nth-child(7)
+,table#goods0 thead th:nth-child(10)
+{
+	text-align:left;
+}
+
+table#goods1 tr td:nth-child(11)
+,table#goods2 tr td:nth-child(11)
+{
+	font-size: 10pt;
+}
+
+
+table#goods1 tr td:nth-child(6)
+,table#goods1 thead th:nth-child(6)
+,table#goods2 tr td:nth-child(6)
+,table#goods2 thead th:nth-child(6)
+{
+  border-left: 3px double black;
+}
+
+table#goods1 tr td:nth-child(8)
+,table#goods1 thead th:nth-child(8)
+,table#goods2 tr td:nth-child(8)
+,table#goods2 thead th:nth-child(8)
+{
+  border-right: 3px double black;
+}
+
+font.sm
+{
+	font-size: 10pt; 
+}
+
+/*make five colors for easy calculation number of rows
+https://www.w3schools.com/colors/colors_names.asp
+greater sign means only immediate children, so it's possible 
+to make another table in table and background will not be inherit
+*/
+table.c > tbody > tr:nth-child(5n+1){
+	background: LemonChiffon;
+}
+
+table.c > tbody > tr:nth-child(5n+2){
+	background: Azure;
+}
+
+table.c > tbody > tr:nth-child(5n+3){
+	background: rgb(253,233,217);
+}
+
+table.c > tbody > tr:nth-child(5n+4){
+	background: rgb(238,210,238);/* Thistle; */
+}
+
+/*also for money find*/
+table.nb 
+,table.nb td
+,table.nb th{
+	border-collapse: collapse;
+	border:none;
+}
+/*override common.css*/
+table.nb {
+	margin-top: 0;
+}
+
+table.sort th
+,table.sort td{
+	padding:0;
+}
+
+ table.sort tr:first-child td{
+	vertical-align:top;
+}
+
+table.sort tr:last-child td{
+	vertical-align:bottom;
+}
+
+span.c{/*comments*/
+	font-style: italic;
+	color: green;
+}
+
+span.nb{
+	white-space:nowrap;
+}
+
+input[name="equivalent"]{/*for "price/mass equivalent" input*/
+	width:150px;
+}
+
+input[name="wholeWord"],#withIds{
+	vertical-align: middle;
+}
+
+.se0 input {
+	width:40px;
+}
+
+.se0, .se0 select{
+	width:55px;
+}
+
+/*for search "bread\\loaf\\flour\\pasta" input*/
+.se1 input {
+	width:260px;
+}
+
+.se1, .se1 select{
+	width:280px;/*width[.select-editable input]+20*/
+}
+
+.select-editable {
+	display: inline-block;	
+	vertical-align: middle;
+	position:relative;
+	background-color:white;
+	border:solid grey 1px;
+	height:18px;
+}
+
+.select-editable select {
+	position:absolute;
+	top:0px;
+	left:0px;
+	border:none;
+	margin:0;
+}
+
+.select-editable input {
+	position:absolute;
+	top:0px;
+	left:0px;
+	padding:1px;
+	border:none;
+}
+
+.select-editable select:focus, .select-editable input:focus {
+	outline:none;
+}
+/*END for calorie*/
+
+/*money_statistics*/
+td>#p1,td>#p2{
+	margin:0;
+}
+
+/*BEGIN LOGIN DIALOG modified manually to use same css for login & sign up forms*/
+/* Full-width inputs */
+input.login[type=text], input.login[type=password] {
+	width: 100%;
+	padding: 12px 20px;
+	margin: 8px 0;
+	display: inline-block;
+	border: 1px solid #ccc;
+	box-sizing: border-box;
+}
+
+/* Set a style for all buttons */
+button.login,.cancelbtn,button.signupbtn {
+	color: white;
+	padding: 14px 20px;
+	margin: 8px 0;
+	border: none;
+	cursor: pointer;
+}
+
+button.login,button.signupbtn {
+	background-color: #4CAF50;
+}
+
+button.login {
+	width: 100%;
+}
+
+/* Add a hover effect for buttons */
+button.login:hover {
+	opacity: 0.8;
+}
+
+/* Extra style for the cancel button (red)*/
+.cancelbtn {
+	width: auto;
+	background-color: #f44336;
+}
+
+/* Center the avatar image inside this container */
+.imgcontainer {
+	text-align: center;
+	margin: 24px 0 12px 0;
+}
+
+/* Avatar image */
+img.avatar {
+	width: 40%;
+	border-radius: 50%;
+}
+
+/* Add padding to containers */
+.container {
+	padding: 16px;
+}
+
+/* The "Forgot password" text */
+span.psw {
+	float: right;
+	padding-top: 16px;
+}
+
+/* Change styles for span and cancel button on extra small screens */
+@media screen and (max-width: 300px) {
+	span.psw {
+	  display: block;
+	  float: none;
+	}
+	.cancelbtn {
+	  width: 100%;
+	}
+}
+/*END LOGIN DIALOG*/
+
+.checkboxes label {
+	display: inline-block;
+	padding-right: 0px;
+	white-space: nowrap;
+}
+
+.checkboxes input {
+	vertical-align: middle;
+}
+
+.checkboxes label span {
+	vertical-align: middle;
+}	
+
+/*valign radio with label in saveTables() function*/
+input[type="radio"]{
+	margin-top: -1px;
+	vertical-align: middle;
+}
+
+img{
+	display: block;
+}
+
+table.countload{
+	border: 1px solid;
+}
+
+p.countload{
+	margin-left:6px;
+}
+
+table.countload td:nth-child(2){
+	text-align:center;
+}
+
+table.countload td:nth-child(4){
+	text-align:right;
+}
+
+#filter{
+	width: 400px;
+}
+
+.selectalias{
+	font-size: 7px;
+}

@@ -1,0 +1,7 @@
+p,li{
+	max-width: 800px;
+}
+
+#p {
+	max-width: initial;
+}

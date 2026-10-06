@@ -1,0 +1,120 @@
+/* original https://phppot.com/css/multilevel-dropdown-menu-with-pure-css/ modified aslov
+prevents menu showing out of screen if use menu.js
+supported multilevel menu http://localhost/index.php?betpot,english
+support raw items http://localhost/index.php?test,russian
+*/
+div.menu {
+	width: 100%;
+	background: rgb(5, 116, 205);
+}
+
+.menu *,
+.menu a:link,
+.menu a:visited {
+	color: white;
+	cursor: pointer;
+}
+
+.menu a.mhome {
+	display: block;
+	padding: 0;
+}
+
+.menu ul {
+	/*words page*/
+	z-index: 2;
+}
+
+.menu ul ul ul {
+	/*for submenus */
+	left: 100%;
+	top: 0;
+	margin-left: 1px;
+}
+
+.menu li {
+	background: rgb(5, 116, 205);
+	display: block;
+	position: relative;
+	float: left;
+	border-right: #CCC 1px solid;
+}
+
+.menu li a {
+	text-decoration: none;
+}
+
+.menu li:hover>ul {
+	display: block;
+	position: absolute;
+}
+
+.menu .mchild {
+	display: none;
+}
+
+.menu .mchild li {
+	background: rgb(5, 116, 205);
+	border-bottom: #CCC 1px solid;
+	border-right: #CCC 1px solid;
+	width: 100%;
+}
+
+.menu,
+.menu ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: block;
+}
+
+.menu li:hover {
+	background: #49A3FF;
+}
+
+.menu li>table {
+	border-collapse: collapse;
+	width: 100%;
+}
+
+.menu li>table {
+	margin: 0;
+	/*redefine after common.css*/
+}
+
+.menu li>table td {
+	padding: 0;
+}
+
+.menu li>table td {
+	white-space: nowrap;
+}
+
+.menu li>table td:nth-child(2) {
+	text-align: right;
+}
+
+.menu .mhome {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+/*mobile device*/
+.menu li>table tr {
+	height: 24px;
+}
+
+/*big screen*/
+@media only screen and (min-width: 800px) {
+	.menu li>table td {
+		padding-left: 10px;
+	}
+
+	.menu li>table td:last-child {
+		padding-right: 10px;
+	}
+
+	.menu li>table tr {
+		height: 30px;
+	}
+}

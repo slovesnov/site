@@ -1,0 +1,11 @@
+table.t tr td:first-child{
+	padding-right:10px;
+}
+
+table.t tr td:nth-child(2){
+	text-align:justify;
+}
+
+table.t tr:nth-child(2) td:first-child{
+	font-size: 85%;
+}

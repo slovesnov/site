@@ -1,0 +1,17 @@
+.table_color tbody tr td:nth-child(n+2)
+{
+	text-align: right;
+}
+
+.table_color th {
+	text-align: center;
+}
+
+#t thead tr th:not(:first-child) 
+{
+	font-size: 65%;
+}
+
+.s{
+	font-family: 'Times New Roman';
+}

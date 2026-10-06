@@ -1,0 +1,62 @@
+table.table_border {
+	border-top:1px solid black;
+	border-left:1px solid black;
+    border-spacing: 0px;
+}
+
+table.table_border tr td, table.table_border tr th{
+	border-right:1px solid black;
+	border-bottom:1px solid black;
+}
+
+table.table_color > tbody > tr:nth-child(5n+1)
+,td.table_tdc1
+{
+	background: LemonChiffon;
+}
+
+table.table_color > tbody > tr:nth-child(5n+2)
+,td.table_tdc2
+{
+	background: Azure;
+}
+
+table.table_color > tbody > tr:nth-child(5n+3)
+,td.table_tdc3
+{
+	background: rgb(253,233,217);
+}
+
+table.table_color > tbody > tr:nth-child(5n+4)
+,td.table_tdc4
+{
+	background: rgb(238,210,238);
+}
+
+table.table_noborder
+,table.table_noborder>tbody>tr> td
+,table.table_noborder>tbody>tr> th{ 
+	border-collapse: collapse;
+	border:none;
+}
+
+table.table_noborder>tbody>tr>td>img {
+	display: block;
+}
+
+table.table_noborder {
+	margin-top:0;
+}
+
+img.table_arrow:hover{
+	cursor: pointer;
+}
+
+table.table_common > thead>tr> th
+,table.table_hcolor > tbody >tr >th{
+	text-align: center;
+}
+
+.table_tdp0{
+	padding:0
+}

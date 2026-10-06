@@ -1,0 +1,30 @@
+.t{
+	margin-top: 0;
+}
+
+.c{
+	background: LemonChiffon;
+}
+
+.b td:nth-child(4n+1)
+,.b td:nth-child(4n+2){
+	background: LemonChiffon;
+}
+
+.b tr:not(:first-child) td:nth-child(even){
+	text-align: center;
+}
+
+.b tr:first-child td{
+	text-align: center;
+	font-weight: bold;
+}
+
+.filter{
+	background: #01F9C6;
+}
+
+#filter{
+	/* color: black; */
+	width:250px;
+}

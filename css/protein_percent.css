@@ -1,0 +1,15 @@
+#p td:nth-child(n+2),
+.t td,
+input {
+    text-align: right;
+}
+
+.t th {
+    text-align: center;
+}
+
+/*
+input {
+    border: 0;
+    outline: 0;
+}*/

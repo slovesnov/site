@@ -1,0 +1,55 @@
+@import url('combobox.css');
+div.calendar >table td{
+	text-align: right;
+}
+
+div.calendar table,div.calendar table td{
+	border-collapse:collapse;
+}
+
+div.calendar >table td.anotherMonth{
+	color: rgb(180,180,180);
+}
+
+div.calendar table tr { /*override from jm.css*/
+  border-width: 0 0 !important;
+}
+
+div.calendar > table{
+	margin-top: 0px;/*override from common.css*/
+	border: 1px solid black;
+	table-layout: fixed;
+	background: #EFEFEF;
+}
+
+div.calendar > table td.em,div.calendar > table td.em:hover{
+	cursor: default;
+	background:rgb(112,153,204);
+	color: #FFFFFF;
+}
+
+div.calendar tr:nth-child(n+3) td:hover{
+	cursor: pointer;
+	color: #FFFFFF;
+	background:rgb(112,153,204);
+}
+
+.calendarbuttonstable > td:hover{
+	cursor: default;
+	color: black;
+	background: #EFEFEF;
+}
+
+.calendarbuttonstable >tbody >tr >td:nth-child(3)> span{
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+.calendarbuttonstable{
+	margin:0;
+	padding:0;
+}
+
+.calendarimagebutton{
+	height: 24px;
+}

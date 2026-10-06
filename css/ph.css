@@ -1,0 +1,10 @@
+table.t1 td
+,table.t1 th
+{
+	text-align: center;
+}
+
+#__table0 td:nth-child(3)
+{
+	text-align: right;
+}

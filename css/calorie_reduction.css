@@ -1,0 +1,31 @@
+.i {
+	width: 32px;
+}
+
+.g {
+	width: 85px;
+}
+
+#gkg {
+	padding-left: 24px;
+}
+
+.t tbody tr:nth-child(1) td:first-child {
+	font-size: 90%;
+}
+
+.t tr:nth-child(4) td:first-child {
+	font-size: 70%;
+}
+
+#t1 {
+	margin-top: 35px;
+}
+
+.t2 td:not(:first-child) {
+	text-align: right;
+}
+
+.t2 td:nth-child(7) {
+	padding-left: 30px;
+}

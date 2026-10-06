@@ -1,0 +1,15 @@
+p.pre {
+	display: block;
+	/* unicode-bidi: embed; */
+	/* font-family: monospace; */
+	white-space: pre;
+}
+
+.shift{
+	padding-left:35px;
+}	
+
+#s51 td{
+	white-space: nowrap;
+	padding-left: 20px;
+}

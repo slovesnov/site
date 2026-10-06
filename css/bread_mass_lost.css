@@ -1,0 +1,12 @@
+#t th,
+#t td {
+    text-align: center;
+}
+
+#t td[rowspan="0"] {
+    background-color: #e8e4e5;
+}
+
+input[type="text"] {
+    width: 22px;
+}

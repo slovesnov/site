@@ -1,0 +1,24 @@
+p,div.mw{
+	max-width: 800px;
+}
+
+/*td with images*/
+/* td{
+	padding:0;
+}
+
+float: left;margin: 0 15px 0 0;
+ */
+th{
+	text-align: center;
+}
+
+table.ar td:not(:first-child){
+	text-align: right;
+}
+
+table.addon td:first-child{
+	vertical-align: top;
+	padding-right: 15px;
+	width: 400px;
+}

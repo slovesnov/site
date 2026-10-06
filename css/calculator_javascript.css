@@ -1,0 +1,305 @@
+td,
+#MEMORY {
+	padding: 0;
+}
+
+fieldset {
+	border: 1px #000 solid;
+	padding: 0;
+	margin: 0;
+}
+
+#calculatorTable {
+	/*main table of calculator*/
+	margin-top: 0;
+	border-collapse: collapse;
+}
+
+#abcd {
+	margin-top: 3px;
+}
+
+#abcd td:nth-child(3) {
+	text-align: left;
+}
+
+#abcd td:nth-child(2),
+#abcd td:last-child {
+	text-align: right;
+}
+
+#tablefieldset {
+	margin-top: 0;
+}
+
+table.calculator {
+	border-collapse: collapse;
+}
+
+#tablebuffer {
+	margin: 0;
+	border-collapse: collapse;
+}
+
+#tablebuffer tbody tr:first-child {
+	vertical-align: top;
+}
+
+#tablebuffer tbody tr:last-child {
+	vertical-align: bottom;
+}
+
+/*left big font for language selector so set style for all other buttons*/
+.b4,
+.b6,
+#CLEAR,
+#RECOUNT,
+#COPY_TO_MEMORY,
+#ADD_TO_BUFFER,
+#CLEAR_BUFFER {
+	/*Arial - looks different under {firefox,ie} & {chrome,opera} 
+	https://css-tricks.com/font-rendering-differences-firefox-vs-ie-vs-safari/
+	font-family: Ringside Regular A,Ringside Regular B,Rubik,Lato,Lucida Grande,Lucida Sans Unicode,Tahoma,Sans-Serif;
+	
+	//cross browser view cann't use arial
+	font-family: Lucida Sans Unicode,Tahoma,Sans-Serif;
+	font-style: normal;
+	font-size:14px;
+	*/
+	font-size: 10.5pt;
+}
+
+/* table with buttons inside field set. Occupied width 387 
+387=93*4+5*3 - 
+387=61*6+7*3
+4 buttons with width 93+5 margins with width 3 or
+6 buttons with width 61+7 margins with width 3
+padding-right = 3 for all+padding-left=3 for first
+*/
+table.buttons {
+	margin-top: 2px;
+	width: 100%;
+}
+
+input {
+	box-sizing: border-box;
+	/*for firefox*/
+	padding: 2px;
+}
+
+#tbuffer {
+	display: block;
+	height: 180px;
+}
+
+@media only screen and (max-width: 799px) {
+
+	/*small width*/
+	button.bf {
+		font-size: 11px;
+	}
+
+	button.bf4 {
+		font-size: 9px;
+	}
+
+	div.content>table,
+	table.buttons,
+	table.calculator {
+		margin-top: 0;
+	}
+
+	#CLEAR,
+	#RECOUNT {
+		width: 24px;
+	}
+
+	#txta,
+	#txtb,
+	#txtc,
+	#txtd {
+		display: inline-block;
+		width: 20px;
+	}
+
+	#texpression {
+		width: calc(100vw - 92px - 2*24px);
+	}
+
+	table.calculator {
+		width: calc(100vw);
+	}
+
+	#tresult {
+		width: calc(100vw - 93px - 3*60px);
+	}
+
+	#tbuffer {
+		width: calc(100vw - 96px);
+		/*2px border, 1px padding*/
+	}
+
+	#EXPRESSION,
+	#RESULT,
+	#MEMORY,
+	#tablebuffer tbody tr td:first-child {
+		/*on smartphone expression="выражение" wider for chrome&opera on android then on desktop emulator*/
+		width: 90px;
+	}
+
+	#COPY_TO_MEMORY,
+	#ADD_TO_BUFFER,
+	#CLEAR_BUFFER {
+		width: 60px;
+	}
+
+	legend {
+		text-align: center;
+	}
+
+	.b4,
+	.b6 {
+		padding: 0;
+		margin: 0;
+	}
+
+	table.buttons td {
+		text-align: center;
+		padding-bottom: 2px;
+	}
+
+	#CLEAR,
+	#RECOUNT,
+	#COPY_TO_MEMORY,
+	#ADD_TO_BUFFER,
+	#CLEAR_BUFFER {
+		margin: 0 0 0 1px;
+	}
+
+	#abcd {
+		margin-bottom: 3px;
+	}
+}
+
+@media only screen and (min-width: 800px) {
+
+	#CLEAR,
+	#RECOUNT {
+		width: 100px;
+	}
+
+	#a,
+	#b,
+	#c,
+	#d {
+		width: 170px;
+	}
+
+	#abcd td {
+		width: 196px;
+	}
+
+	.b4 {
+		width: 93px;
+	}
+
+	.b6 {
+		width: 61px;
+	}
+
+	#tablefieldset>tbody>tr>td {
+		width: 389px;
+	}
+
+	table.calculator {
+		width: 784px;
+	}
+
+	#texpression {
+		width: 474px;
+		/*784-100-2*100-2*5 100-width of "expression", 2*100 width of CLEAR+RECOUNT, 2*5 margins of CLEAR+RECOUNT*/
+	}
+
+	#tbuffer {
+		width: 678px;
+	}
+
+	#tmemory {
+		width: 289px;
+		/*289 no border, padding see box-sizing: border-box;*/
+	}
+
+	#tresult {
+		width: 264px;
+		/*no border, padding see box-sizing: border-box;*/
+	}
+
+	#EXPRESSION,
+	#RESULT,
+	#MEMORY,
+	#tablebuffer tbody tr td:first-child {
+		width: 100px;
+	}
+
+	#COPY_TO_MEMORY {
+		width: 155px;
+	}
+
+	#ADD_TO_BUFFER {
+		width: 130px;
+	}
+
+	#CLEAR_BUFFER {
+		width: 120px;
+	}
+
+	table.calculator {
+		margin-top: 3px;
+	}
+
+	legend {
+		margin-left: 10px;
+	}
+
+	#calculatorTable>tbody>tr>td {
+		padding: 2px 0px;
+	}
+
+	table.buttons td {
+		text-align: center;
+		padding-right: 3px;
+		padding-bottom: 5px;
+	}
+
+	table.buttons td:first-child {
+		padding-left: 3px;
+	}
+
+	#tbuffer {
+		height: 180px;
+	}
+
+	#tablefieldset>tbody>tr>td:first-child {
+		padding: 0 6px 0 0;
+	}
+
+	#CLEAR,
+	#RECOUNT,
+	#ADD_TO_BUFFER,
+	#CLEAR_BUFFER {
+		margin: 0 0 0 5px;
+	}
+
+	#COPY_TO_MEMORY {
+		margin: 0 0 0 6px;
+	}
+
+	#txtc {
+		padding-left: 3px;
+	}
+
+	#b {
+		margin-right: 3px;
+	}
+
+}

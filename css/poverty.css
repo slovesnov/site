@@ -1,0 +1,54 @@
+p,
+li {
+	max-width: 800px;
+}
+
+#tc0,
+#tc1,
+#pall,
+#p,
+.mw {
+	max-width: initial;
+}
+
+.m {
+	margin-left: 20px;
+}
+
+.nm1 {
+	background-color: bisque;
+}
+
+.nm2 {
+	background-color: beige;
+}
+
+.snm {
+	font-size: 60%;
+}
+
+.p {
+	padding-left: 20px;
+}
+
+#di {
+	width: 200px;
+	font-size: 112%;
+}
+
+#ld {
+	width: 45px;
+	font-size: 112%;
+}
+
+tr.mt {
+	border-top: 10px solid transparent;
+}
+
+a:hover {
+	cursor: pointer;
+}
+
+.t11 td{
+	text-align: right;
+}

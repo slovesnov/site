@@ -1,0 +1,21 @@
+.t td:not(:first-child),
+.pa,
+#t>tbody>tr>td:not(:first-child) {
+	padding-left: 8px;
+}
+
+.jerk th {
+	text-align: center;
+}
+/*
+.a {
+	color: rgb(5, 116, 205);
+	text-decoration: none;
+	font-weight: 700;
+	outline: none;
+	cursor: pointer;
+}
+
+.a:hover {
+	color: rgb(0, 54, 97)
+}*/

@@ -1,0 +1,15 @@
+@media only screen and (max-width: 799px) {
+	img.t {
+		width: 10px;
+	}
+
+	table.single {
+		font-size: 2.5vw;
+	}
+}
+
+@media only screen and (min-width: 800px) {
+	img.t {
+		width: 12px;
+	}
+}

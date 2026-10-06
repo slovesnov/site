@@ -1,0 +1,14 @@
+.ts >thead >tr:first-child >th
+,.t >tbody >tr >td:nth-child(4){
+	text-align:center;
+}
+
+.ts >tbody >tr >td
+,.ds >tbody >tr >td
+,.t >tbody >tr >td:nth-child(3){
+	text-align: right;
+}
+
+.ds>thead th{
+	font-size: 90%;
+}

@@ -1,0 +1,8 @@
+input[type="text"],
+.table_color td:not(:first-child) {
+	text-align: right;
+}
+
+#p th{
+	text-align: center;
+}

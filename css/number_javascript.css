@@ -1,0 +1,28 @@
+input[type="checkbox"] { 
+	margin: 0; 
+	padding: 0;  
+	height:13px;
+}
+
+input[type="text"] { 
+	width:180px;
+}
+
+table {
+	border-top:1px solid transparent;
+	border-right:1px solid transparent;
+	border-collapse:collapse;
+}
+
+table td {
+    padding: 0;
+    border-left:1px solid transparent;
+}
+
+.sm{
+	font-size: 9pt;	
+}
+
+.sm,.c{
+	text-align:center;
+}

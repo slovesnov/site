@@ -1,0 +1,26 @@
+ul{
+	list-style:none;
+}
+
+table.type1 td{
+	text-align:right;
+}
+
+@media only screen and (max-width: 799px) {
+	img {
+	  width:auto;
+	  max-width:100%;
+	  height:auto;
+	}
+
+	table.single{
+		font-size:3.2vw;
+	}
+}
+
+@media only screen and (min-width: 800px) {
+	p{
+		width:800px;
+	}
+}
+

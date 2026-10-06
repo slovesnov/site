@@ -1,0 +1,46 @@
+pre{
+	font-family: Arial;
+	font-size: 12pt;
+}
+
+h4{
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+p.pw{
+	max-width: 800px;
+}
+
+#__table0 >tbody > tr> td:nth-child(n+4){
+	text-align: center;
+}
+
+/* for index?food */
+.c0{
+	background:#C1E1C1;
+}
+
+.c1{
+	background:lemonchiffon;
+}
+
+.c2{
+	background:#e8f48c ;
+}
+
+.c3{
+	background:#D2B4DE;
+}
+
+.c4{
+	background:#FAA0A0;
+}
+ 
+.c5{
+	background: #ADD8E6;
+}
+
+.c6{
+	background: #7FBEc0;
+}

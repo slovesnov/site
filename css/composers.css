@@ -1,0 +1,3 @@
+.table_border tbody td:nth-child(n+2):nth-child(-n+4) {
+    text-align: right;
+}

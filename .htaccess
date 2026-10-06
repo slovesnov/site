@@ -1,0 +1,9 @@
+#Notes
+#on InfinityFree .htaccess is not visible, when copy to local rename htaccess to .htaccess
+
+#Options -Indexes - forbid show directory needs only for localhost
+#%{REQUEST_URI} doesn't work for remote host may be because of maintenance
+
+Options -Indexes
+ErrorDocument 403 /index.php?error
+ErrorDocument 404 /index.php?error

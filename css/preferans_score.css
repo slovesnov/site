@@ -1,0 +1,13 @@
+#p{
+	margin-top:0px;
+	margin-bottom:5px;
+}
+
+#d{
+	position:relative;
+}
+
+input{
+	position:absolute;
+	box-sizing:border-box;
+}

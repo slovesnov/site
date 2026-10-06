@@ -1,0 +1,28 @@
+#__table0 td:nth-child(n+4){
+	text-align: right;
+}
+
+#__table0 td:nth-child(1){
+	text-align: center;
+}
+
+#__table0 >thead>tr> th:nth-child(5)
+{
+	font-size: 75%;
+}
+
+#__table0 >thead>tr> th:nth-child(2)
+,#__table0 >thead>tr> th:nth-child(6)
+,#__table0 >thead>tr> th:nth-child(8)
+{
+	font-size: 55%;
+}
+
+#__table0 >thead>tr> th:nth-child(9)
+{
+	font-size: 75%;
+}
+
+#__table0{
+	background:#e8e4e5;
+}

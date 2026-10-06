@@ -1,0 +1,20 @@
+canvas {
+	background-color: #ccc;
+	display: block;
+	width: 100%;
+}
+
+.b {
+	height: 48px;
+	width: 50px;
+}
+
+#o,
+.b {
+	font-family: Serif;
+	font-size: 12.5pt;
+}
+
+#deletion {
+	vertical-align: middle;
+}

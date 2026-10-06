@@ -1,0 +1,31 @@
+.n {
+    width: 100px
+}
+
+#i{
+    width: 160px;
+}
+
+.i {
+    width: 70px
+}
+
+#m,input[type="number"] {
+    width: 30px;
+}
+
+.t th,
+.ac {
+    text-align: center;
+}
+
+.t>tbody>tr>td {
+    vertical-align: top;
+}
+
+.t>tbody>tr>td:first-child td:nth-child(n+6),
+.t>tbody>tr>td:nth-child(n+2) td:nth-child(n+3),
+.ar,
+.s td:nth-child(2) {
+    text-align: right;
+}

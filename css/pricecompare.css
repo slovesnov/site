@@ -1,0 +1,22 @@
+#t td, input {
+    font-size:20px;
+}
+
+#t td:first-child, input {
+    width: 100%;
+}
+
+input {
+    /* https://stackoverflow.com/questions/1633522/html-input-element-wider-than-containing-div */
+    box-sizing:border-box;
+    background: transparent;
+}
+
+#t td { 
+    padding: 0;
+}
+
+#t {
+    width:100%;
+    border-collapse: collapse;
+}

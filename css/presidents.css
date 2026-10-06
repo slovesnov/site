@@ -1,0 +1,29 @@
+.t td:nth-child(5)
+,.t td:nth-child(n+8)
+{
+	text-align: right;
+}
+
+.t th:nth-child(5)
+,.t th:nth-child(8)
+{
+	font-size: 7pt;
+}
+
+.t th:nth-child(9)
+{
+	font-size: 7pt;
+}
+
+#ts>tbody>tr> td{
+	vertical-align: top;
+	padding-right: 10px;
+}
+
+/* .tc th{
+	font-size: 95%;
+} */
+
+.tc>tbody>tr> td:nth-child(3){
+	text-align: right;
+}
