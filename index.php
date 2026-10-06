@@ -169,7 +169,7 @@ if ($result->num_rows == 0) {
 
 	$hasScripts = array_map(
 		fn($word) => (bool)preg_match("/\\b{$word}\\b/", $row['script'] ?? ''),
-		$hasScripts
+		HAS_SCRIPTS
 	);
 	if (is_null($row['onload'])) {
 		if (in_array(true, $hasScripts)) {
