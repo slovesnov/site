@@ -11,11 +11,7 @@ define('IS_LOCAL',
     ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || 
     str_starts_with($_SERVER['SERVER_NAME'] ?? '', "192.168.1.")
 );
-if (IS_LOCAL) {
-    define('DB_HOST', 'localhost');
-} else {
-    define('DB_HOST', 'sql104.infinityfree.com');
-}
+define('DB_HOST', IS_LOCAL ? 'localhost' : 'sql104.infinityfree.com');
 
 const ALWAYS_ADMIN_LOCAL = 0; //if ALWAYS_ADMIN_LOCAL=1 then not need to login for edit jm on localhost, test for potencial other users
 define('ALWAYS_ADMIN', IS_LOCAL ? ALWAYS_ADMIN_LOCAL : 0);
