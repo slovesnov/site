@@ -29,6 +29,7 @@ const JS_EXT = '.js';
 const FILE = 'index.php';
 const MOBILE_MODE_OFFLINE = 2;
 const REDIRECT_SECONDS = 3;
+const HAS_SCRIPTS = ['table', 'calendar'];
 
 $q = prepareQueryString();
 if ($q == 'error') {
@@ -166,8 +167,23 @@ if ($result->num_rows == 0) {
 		$script = array_merge($script, explode(' ', str_replace(SELF_SYMBOL, $name, $row['script'])));
 	}
 
-	if (!is_null($row['onload'])) {
-		$onload = ' onload="' . $row['onload'] . '"';
+	$hasScripts = array_map(
+		fn($word) => (bool)preg_match("/\\b{$word}\\b/", $row['script'] ?? ''),
+		$hasScripts
+	);
+	if (is_null($row['onload'])) {
+		if (in_array(true, $hasScripts)) {
+			die('possible error onload=null with table or calendar in script');
+		}
+	} else {
+		$s = '';
+		foreach (HAS_SCRIPTS as $index => $word) {
+			if (!empty($hasScripts[$index])) {
+				$className = ucfirst($word);
+				$s .= "{$className}.setLocalImagePath();";
+			}
+		}
+		$onload = ' onload="' . $s . $row['onload'] . '"';
 	}
 
 	if (!is_null($row['css'])) {

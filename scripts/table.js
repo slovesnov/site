@@ -634,6 +634,7 @@ class Table {
 	}
 
 	static setLocalImagePath(absolute = false) {
+		//console.log("Table.setLocalImagePath()")
 		Table.imagePath = (absolute ? '/' : '') + "img/jm/"
 	}
 
@@ -654,10 +655,4 @@ class Table {
 		}
 		return b;
 	}
-}
-
-//special aslov function
-if (typeof prepareGGroats == 'function') {
-	// console.log("Table.setLocalImagePath() run")
-	Table.setLocalImagePath()
 }

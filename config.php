@@ -7,17 +7,17 @@ const TYPE_NOMENU = 2;
 const TYPE_PRESENTATION = 3;
 const REMOTE = 'https://slovesnov.rf.gd';
 const FTP_URL = 'ftpupload.net';
-define('IS_LOCAL', 
-    ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || 
-    str_starts_with($_SERVER['SERVER_NAME'] ?? '', "192.168.1.")
+define(
+	'IS_LOCAL',
+	($_SERVER['SERVER_NAME'] ?? '') === 'localhost' ||
+		str_starts_with($_SERVER['SERVER_NAME'] ?? '', "192.168.1.")
 );
 define('DB_HOST', IS_LOCAL ? 'localhost' : 'sql104.infinityfree.com');
 
 const ALWAYS_ADMIN_LOCAL = 0; //if ALWAYS_ADMIN_LOCAL=1 then not need to login for edit jm on localhost, test for potencial other users
 define('ALWAYS_ADMIN', IS_LOCAL ? ALWAYS_ADMIN_LOCAL : 0);
 
-function isJmValidUser()
-{
+function isJmValidUser() {
 	global $jm_user, $jm_pwd;
 	if (ALWAYS_ADMIN) {
 		return true;
@@ -26,14 +26,12 @@ function isJmValidUser()
 		&& $_COOKIE[JM_USER_COOKIE] == $jm_user && $_COOKIE[JM_PWD_COOKIE] == $jm_pwd;
 }
 
-function tag2text($s)
-{
+function tag2text($s) {
 	return str_replace(['&', '<', '>'], ['&amp;', '&lt;', '&gt;'], $s);
 }
 
 //like common.js
-function formatString($n, $separator = ' ', $digits = 3)
-{
+function formatString($n, $separator = ' ', $digits = 3) {
 	$s = (string)$n;
 	$a = str_contains($s, '.') ? '\\.' : '$';
 	//need double curly braces because {$digits} changes to $digits value
@@ -42,20 +40,17 @@ function formatString($n, $separator = ' ', $digits = 3)
 
 //like common.js
 //formatNumber(1234.5555, 1) -> '1 234.5'
-function formatNumber($n, $digits)
-{
+function formatNumber($n, $digits) {
 	return formatString(normalize($n, $digits));
 }
 
 //like common.js
 //321.10 -> 321.1, 1.00 -> 1, 100 -> 100
-function normalize($s, $digits = null)
-{
+function normalize($s, $digits = null) {
 	return $digits == null ? $s : round($s, $digits);
 }
 
-function videoString($video, $type, $language)
-{
+function videoString($video, $type, $language) {
 	global $mysqli;
 	$videostr = '';
 	if (!is_null($video)) {
@@ -97,8 +92,7 @@ function videoString($video, $type, $language)
 	return $videostr;
 }
 
-function checkUserPassword($user, $password)
-{
+function checkUserPassword($user, $password) {
 	global $mysqli;
 	$u = $mysqli->real_escape_string($user);
 	$m = md5($password);
@@ -107,15 +101,13 @@ function checkUserPassword($user, $password)
 }
 
 //https://stackoverflow.com/questions/4117555/simplest-way-to-detect-a-mobile-device-in-php
-function isMobile()
-{
+function isMobile() {
 	return isset($_SERVER["HTTP_USER_AGENT"]) ? preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]) : 0;
 }
 
 $debug_file_name = "debug.txt";
 
-function variable_to_string($p)
-{
+function variable_to_string($p) {
 	if (is_array($p)) {
 		ksort($p);
 		if (!empty($p) && array_key_exists(0, $p) && is_array($p[0])) {
@@ -131,8 +123,7 @@ function variable_to_string($p)
 	}
 }
 
-function append_debug_file($variable = '', $title = '')
-{
+function append_debug_file($variable = '', $title = '') {
 	//Note line can be invalid, it's php bug
 	global $debug_file_name;
 	$a = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
@@ -142,20 +133,17 @@ function append_debug_file($variable = '', $title = '')
 	file_put_contents($debug_file_name, $s, FILE_APPEND);
 }
 
-function clear_debug_file()
-{
+function clear_debug_file() {
 	global $debug_file_name;
 	file_put_contents($debug_file_name, "");
 }
 
-function set_debug_file_name($s)
-{
+function set_debug_file_name($s) {
 	global $debug_file_name;
 	$debug_file_name = $s;
 }
 
-function js_reduce($array, $fu, $initialValue = null)
-{
+function js_reduce($array, $fu, $initialValue = null) {
 	$b = $array;
 	$a = $initialValue === null ? array_shift($b) : $initialValue;
 	//not working array_walk($b, fn ($v, $k)=>$a = $fu($a, $v, $k, $array));
@@ -167,8 +155,7 @@ function js_reduce($array, $fu, $initialValue = null)
 }
 
 //like js
-function timeToString($t)
-{
+function timeToString($t) {
 	if ($t >= 3600) {
 		$v = [floor($t / 3600), floor(($t / 60) % 60), $t % 60];
 	} else if ($t >= 60) {
@@ -179,8 +166,7 @@ function timeToString($t)
 	return js_reduce($v, fn($a, $e, $i) => $a . ($i ? ':' . sprintf("%02d", $e) : $e), '');
 }
 
-function getSimilarPages($n, $language, $index)
-{
+function getSimilarPages($n, $language, $index) {
 	global $mysqli;
 	$o = $language == 'russian' ? 'desc' : 'asc';
 	$n1 = str_replace('_', '\\_', $n); //in like _ means any symbol
@@ -214,8 +200,7 @@ function getSimilarPages($n, $language, $index)
 	return $r;
 }
 
-function connect()
-{
+function connect() {
 	global $mysqli;
 	$mysqli = new mysqli(DB_HOST, DB_LOGIN, DB_PASS, DB_NAME);
 	if ($mysqli->connect_errno) {
@@ -227,15 +212,13 @@ function connect()
 	//mb_regex_encoding('UTF-8');
 }
 
-function prepareQueryString()
-{
+function prepareQueryString() {
 	$s = urldecode($_SERVER['QUERY_STRING']); //use urldecode 'php%20scripts%20css' -> 'php scripts css'
 	$q = preg_replace("/[&?]?i=\d+$/", '', $s); //for siteupdate.php need to skip ?, sometimes & appear for index
 	return $q;
 }
 
-function setCookies()
-{
+function setCookies() {
 	global $jm_user, $jm_pwd;
 	//need $_COOKIE[JM_USER_COOKIE] = $jm_user; https://stackoverflow.com/questions/24662580/php-setcookie-not-working
 	setcookie(JM_USER_COOKIE, $jm_user, time() + 86400 * 365, "/"); // 86400 = 1 day

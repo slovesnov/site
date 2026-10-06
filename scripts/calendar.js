@@ -393,13 +393,8 @@ class Calendar {
 	}
 
 	static setLocalImagePath(absolute = false) {
+		//console.log("Calendar.setLocalImagePath()")
 		Calendar.simagePath = (absolute ? '/' : '') + "img/calendar"
 	}
 
-}
-
-//special aslov function
-if (typeof prepareGGroats == 'function') {
-	// console.log("Calendar.setLocalImagePath() run")
-	Calendar.setLocalImagePath()
 }
