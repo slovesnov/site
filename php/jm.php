@@ -19,7 +19,7 @@ header("Expires: Thu, 01 Jan 1970 00:00:01 GMT"); //always expire
 include("../config.php");
 include("jmCommon.php");
 
-$pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_login, $db_pass);
+$pdo = new PDO("mysql:host=$db_host;dbname=".DB_NAME,DB_LOGIN, DB_PASS);
 connect();
 
 if (isset($_POST['user'])) {

@@ -913,7 +913,7 @@ if (str_starts_with($qs, DUMP)) { //dumpall or dumppages,counters
 	$s = substr($qs, strlen(DUMP));
 	if ($s == 'all') { //dumpall
 		$a = [];
-		$res = $mysqli->query("SELECT table_name FROM INFORMATION_SCHEMA.TABLES where TABLE_SCHEMA='$db_name'") or die('</table>error on line' . __LINE__ . $mysqli->error);
+		$res = $mysqli->query("SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" . DB_NAME . "'") or die('</table>error on line' . __LINE__ . $mysqli->error);
 		while ($row = $res->fetch_row()) {
 			if (!in_array($n = $row[0], ['counters', 'ip', 'journal_slovesno', 'exchange']))
 				$a[] = $n;
@@ -1629,9 +1629,8 @@ function remoteQuery($query, $type = REMOTE_TYPE_SIMPLE, $number = null)
 
 function remoteCall($a)
 {
-	global $db_login, $db_pass;
-	$a['login'] = $db_login;
-	$a['password'] = $db_pass;
+	$a['login'] = DB_LOGIN;
+	$a['password'] = DB_PASS;
 	return remotePost(REMOTE . '/php/siteupdate.php', $a);
 }
 
@@ -1787,9 +1786,8 @@ function multiQuery($query, $number = false)
 
 function validLoginPassword()
 {
-	global $db_login, $db_pass;
-	return isset($_POST['login']) &&  $_POST['login'] == $db_login &&
-		isset($_POST['password']) &&  $_POST['password'] == $db_pass;
+	return isset($_POST['login']) &&  $_POST['login'] == DB_LOGIN &&
+		isset($_POST['password']) &&  $_POST['password'] == DB_PASS;
 }
 
 function checkPageRefPages()

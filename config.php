@@ -7,6 +7,11 @@ const TYPE_NOMENU = 2;
 const TYPE_PRESENTATION = 3;
 const REMOTE = 'https://slovesnov.rf.gd';
 const FTP_URL = 'ftpupload.net';
+// define('IS_LOCAL', 
+//     ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || 
+//     str_starts_with($_SERVER['SERVER_NAME'] ?? '', "192.168.1.")
+// );
+
 $LOCAL = $_SERVER['SERVER_NAME'] === 'localhost' || str_starts_with($_SERVER['SERVER_NAME'], "192.168.1.");
 if ($LOCAL) {
 	$db_host = 'localhost';
@@ -217,8 +222,8 @@ function getSimilarPages($n, $language, $index)
 
 function connect()
 {
-	global $mysqli, $db_host, $db_login, $db_pass, $db_name;
-	$mysqli = new mysqli($db_host, $db_login, $db_pass, $db_name);
+	global $mysqli, $db_host;
+	$mysqli = new mysqli($db_host, DB_LOGIN, DB_PASS, DB_NAME);
 	if ($mysqli->connect_errno) {
 		die('error on line' . __LINE__ . ' ' . $mysqli->connect_error);
 	}
