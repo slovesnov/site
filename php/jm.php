@@ -59,10 +59,10 @@ setcookie('language', $language, time() + 3600 * 24 * 30, '/'); //30 days expire
 if ($s == LOGOUT) {
 	$jm_user = '';
 	$jm_pwd = '';
-	unset($_COOKIE[$jm_user_cookie]);
-	unset($_COOKIE[$jm_pwd_cookie]);
-	setcookie($jm_user_cookie, '', time() - 3600, '/'); // empty value and old timestamp
-	setcookie($jm_pwd_cookie, '', time() - 3600, '/'); // empty value and old timestamp
+	unset($_COOKIE[JM_USER_COOKIE]);
+	unset($_COOKIE[JM_PWD_COOKIE]);
+	setcookie(JM_USER_COOKIE, '', time() - 3600, '/'); // empty value and old timestamp
+	setcookie(JM_PWD_COOKIE, '', time() - 3600, '/'); // empty value and old timestamp
 }
 
 if ($s == 'checkgoodsincomments') {
@@ -71,9 +71,9 @@ if ($s == 'checkgoodsincomments') {
 }
 
 $login = $ALWAYS_ADMIN;
-if (isset($_COOKIE[$jm_user_cookie]) && isset($_COOKIE[$jm_pwd_cookie])) {
-	$jm_user = $_COOKIE[$jm_user_cookie];
-	$jm_pwd = $_COOKIE[$jm_pwd_cookie];
+if (isset($_COOKIE[JM_USER_COOKIE]) && isset($_COOKIE[JM_PWD_COOKIE])) {
+	$jm_user = $_COOKIE[JM_USER_COOKIE];
+	$jm_pwd = $_COOKIE[JM_PWD_COOKIE];
 	if (checkUserPassword($jm_user, $jm_pwd)) {
 		$login = 1;
 	}

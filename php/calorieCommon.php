@@ -402,10 +402,10 @@ $calorieTable = 'calorie_slovesno';
 
 function getLogin()
 {
-	global $jm_user, $jm_pwd, $jm_user_cookie, $jm_pwd_cookie;
-	if (isset($_COOKIE[$jm_user_cookie]) && isset($_COOKIE[$jm_pwd_cookie])) {
-		$jm_user = $_COOKIE[$jm_user_cookie];
-		$jm_pwd = $_COOKIE[$jm_pwd_cookie];
+	global $jm_user, $jm_pwd;
+	if (isset($_COOKIE[JM_USER_COOKIE]) && isset($_COOKIE[JM_PWD_COOKIE])) {
+		$jm_user = $_COOKIE[JM_USER_COOKIE];
+		$jm_pwd = $_COOKIE[JM_PWD_COOKIE];
 		if (checkUserPassword($jm_user, $jm_pwd)) {
 			setCookies();
 			set_calorie_table();

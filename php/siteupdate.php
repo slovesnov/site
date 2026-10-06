@@ -644,10 +644,10 @@ if ($qs == 'calorie_missing_dates') {
 }
 
 if (isset($_POST['calorie_logout'])) {
-	unset($_COOKIE[$jm_user_cookie]);
-	unset($_COOKIE[$jm_pwd_cookie]);
-	setcookie($jm_user_cookie, '', time() - 3600, '/'); // empty value and old timestamp
-	setcookie($jm_pwd_cookie, '', time() - 3600, '/'); // empty value and old timestamp
+	unset($_COOKIE[JM_USER_COOKIE]);
+	unset($_COOKIE[JM_PWD_COOKIE]);
+	setcookie(JM_USER_COOKIE, '', time() - 3600, '/'); // empty value and old timestamp
+	setcookie(JM_PWD_COOKIE, '', time() - 3600, '/'); // empty value and old timestamp
 	die('Вы вышли из системы, дальнейшая работа будет осуществляться<br>в режиме просмотра данных пользователя ' . JM_SUPERUSER . '.');
 }
 
@@ -2349,10 +2349,10 @@ function showDifferentExercises()
 
 function storeToFile($e)
 {
-	global $jm_pwd_cookie, $jm_pwd, $jm_user_cookie, $jm_user;
+	global $jm_user, $jm_pwd;
 	$ch = curl_init("localhost?$e");
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($ch, CURLOPT_COOKIE, "$jm_pwd_cookie=$jm_pwd;$jm_user_cookie=$jm_user;");
+	curl_setopt($ch, CURLOPT_COOKIE, JM_PWD_COOKIE . "=$jm_pwd;" . JM_USER_COOKIE . "=$jm_user;");
 	$o = curl_exec($ch);
 	$i = curl_errno($ch);
 	curl_close($ch);
