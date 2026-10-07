@@ -388,32 +388,52 @@ function prepareFetch(o, pages = 0, option = 0) {
 	fetchpost('siteupdate.php', o, clickCallback, pages, option, new Date())
 }
 
+
+const UPDATE_REMOTE_TABLE = 0;
+const SHOW_QUERY = 1;
+const QUERY_TO_FILE = 2;
+const QUERY_TO_CLIPBOARD = 3;
+const ROWS_SHOW = 4;
+const SAVE_PAGES = 5;
+const SHOW_PAGES = 6;
+
 function clickCallback(s, pages, option, time) {
+	if (typeof s != 'string') {
+		alert('error407 ' + s)
+		return;
+	}
 	a = el('o1')
 	if (a) {
 		a.innerHTML = el('multi_query').value
 	}
 
-	if (option == 2) {
+	if (option == QUERY_TO_FILE) {
 		downloadUTF8((pages ? 'pages' : 'money') + '.sql', s)
 	}
 	else {
 		if (s.length) {
-			if (option == 1) {
+			if (option == QUERY_TO_CLIPBOARD) {
+				navigator.clipboard.writeText(s).then(() => { }, () => alert('cann\'t copy to clipboard'))
+				message = 'text copied to clipboard length' + s.length
+			}
+			else if (option == SHOW_QUERY) {
 				if (el('querycopy').checked) {
 					s1 = s.replace(/^rows=\d+\s*|\s*<br>\s*$/, '')
 					navigator.clipboard.writeText(s1).then(() => { }, () => alert('cann\'t copy to clipboard'))
 				}
-				s = tag2text(s);
+				message = tag2text(s);
+			}
+			else {
+				message = s
 			}
 		}
 		else {
-			s = 'clickCallback got empty string';
+			message = 'clickCallback got empty string';
 		}
-		if (!s.endsWith('<br>')) {
-			s += '<br>'
+		if (!message.endsWith('<br>')) {
+			message += '<br>'
 		}
-		el('o').innerHTML = s + timeString(time)
+		el('o').innerHTML = message + timeString(time)
 	}
 }
 

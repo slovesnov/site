@@ -45,6 +45,15 @@ const START_MASS = 70;
 const CALORIE_DAYS = 4;
 const SLQ = ['save', 'load', 'query', 'query paste'];
 
+const UPDATE_REMOTE_TABLE = 0;
+const SHOW_QUERY = 1;
+const QUERY_TO_FILE = 2;
+const QUERY_TO_CLIPBOARD = 3;
+const ROWS_SHOW = 4;
+const SAVE_PAGES = 5;
+const SHOW_PAGES = 6;
+const BUTTONS = ['update remote table', 'show query', 'query to file','query to clipboard', 'rows show', 'save pages', 'show pages'];
+
 include("calorieCommon.php");
 connect();
 $qs = prepareQueryString();
@@ -1393,8 +1402,8 @@ if (IS_LOCAL) {
 	}
 
 	if (isset($_POST['pages'])) {
-		if (in_array($_POST['option'], [4, 5])) {
-			$show = $_POST['option'] == 5;
+		if (in_array($_POST['option'], [SAVE_PAGES, SHOW_PAGES])) {
+			$show = $_POST['option'] == SHOW_PAGES;
 			$a = preg_split("/\s+/", $_POST['pages'], -1, PREG_SPLIT_NO_EMPTY);
 			foreach ($a as $e) {
 				$b = preg_split("/,/", $e);
@@ -1473,13 +1482,13 @@ if (IS_LOCAL) {
 		}
 		$b = "WHERE $b";
 		$table = $_POST['table'];
-		if ($_POST['option'] == 3) {
+		if ($_POST['option'] == ROWS_SHOW) {
 			die(showPages($table, $b));
 		}
 
 		$query = dumpTableData($table, $b);
 		//$compressed = gzdeflate($query, 9);
-		if ($_POST['option'] == 0) {
+		if ($_POST['option'] == UPDATE_REMOTE_TABLE) {
 			die(remoteQuery($query, REMOTE_TYPE_ZIP));
 		} else {
 			die($query);
@@ -2689,6 +2698,8 @@ function defaultBody()
 	if (IS_LOCAL) {
 		$h = HEAD;
 		$b = "<button onclick='query()'>query</button>";
+		$bs=js_reduce(BUTTONS, fn($a, $e, $i) => "$a<button onclick=\"pagesClick($i)\"" . ($i >= count(BUTTONS) - 2 ? ' class="comboboxbutton" style="font-size: 12px;"' : '') . ">$e</button> ", "");
+
 		$r = "<td rowspan=7 id='o'>
 <tr><td>Drop or <input type='file' id='selectfile' multiple onchange='uploadFiles()'/>
 <button onclick='updateRemote()'>update remote</button>
@@ -2698,14 +2709,7 @@ function defaultBody()
 <select id='table'>$opt</select>
 <input id='pi' type='text' value='' placeholder='index,r jurassic other,en' style='width:300px'>
 <label><input type='checkbox' id='ci'>regex</label>
-<br>
-<button onclick='pagesClick(0)'>update remote table</button>
-<button onclick='pagesClick(1)'>show query</button>
-<button onclick='pagesClick(2)'>query to file</button>
-<button onclick='pagesClick(3)'>rows show</button>
-<button onclick='pagesClick(4)' class='comboboxbutton' style='font-size: 12px;'>save pages</button>
-<button onclick='pagesClick(5)' class='comboboxbutton' style='font-size: 12px;'>show pages</button>
-
+<br>$bs
 <tr><td>
 <button onclick='updateTableClick(0)'>update</button>
 <button onclick='updateTableClick(1)'>show query</button>
