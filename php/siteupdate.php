@@ -2698,7 +2698,9 @@ function defaultBody()
 	if (IS_LOCAL) {
 		$h = HEAD;
 		$b = "<button onclick='query()'>query</button>";
-		$bs=js_reduce(BUTTONS, fn($a, $e, $i) => "$a<button onclick=\"pagesClick($i)\"" . ($i >= count(BUTTONS) - 2 ? ' class="comboboxbutton" style="font-size: 12px;"' : '') . ">$e</button> ", "");
+		$bs=js_reduce(BUTTONS, fn($a, $e, $i) => "$a<button onclick=\"pagesClick($i)\"" . 
+		($i >= count(BUTTONS) - 2 ? ' class="comboboxbutton sub"' : '') . ">$e</button>".
+		($i == count(BUTTONS) - 3 ? '<br>' : ' '), "");
 
 		$r = "<td rowspan=7 id='o'>
 <tr><td>Drop or <input type='file' id='selectfile' multiple onchange='uploadFiles()'/>

@@ -154,3 +154,7 @@ table.table_color3 {
 	*/
 	border: 3px dashed #ff8c42;
 }
+
+.sub {
+	font-size: 12px;
+}
