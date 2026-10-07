@@ -1,43 +1,50 @@
 <?php
 
-//header('Content-Type: text/html; charset=windows-1251');
-echo "<pre style='font-family: inherit; white-space: pre-wrap;'>";
+include('../config.php');
+connect();
 
-$filename = "../words/words/ru/language.txt";    // Исходный файл
+$result = $mysqli->query("select name,language,content from versions") or die('error on line' . __LINE__ . $mysqli->error);
 
-$a = file($filename, FILE_IGNORE_NEW_LINES);
-$index = array_search('', $a, true);
-$b = array_slice($a, $index + 1);
-array_unshift($b, $a[0]);
-$m_language = array_map('utf8', $b);
+// var_dump($result->num_rows);
+echo "<table>";
+while ($row = $result->fetch_row()) {
+    $s = $row[2];
 
-// print_r(array_slice($m_language, 0, 5));
-print_r($m_language);
-// var_dump($lines);
+    // 1. Разбиваем, очищаем через trim и удаляем пустые элементы
+    $lines = array_filter(array_map('trim', preg_split('/\R/', $s)), 'strlen');
 
-$m_language = [];
-$f = fopen($filename, 'r');
-//skip menu
-for ($i = 0; ($line = fgets($f)) !== false && strlen($line) > 1; $i++) {
-    if ($i == 0) {
-        //actually not used
-        removeLastLF($line);
-        $m_language[] = utf8($line);
+    // 2. Склеиваем обратно в строку (например, через стандартный перенос \n)
+    $new_s = implode("\n", $lines);
+
+    // 3. Проверяем, изменилась ли строка
+    $isChanged = ($s !== $new_s);
+
+    echo "<tr><td>$row[0]<td>$row[1]<td>" . ($isChanged ? "changed" : "ok");
+    if($isChanged){
+        $safe_script = $mysqli->real_escape_string($new_s);
+        //$r = $mysqli->query("update versions set content='$safe_script' where name='$row[0]' and language='$row[1]'") or die('error on line' . __LINE__ . $mysqli->error);
     }
 }
-while (($line = fgets($f)) !== false) {
-    removeLastLF($line);
-    $m_language[] = utf8($line);
-}
-fclose($f);
+echo "</table>";
 
-//print_r(array_slice($m_language, 0, 5));
-print_r($m_language);
-
-function removeLastLF(&$p) {
-    $p = rtrim($p, "\n");
-}
-
-function utf8($s) {
-    return iconv("cp1251", "UTF-8", $s);
-}
+/*betpot	english	changed
+betpot	russian	changed
+bridge_versions	english	changed
+bridge_versions	russian	changed
+bullscows_versions	english	changed
+bullscows_versions	russian	changed
+cube_permutations	english	ok
+cube_permutations	russian	ok
+fasthtml	russian	changed
+fractals	english	changed
+fractals	russian	changed
+imageviewer	english	ok
+imageviewer	russian	changed
+lines	english	ok
+lines	russian	ok
+parser_versions	english	changed
+parser_versions	russian	changed
+words_versions	english	ok
+words_versions	russian	changed
+yahoo_card_capturer	english	changed
+yahoo_card_capturer	russian	changed*/

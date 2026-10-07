@@ -1,47 +1,5 @@
-/*Table constructor parameters
+//help https://slovesnov.rf.gd/?table_javascript,russian
 
-title=['column1 name','column2 name',...]
-or title=[ ['c',['d',colspan]] ,['e',colspan],['f',colspan]] ,['column1 name','column2 name',...]]
-Note title[0] means td upper N if add numbers
-
-data{
-	[column1_showing_value, [column2_showing_value,column2_sorting_value], ...]
-	or Map for 2 column table
-	or Set for 1 column table
-}
-
-options string or object{
-	id - table id in html
-	class - additional css classes for table
-	filter - filter function data on start
-	nstring - string which be used instead of N if table has number
-
-	//parametres which can appear in option:o or if option is string
-	border - add border
-	color - add color
-	number - add numbers
-	sort - add sort arrows
-	horizontal - horizontal table
-	sortColumn, sortOrder - sort data before showing it, sortOrder default 0 if sortColumn is set
-
-}
-
-comparator - array of comparators. Every item can be undefined or string or function or array of [undefined|string|function, undefined|string|function]
-in case if only one function 
-
-table.data is array with length equals to number of columns. Every array item is object {s:showed value, v:sorting value, visible:true|false}
-
-
-Table.imagePath - for image path
-Table.tables - all created tables array
-
-methods
-html()
-sort(c,o=0,fill=true)
-filter(f,fill=true)
-filterSort(f,c,o=0,fill=true)
-can do fill only after element is created
-*/
 class Table {
 	static #count = 0;
 	static tables = [];
@@ -66,30 +24,26 @@ class Table {
 		else {
 			t = Array.isArray(title) ? title : title.up
 		}
-		if (!Array.isArray(t[0])) {
-			t = [t]
-		}
+
+		t = this.getUpDown(t, true)
 		this.title = t
-		this.arrowRow = options.arrowRow === undefined ? this.title.length - 1 : options.arrowRow
-		// this.title.map(e=>{
-		// 	if(e.)
-		// })
+		this.arrowsRow = options.arrowsRow === undefined ? this.title.length - 1 : options.arrowsRow
 		this.columns = this.checkRowsGetNumberOfColumns(true)
 		this.id = options.id === undefined ? '__table' + this.n : options.id;
 
-		if (options.arrowRow !== undefined) {
-			if (typeof options.arrowRow == 'number') {
-				if (Number.isInteger(options.arrowRow)) {
-					if (options.arrowRow < 0 || options.arrowRow >= this.columns) {
-						throw new Error(`options.arrowRow must be in range [0, ${this.columns - 1}]`)
+		if (options.arrowsRow !== undefined) {
+			if (typeof options.arrowsRow == 'number') {
+				if (Number.isInteger(options.arrowsRow)) {
+					if (options.arrowsRow < 0 || options.arrowsRow >= this.title.length) {
+						throw new Error(`options.arrowsRow must be in range [0, ${this.title.length - 1}]`)
 					}
 				}
 				else {
-					throw new Error('options.arrowRow must be a integer')
+					throw new Error('options.arrowsRow must be a integer')
 				}
 			}
 			else {
-				throw new Error('typeof options.arrowRow must be a number')
+				throw new Error('typeof options.arrowsRow must be a number')
 			}
 		}
 
@@ -176,9 +130,7 @@ class Table {
 		}
 		// t = Array.isArray(title) ? undefined : title.down
 		if (Array.isArray(t)) {
-			if (!Array.isArray(t[0])) {
-				t = [t]
-			}
+			t = this.getUpDown(t, false)
 		}
 		else if (t != undefined) {
 			throw new Error("Title.down invalid type");
@@ -326,6 +278,16 @@ class Table {
 		}
 	}
 
+	getUpDown(t, up) {
+		if (Array.isArray(t)) {
+			//if all t[i] is arrays then it's rows
+			return t.some(e => !Array.isArray(e)) ? [t] : t
+		}
+		else {
+			throw new Error(`${up ? 'up' : 'down'} must be an array`)
+		}
+	}
+
 	html() {
 		let i = '<table id="' + this.id + '"'
 			+ (this.class == '' ? '' : ' ' + this.class)
@@ -417,27 +379,20 @@ class Table {
 			return ''
 		}
 		let title = up ? this.title : this.downRows
-		if (up && !Array.isArray(this.title[0])) {
-			title = [title]
-		}
-		let b, i, j, s, c,st, sb = ''
-		for (i = 0; i < title.length; i++) {
-			// if (up && i == this.arrowRow) {
-			// 	sb += this.getArrowRow(title[i])
-			// 	continue
-			// }
-			b = up && i == this.arrowRow
+		let b, j, k, s, c, st
+		return title.reduce((a, e, i) => {
+			b = up && i == this.arrowsRow
 			j = 0
 			if (b) {
 				st = '<tr>' + (this.number ? '<th>' + this.nstring : '')
 			}
 			else {
-				st = '<tr' + (title[i].class ? ' class="' + title[i].class + '"' : '') + '>'
+				st = '<tr' + (e.class ? ' class="' + e.class + '"' : '') + '>'
 			}
-			sb += title[i].reduce((a, e) => {
+			return a + e.reduce((a, e, ir) => {
 				if (Array.isArray(e)) {
 					c = e.length > 1 ? e[1] : 1
-					e = e[0]
+					e = e[0]//after c
 				}
 				else {
 					c = 1
@@ -445,63 +400,23 @@ class Table {
 				s = e
 				j += c
 				if (this.arrow && b) {
-					if (this.resetButton && i == 0) {
+					if (this.resetButton && !ir) {
 						e = Table.tc(this.n) + ' ' + e
 					}
 					if (this.arrows === undefined || this.arrows.includes(i)) {
 						s = '<table width="100%" class="table_noborder"><tr>'
-						this.createATA(e, i).forEach((e, i1) => {
+						this.createATA(e, ir).forEach((e, i1) => {
 							s += '<td><table align="center" class="table_noborder"><tr><th rowspan="2">' + e;
-							for (j = 0; j < 2; j++) {
-								s += '<td>' + Table.tc(this.n, i, j, false, i1) + (j ? '</table>' : '<tr>')
+							for (k = 0; k < 2; k++) {
+								s += '<td>' + Table.tc(this.n, ir, k, false, i1) + (k ? '</table>' : '<tr>')
 							}
 						});
 						s += '</table>'
 					}
 				}
-				return a + Table.colsp(c, s)
-			}, st)
-			if (!b) {
-				sb += '<th>'.repeat(this.columns - j + (this.number ? 1 : 0))
-			}
-
-		}
-		return '<thead>' + sb + '<thead>'
-	}
-
-	getArrowRow(a) {
-		let s, j, c
-		let sb = '<tr>' + (this.number ? '<th>' + this.nstring : '');
-		return a.reduce((a, e, i) => {
-			if (Array.isArray(e)) {
-				c = e[1]
-				e = e[0]//after c = e[1]
-			}
-			else {
-				c = 1
-			}
-			s = e
-			if (this.arrow) {
-				if (this.resetButton && i == 0) {
-					e = Table.tc(this.n) + ' ' + e
-				}
-				if (this.arrows === undefined || this.arrows.includes(i)) {
-					s = '<table width="100%" class="table_noborder"><tr>'
-					this.createATA(e, i).forEach((e, i1) => {
-						s += '<td><table align="center" class="table_noborder"><tr><th rowspan="2">' + e;
-						for (j = 0; j < 2; j++) {
-							s += '<td>' + Table.tc(this.n, i, j, false, i1) + (j ? '</table>' : '<tr>')
-						}
-					});
-					s += '</table>'
-				}
-			}
-			return a + Table.colsp(c, s);
-		}, sb);
-	}
-
-	static colsp(c, t) {
-		return '<th' + (c === 1 ? '' : ' colspan="' + c + '"') + '>' + t
+				return a + '<th' + (c === 1 ? '' : ' colspan="' + c + '"') + '>' + s
+			}, st) + '<th>'.repeat(this.columns - j + (this.number ? 1 : 0))
+		}, '<thead>') + '<thead>'
 	}
 
 	get(row, column) {
