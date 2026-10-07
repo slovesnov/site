@@ -415,7 +415,7 @@ class Table {
 					}
 				}
 				return a + '<th' + (c === 1 ? '' : ' colspan="' + c + '"') + '>' + s
-			}, st) + '<th>'.repeat(this.columns - j + (this.number ? 1 : 0))
+			}, st) + '<th>'.repeat(this.columns - j + (this.number && !b ? 1 : 0))
 		}, '<thead>') + '<thead>'
 	}
 
