@@ -1,4 +1,3 @@
-
 l = gLanguage == 'russian' ? ['длина', '%', 'количество', 'Английский язык.', 'Русский язык.', 'всего', 'математическое ожидание', 'среднеквадратическое отклонение', 'дисперсия', 'данные', 'приближение нормальным распределением', 'буква', 'частота', 'log(частоты)', 'График логарифма частоты.'] : ['length', '%', 'quantity', 'English language.', 'Russian language.', 'total', 'expected value', 'standard deviation', 'variance', 'data', 'normal distribution approximation', 'character', 'frequency', 'log(frequency)', 'Logarithmic frequency chart.']
 const TOTAL = 5
 const DATA = TOTAL + 4

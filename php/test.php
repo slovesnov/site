@@ -11,7 +11,7 @@ while ($row = $result->fetch_row()) {
     $s = $row[2];
 
     // 1. Разбиваем, очищаем через trim и удаляем пустые элементы
-    $lines = array_filter(array_map('trim', preg_split('/\R/', $s)), 'strlen');
+    $lines = array_filter(array_map('trim', preg_split('/\R/u', $s)), 'strlen');
 
     // 2. Склеиваем обратно в строку (например, через стандартный перенос \n)
     $new_s = implode("\n", $lines);
@@ -22,7 +22,7 @@ while ($row = $result->fetch_row()) {
     echo "<tr><td>$row[0]<td>$row[1]<td>" . ($isChanged ? "changed" : "ok");
     if($isChanged){
         $safe_script = $mysqli->real_escape_string($new_s);
-        //$r = $mysqli->query("update versions set content='$safe_script' where name='$row[0]' and language='$row[1]'") or die('error on line' . __LINE__ . $mysqli->error);
+        $r = $mysqli->query("update versions set content='$safe_script' where name='$row[0]' and language='$row[1]'") or die('error on line' . __LINE__ . $mysqli->error);
     }
 }
 echo "</table>";
