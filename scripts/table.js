@@ -107,7 +107,7 @@ class Table {
 
 		this.color = o.color
 		this.nstring = o.nstring === undefined ? 'N' : o.nstring
-		this.number = o.number //before checkRowsGetNumberOfColumns(false)
+		this.number = +(o.number ?? 0); //always 1 or 0,before checkRowsGetNumberOfColumns(false)
 		this.horizontal = o.horizontal
 		this.visible = o.visible === undefined ? 1 : o.visible
 		this.resetButton = o.resetButton
@@ -319,7 +319,7 @@ class Table {
 			}
 			for (i = 0; i < this.columns; i++) {
 				s += '<tr>'
-				s += v[i + (this.number ? 1 : 0)]
+				s += v[i + this.number]
 				//should use classes because of rowspan td:nth-child(...) is different for same column
 				j = 0;
 				this.data.forEach(e => {
@@ -332,7 +332,7 @@ class Table {
 					}
 				})
 				if (this.downRows) {
-					s += d[i + (this.number ? 1 : 0)]
+					s += d[i + this.number]
 				}
 			}
 		}
@@ -415,7 +415,7 @@ class Table {
 					}
 				}
 				return a + '<th' + (c === 1 ? '' : ' colspan="' + c + '"') + '>' + s
-			}, st) + '<th>'.repeat(this.columns - j + (this.number && !b ? 1 : 0))
+			}, st) + '<th>'.repeat(this.columns - j + (this.number && !b))
 		}, '<thead>') + '<thead>'
 	}
 
@@ -503,7 +503,7 @@ class Table {
 	//if up=true check& count number of columns as max(column for each row)
 	//if up=false check with additional check for number of columns
 	checkRowsGetNumberOfColumns(up) {
-		const c = this.columns + (this.number ? 1 : 0)
+		const c = this.columns + this.number
 		let t = up ? this.title : this.downRows
 		return Math.max(...t.map((e, ind) => {
 			if (!Array.isArray(e)) {
@@ -548,7 +548,7 @@ class Table {
 		if (this.number && top) {
 			title[title.length - 1].unshift(this.nstring)
 		}
-		for (i = 0; i < this.columns + (this.number ? 1 : 0); i++) {
+		for (i = 0; i < this.columns + this.number; i++) {
 			s1 = ''
 			for (j = 0; j < title.length; j++) {
 				t = title[j][fi[j]]
@@ -567,10 +567,10 @@ class Table {
 					s1 += '<th' + (rs == 1 ? '' : ' rowspan=' + rs) + '>'
 
 					if (top && this.arrow && j + 1 == title.length && (!this.number || i != 0)) {
-						this.createATA(s, i - (+this.number)).forEach((e, i1) => {
-							s1 += '<table align="center" class="table_noborder"><th>' + e;//+( i-(this.number?1:0) )
+						this.createATA(s, i - this.number).forEach((e, i1) => {
+							s1 += '<table align="center" class="table_noborder"><th>' + e;
 							for (k = 0; k < 2; k++) {
-								s1 += '<td class="table_tdp0">' + Table.tc(this.n, i - (this.number ? 1 : 0), k, true, i1)
+								s1 += '<td class="table_tdp0">' + Table.tc(this.n, i - this.number, k, true, i1)
 							}
 							s1 += '</table>'
 						})
