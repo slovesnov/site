@@ -56,6 +56,15 @@ join(select count(*) as t from pages)as t2;`, '')
 	SELECT count(*), 'only in english' FROM pages WHERE name not in(select name from pages where language = 'russian') and language='english' union
 	SELECT count(*), 'only in russain' FROM pages WHERE name not in(select name from pages where language = 'english') and language='russian' union
 	SELECT count(*), 'in english and russian' FROM pages WHERE name in(select name from pages where language = 'english') and language='russian'`
+	,tablecalendar:`SELECT 
+    CASE 
+        WHEN COALESCE(script REGEXP '\\\\btable\\\\b', 0) = 1 AND COALESCE(script REGEXP '\\\\bcalendar\\\\b', 0) = 1 THEN 'table+calendar'
+        WHEN COALESCE(script REGEXP '\\\\btable\\\\b', 0) = 1 THEN 'table'
+        WHEN COALESCE(script REGEXP '\\\\bcalendar\\\\b', 0) = 1 THEN 'calendar'
+        ELSE 'none'
+    END AS script_group,
+    COUNT(*) AS count
+FROM pages GROUP BY script_group`
 }
 const DEFAULT_QUERY = "select name,language,script,css from pages where name regexp 'admin'";
 
@@ -388,14 +397,14 @@ function prepareFetch(o, pages = 0, option = 0) {
 	fetchpost('siteupdate.php', o, clickCallback, pages, option, new Date())
 }
 
-
-const UPDATE_REMOTE_TABLE = 0;
-const SHOW_QUERY = 1;
-const QUERY_TO_FILE = 2;
-const QUERY_TO_CLIPBOARD = 3;
-const ROWS_SHOW = 4;
-const SAVE_PAGES = 5;
-const SHOW_PAGES = 6;
+//defined in php see foreach (BUTTONS as $index => $button) {
+// const UPDATE_REMOTE_TABLE = 0;
+// const SHOW_QUERY = 1;
+// const QUERY_TO_FILE = 2;
+// const QUERY_TO_CLIPBOARD = 3;
+// const ROWS_SHOW = 4;
+// const SAVE_PAGES = 5;
+// const SHOW_PAGES = 6;
 
 function clickCallback(s, pages, option, time) {
 	if (typeof s != 'string') {

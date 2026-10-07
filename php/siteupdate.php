@@ -30,8 +30,11 @@ const REMOTE_TYPE_ENCODE = 2;
 //MONTH_JS from  d.toLocaleString("ru-ru", { day: "numeric", month: "short" }).replace(/\.|\s/g, '')
 const	MONTH_JS = ['янв', 'февр', 'март', 'апр', 'май', 'июнь', 'июль', 'авг', 'сент', 'окт', 'нояб', 'дек'];
 
-const DIFFERENCE = ['tables' => 'videos pages money_slovesno money_goods_slovesno calorie_slovesno', "directories" => "php scripts css articles"
-, "files" => "../index.php ../config.php ../logpass.php"];
+const DIFFERENCE = [
+	'tables' => 'videos pages money_slovesno money_goods_slovesno calorie_slovesno',
+	"directories" => "php scripts css articles",
+	"files" => "../index.php ../config.php ../logpass.php"
+];
 const DIFFERENCE_FILE_NAME = 'remote.txt';
 const DIFFERENCE_UP = "../" . DIFFERENCE_FILE_NAME;
 
@@ -45,14 +48,7 @@ const START_MASS = 70;
 const CALORIE_DAYS = 4;
 const SLQ = ['save', 'load', 'query', 'query paste'];
 
-const UPDATE_REMOTE_TABLE = 0;
-const SHOW_QUERY = 1;
-const QUERY_TO_FILE = 2;
-const QUERY_TO_CLIPBOARD = 3;
-const ROWS_SHOW = 4;
-const SAVE_PAGES = 5;
-const SHOW_PAGES = 6;
-const BUTTONS = ['update remote table', 'show query', 'query to file','query to clipboard', 'rows show', 'save pages', 'show pages'];
+const BUTTONS = ['update remote table', 'show query', 'query to file', 'query to clipboard', 'rows show', 'save pages', 'show pages'];
 
 include("calorieCommon.php");
 connect();
@@ -1401,6 +1397,12 @@ if (IS_LOCAL) {
 		}
 	}
 
+	$jsCode = '';
+	foreach (BUTTONS as $index => $button) {
+		$constantName = strtoupper(str_replace(' ', '_', $button));
+		define($constantName, $index);
+		$jsCode .= "const {$constantName} = {$index};\n";
+	}
 	if (isset($_POST['pages'])) {
 		if (in_array($_POST['option'], [SAVE_PAGES, SHOW_PAGES])) {
 			$show = $_POST['option'] == SHOW_PAGES;
@@ -1494,7 +1496,7 @@ if (IS_LOCAL) {
 			die($query);
 		}
 	}
-	defaultBody();
+	defaultBody($jsCode);
 } else { //remote
 	date_default_timezone_set('Europe/Moscow');
 	$date = new DateTime();
@@ -1567,8 +1569,7 @@ if (IS_LOCAL) {
 	die('error this page working only on localhost line' . __LINE__);
 }
 
-function moneyState()
-{
+function moneyState() {
 	global $mysqli;
 	$a = [];
 	for ($i = 0; $i < 2; $i++) {
@@ -1581,8 +1582,7 @@ function moneyState()
 	return $a;
 }
 
-function showPages($t, $addons)
-{
+function showPages($t, $addons) {
 	global $mysqli;
 	$found = false;
 	$s = "";
@@ -1595,13 +1595,11 @@ function showPages($t, $addons)
 }
 
 //NOTE this functions is different with jm.php
-function dumpTableData($t, $addons = '', $onlyInsert = false)
-{
+function dumpTableData($t, $addons = '', $onlyInsert = false) {
 	return dumpTableDataFull($t, $addons, $onlyInsert)[0];
 }
 
-function dumpTableDataFull($t, $addons = '', $onlyInsert = false)
-{
+function dumpTableDataFull($t, $addons = '', $onlyInsert = false) {
 	global $mysqli;
 	$s = "";
 	$res = $mysqli->query("SELECT * FROM $t $addons") or die('error on line' . __LINE__ . $mysqli->error . "SELECT * FROM $t $addons");
@@ -1621,13 +1619,11 @@ function dumpTableDataFull($t, $addons = '', $onlyInsert = false)
 	return [$onlyInsert ? "INSERT INTO $t VALUES" . implode(",", $c) . ';' : $s, $res->num_rows];
 }
 
-function wrap($s, $wrapper = '"')
-{
+function wrap($s, $wrapper = '"') {
 	return $wrapper . $s . $wrapper;
 }
 
-function remoteQuery($query, $type = REMOTE_TYPE_SIMPLE, $number = null)
-{
+function remoteQuery($query, $type = REMOTE_TYPE_SIMPLE, $number = null) {
 	$c = $type === REMOTE_TYPE_ZIP ? gzdeflate($query, 9) : $query;
 	$o = ['query' => $c, 'type' => $type];
 	if ($number !== null) {
@@ -1636,8 +1632,7 @@ function remoteQuery($query, $type = REMOTE_TYPE_SIMPLE, $number = null)
 	return remoteCall($o);
 }
 
-function remoteCall($a)
-{
+function remoteCall($a) {
 	$a['login'] = DB_LOGIN;
 	$a['password'] = DB_PASS;
 	return remotePost(REMOTE . '/php/siteupdate.php', $a);
@@ -1645,8 +1640,7 @@ function remoteCall($a)
 
 //aslov modified add header
 //https://www.geeksforgeeks.org/how-to-post-data-using-file_get_contents-in-php/
-function remotePost($url_path, $data)
-{
+function remotePost($url_path, $data) {
 	// Method specified whether to GET or
 	// POST data with the content specified
 	// by $data variable. 'http' is used
@@ -1673,13 +1667,11 @@ function remotePost($url_path, $data)
 	return $result;
 }
 
-function stateString($r)
-{
+function stateString($r) {
 	return "max=" . $r[0] . " auto_increment=" . $r[1];
 }
 
-function updatePage($path)
-{
+function updatePage($path) {
 	global $mysqli;
 
 	$c = file_get_contents($path);
@@ -1746,8 +1738,7 @@ function updatePage($path)
 	return [$p, $l, true];
 }
 
-function multiQuery($query, $number = false)
-{
+function multiQuery($query, $number = false) {
 	global $mysqli;
 	try {	//error on remote throws exception, on local $mysqli->multi_query($query) returns false on query with invalid syntax
 		if (strlen($query) === 0) {
@@ -1793,14 +1784,12 @@ function multiQuery($query, $number = false)
 	return $s;
 }
 
-function validLoginPassword()
-{
+function validLoginPassword() {
 	return isset($_POST['login']) &&  $_POST['login'] == DB_LOGIN &&
 		isset($_POST['password']) &&  $_POST['password'] == DB_PASS;
 }
 
-function checkPageRefPages()
-{
+function checkPageRefPages() {
 	global $mysqli;
 	echo "<table><tr><td>";
 	$LA = ['russian', 'english'];
@@ -1882,8 +1871,7 @@ function checkPageRefPages()
 	echo '</table>';
 }
 
-function checkPageRefPHP()
-{
+function checkPageRefPHP() {
 	echo "Not found php<table class='single'>";
 	//$a = ['jm', 'jmCommon', 'pagesref'];
 
@@ -1910,8 +1898,7 @@ function checkPageRefPHP()
 	echo "</table>";
 }
 
-function checkPageRefCSSJS()
-{
+function checkPageRefCSSJS() {
 	global $mysqli;
 	$i = -1;
 	foreach (['script', 'css'] as $ae) {
@@ -1945,8 +1932,7 @@ function checkPageRefCSSJS()
 	}
 }
 
-function pageReferenceLevel()
-{
+function pageReferenceLevel() {
 	global $mysqli;
 	$LA = ['russian', 'english'];
 	$separator = '<br>';
@@ -2077,14 +2063,12 @@ function pageReferenceLevel()
 	}
 }
 
-function unencodeQuery($s)
-{
+function unencodeQuery($s) {
 	$s = json_decode($s);
 	return implode(array_map("chr", $s));
 }
 
-function setVideoUnadmin($lng, $name)
-{
+function setVideoUnadmin($lng, $name) {
 	global $mysqli;
 	$name = empty($name) ? 'NULL' : wrap($mysqli->real_escape_string($name));
 	$a = preg_split("~\s+~", trim($_POST['pages']));
@@ -2100,8 +2084,7 @@ function setVideoUnadmin($lng, $name)
 	return $s;
 }
 
-function getRecipesPages()
-{
+function getRecipesPages() {
 	$s = file_get_contents('../scripts/recipe.js');
 	if (!preg_match("~gRecipes\s*=\s*\\[(.*)\\]\s*function~s", $s, $m)) {
 		die("line" . __LINE__);
@@ -2112,25 +2095,21 @@ function getRecipesPages()
 	return $m[1];
 }
 
-function dates($date)
-{
+function dates($date) {
 	return $date->format('j') . MONTH_JS[$date->format('n') - 1];
 }
 
-function tot($t)
-{
+function tot($t) {
 	return floor($t / 100) * 60 + $t % 100;
 }
 
-function dt($t1, $t2)
-{
+function dt($t1, $t2) {
 	$d = tot($t2) - tot($t1);
 	$d1 = sprintf("%d:%02d", floor($d / 60), $d % 60);
 	return [$d, $d1];
 }
 
-function groupExercise($r, $mn)
-{
+function groupExercise($r, $mn) {
 	$p = [
 		'австралийскиеПодтягивания' => 2,
 		'бицепс' => 1,
@@ -2293,8 +2272,7 @@ function groupExercise($r, $mn)
 		. $s . "</table>";
 }
 
-function showDifferentExercises()
-{
+function showDifferentExercises() {
 	global $EXERCISE;
 	$mn = implode('|', array_map(fn($e) => mb_substr($e, 0, 3), MONTH_JS));
 	$c = file_get_contents($EXERCISE); //no trim need line number
@@ -2356,8 +2334,7 @@ function showDifferentExercises()
 	// }
 }
 
-function storeToFile($e)
-{
+function storeToFile($e) {
 	global $jm_user, $jm_pwd;
 	$ch = curl_init("localhost?$e");
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -2373,8 +2350,7 @@ function storeToFile($e)
 	}
 }
 
-function getLanguage($l)
-{
+function getLanguage($l) {
 	foreach (["russian", "english"] as $e) {
 		if (!strncmp($l, $e, strlen($l))) {
 			return $e;
@@ -2383,8 +2359,7 @@ function getLanguage($l)
 	return false;
 }
 
-function exerciseA2string($a)
-{
+function exerciseA2string($a) {
 	$t = $a[0];
 	$c = count($a);
 	if ($c > 1) {
@@ -2396,23 +2371,19 @@ function exerciseA2string($a)
 	return wrapBrackets(implode("+", $a), $c > 1);
 }
 
-function wrapBrackets($s, $c)
-{
+function wrapBrackets($s, $c) {
 	return wrap2($s, $c, "(", ")");
 }
 
-function wrap2($s, $c, $left, $right)
-{
+function wrap2($s, $c, $left, $right) {
 	return $c ? $left . $s . $right : $s;
 }
 
-function getFileCodes($f, $fp)
-{
+function getFileCodes($f, $fp) {
 	return [$f, md5_file($fp), filesize($fp)];
 }
 
-function getDirsCodes($list, $filesList)
-{
+function getDirsCodes($list, $filesList) {
 	$dirs = preg_split("/\s+/", $list);
 	$a = [];
 	foreach ($dirs as $d) {
@@ -2435,8 +2406,7 @@ function getDirsCodes($list, $filesList)
 	return json_encode($a, JSON_UNESCAPED_UNICODE);
 }
 
-function getFilesCodes($list)
-{
+function getFilesCodes($list) {
 	$files = preg_split("/\s+/", $list);
 	$r = [];
 	if (!empty($list)) {
@@ -2447,8 +2417,7 @@ function getFilesCodes($list)
 	return $r;
 }
 
-function getTablesCodes($tableString)
-{
+function getTablesCodes($tableString) {
 	global $mysqli;
 	$o = [];
 	if (!empty($tableString)) {
@@ -2484,8 +2453,7 @@ function getTablesCodes($tableString)
 	return json_encode($o, JSON_UNESCAPED_UNICODE);
 }
 
-function wrapImplode($a, $wrapper, $glue)
-{
+function wrapImplode($a, $wrapper, $glue) {
 	$i = 0;
 	$s = '';
 	foreach ($a as $e) {
@@ -2498,8 +2466,7 @@ function wrapImplode($a, $wrapper, $glue)
 	return $s;
 }
 
-function winscp($a)
-{
+function winscp($a) {
 	if (is_string($a)) {
 		$a = [$a];
 	}
@@ -2511,8 +2478,7 @@ function winscp($a)
 	exec($c, $output, $retval);
 }
 
-function check_ruen(&$n, $s, $name)
-{
+function check_ruen(&$n, $s, $name) {
 	$e1 = '[а-яё]';
 	$e2 = '[a-z]';
 	$r = '';
@@ -2561,14 +2527,12 @@ function check_ruen(&$n, $s, $name)
 	return $r;
 }
 
-function isExerciseSkip($s)
-{
+function isExerciseSkip($s) {
 	return preg_match("/^\s*\.пропуск тренировки\s*$/u", $s);
 }
 
 //true is $new is string extension of $old
-function special_same_db($old, $new)
-{
+function special_same_db($old, $new) {
 	$o = preg_split("/\r?\n/", $old);
 	$n = preg_split("/\r?\n/", $new);
 	if (count($o) > count($n))
@@ -2585,13 +2549,11 @@ function special_same_db($old, $new)
 	return true;
 }
 
-function make_tags($a, $begin, $end)
-{
+function make_tags($a, $begin, $end) {
 	return $begin . implode($end . $begin, $a) . $end;
 }
 
-function getCalorieJsCss($p)
-{
+function getCalorieJsCss($p) {
 	$js = ['common',	'siteupdate', 'expressionEstimator', 'Chart.bundle.min'];
 	$css = ['common',	'siteupdate'];
 	if ($p == 0) {
@@ -2605,22 +2567,19 @@ function getCalorieJsCss($p)
 		make_tags($css, "<link rel='stylesheet' type='text/css' href='../css/", ".css'>");
 }
 
-function dieOnBadLogin()
-{
+function dieOnBadLogin() {
 	if (!getLogin())
 		die('Ошибка, не выполнен вход в систему.');
 }
 
-function checkPermission($s)
-{
+function checkPermission($s) {
 	global $jm_user;
 	if (!getLogin() || $jm_user != JM_SUPERUSER) {
 		die($s);
 	}
 }
 
-function getExerciseData()
-{
+function getExerciseData() {
 	global $mysqli, $calorieTable, $HISTORY_DATETIME, $EXERCISE;
 	//var_dump($calorieTable);
 	$c = trim(file_get_contents($EXERCISE));
@@ -2664,8 +2623,7 @@ function getExerciseData()
 	return ["gm=[$w];di=$di;const START_DATE = new Date('" . ETB . "')", $z];
 }
 
-function calorieClick($c, $b)
-{
+function calorieClick($c, $b) {
 	return js_reduce(
 		$c,
 		fn($a, $e, $i) => $a . ($i ? '<br>' : '') .
@@ -2674,14 +2632,12 @@ function calorieClick($c, $b)
 	);
 }
 
-function dateSring($s)
-{
+function dateSring($s) {
 	$a = explode('-', $s);
 	return ($a[2] % 100) . mb_substr(MONTH_JS[$a[1] - 1], 0, 3) . intval($a[0]);
 }
 
-function defaultBody()
-{
+function defaultBody($s) {
 	global $mysqli;
 	$tablesList = [];
 	$r = $mysqli->query("show tables");
@@ -2695,12 +2651,15 @@ function defaultBody()
 	$op = '<option>' . implode('</option><option>', $tablesList) . '</option>';
 	$opt = '<option>' . implode('</option><option>', ['pages', 'menus', 'versions', 'videos']) . '</option>';
 
+	$h = HEAD;
+	if (!empty($s)) {
+		$h = preg_replace('/<script/i', "<script>$s</script>$0", $h, 1);
+	}
 	if (IS_LOCAL) {
-		$h = HEAD;
 		$b = "<button onclick='query()'>query</button>";
-		$bs=js_reduce(BUTTONS, fn($a, $e, $i) => "$a<button onclick=\"pagesClick($i)\"" . 
-		($i >= count(BUTTONS) - 2 ? ' class="comboboxbutton sub"' : '') . ">$e</button>".
-		($i == count(BUTTONS) - 3 ? '<br>' : ' '), "");
+		$bs = js_reduce(BUTTONS, fn($a, $e, $i) => "$a<button onclick=\"pagesClick($i)\"" .
+			($i >= count(BUTTONS) - 2 ? ' class="comboboxbutton sub"' : '') . ">$e</button>" .
+			($i == count(BUTTONS) - 3 ? '<br>' : ' '), "");
 
 		$r = "<td rowspan=7 id='o'>
 <tr><td>Drop or <input type='file' id='selectfile' multiple onchange='uploadFiles()'/>
@@ -2727,7 +2686,7 @@ function defaultBody()
 		$rc = "<label><input type='checkbox' id='multi_remote'>rem</label><label><input type='checkbox' id='multi_number'>№</label>";
 	} else {
 		$ic = 'infinityfree.png';
-		$h = str_replace('phpmyadmin.ico', $ic, HEAD);
+		$h = str_replace('phpmyadmin.ico', $ic, $h);
 		$b = js_reduce(SLQ, fn($a, $e) => "$a<button class='comboboxbutton' onclick='remotec(\"$e\")'>$e</button> ", "");
 		$r = "<p id='p'></p>";
 		$rc = " <button class='comboboxbutton' onclick='window.open(\"../index.php\")'><img src='../img/home16.png'></button>";
