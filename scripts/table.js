@@ -47,7 +47,7 @@ class Table {
 	static tables = [];
 	static imagePath = 'https://slovesnov.rf.gd/img/jm/'
 
-	constructor(title = [], data = [], options = {}, comparator = []) {
+	constructor(title, data, options = {}, comparator = []) {
 		let i, j, k, l, m, t, o = {}
 		//create another object to not change options
 		const a1 = ['border', 'color', 'horizontal', 'number', 'sort', 'resetButton']
@@ -65,13 +65,35 @@ class Table {
 		}
 		else {
 			t = Array.isArray(title) ? title : title.up
-			//this.title = t = Array.isArray(title) ? title : title.up
+		}
+		if (!Array.isArray(t[0])) {
+			t = [t]
 		}
 		this.title = t
-		i = Array.isArray(t[0]) ? t[t.length - 1] : t;
-		this.columns = i.length
+		this.arrowRow = options.arrowRow === undefined ? this.title.length - 1 : options.arrowRow
+		// this.title.map(e=>{
+		// 	if(e.)
+		// })
+		this.columns = this.checkRowsGetNumberOfColumns(true)
 		this.id = options.id === undefined ? '__table' + this.n : options.id;
 
+		if (options.arrowRow !== undefined) {
+			if (typeof options.arrowRow == 'number') {
+				if (Number.isInteger(options.arrowRow)) {
+					if (options.arrowRow < 0 || options.arrowRow >= this.columns) {
+						throw new Error(`options.arrowRow must be in range [0, ${this.columns - 1}]`)
+					}
+				}
+				else {
+					throw new Error('options.arrowRow must be a integer')
+				}
+			}
+			else {
+				throw new Error('typeof options.arrowRow must be a number')
+			}
+		}
+
+		i = Array.isArray(t[0]) ? t[t.length - 1] : t;
 		j = typeof options.o == 'string'
 		if (typeof options == 'string' || j) {
 			i = j ? options.o : options
@@ -131,14 +153,10 @@ class Table {
 
 		this.color = o.color
 		this.nstring = o.nstring === undefined ? 'N' : o.nstring
-		this.number = o.number //before checkRows
+		this.number = o.number //before checkRowsGetNumberOfColumns(false)
 		this.horizontal = o.horizontal
 		this.visible = o.visible === undefined ? 1 : o.visible
 		this.resetButton = o.resetButton
-
-		if (Array.isArray(this.title[0])) {
-			this.checkRows(this.title, true)
-		}
 
 		if (Array.isArray(title)) {
 			t = undefined
@@ -161,12 +179,14 @@ class Table {
 			if (!Array.isArray(t[0])) {
 				t = [t]
 			}
-			this.checkRows(t)
 		}
 		else if (t != undefined) {
 			throw new Error("Title.down invalid type");
 		}
 		this.downRows = t
+		if (this.downRows !== undefined) {
+			this.checkRowsGetNumberOfColumns(false)
+		}
 		if (!Array.isArray(o.additionalSortTitle) && o.additionalSortTitle !== undefined) {
 			throw new Error("additionalSortTitle should be an array or undefined");
 		}
@@ -313,10 +333,9 @@ class Table {
 		if (this.horizontal) {
 			return i + '<tbody>' + this.body() + '</tbody></table>'
 		}
-		return i + '<thead>'
-			+ this.sortColumns()
-			+ '</thead><tbody>'
-			+ this.body() + '</tbody><thead>' + this.down() + '</thead></table>'
+		return i + this.upDown(true)
+			+ '<tbody>'
+			+ this.body() + '</tbody>' + this.upDown(false) + '</table>'
 	}
 
 	body() {
@@ -393,33 +412,81 @@ class Table {
 		this.sortc(column, o, fill, subcolumn)
 	}
 
-	down() {
-		if (this.downRows) {
-			return '<thead>' + Table.getRows(this.downRows, this.number, this.columns, true) + '<thead>'
-		}
-		else {
+	upDown(up) {
+		if (!up && !this.downRows) {
 			return ''
 		}
+		let title = up ? this.title : this.downRows
+		if (up && !Array.isArray(this.title[0])) {
+			title = [title]
+		}
+		let b, i, j, s, c,st, sb = ''
+		for (i = 0; i < title.length; i++) {
+			// if (up && i == this.arrowRow) {
+			// 	sb += this.getArrowRow(title[i])
+			// 	continue
+			// }
+			b = up && i == this.arrowRow
+			j = 0
+			if (b) {
+				st = '<tr>' + (this.number ? '<th>' + this.nstring : '')
+			}
+			else {
+				st = '<tr' + (title[i].class ? ' class="' + title[i].class + '"' : '') + '>'
+			}
+			sb += title[i].reduce((a, e) => {
+				if (Array.isArray(e)) {
+					c = e.length > 1 ? e[1] : 1
+					e = e[0]
+				}
+				else {
+					c = 1
+				}
+				s = e
+				j += c
+				if (this.arrow && b) {
+					if (this.resetButton && i == 0) {
+						e = Table.tc(this.n) + ' ' + e
+					}
+					if (this.arrows === undefined || this.arrows.includes(i)) {
+						s = '<table width="100%" class="table_noborder"><tr>'
+						this.createATA(e, i).forEach((e, i1) => {
+							s += '<td><table align="center" class="table_noborder"><tr><th rowspan="2">' + e;
+							for (j = 0; j < 2; j++) {
+								s += '<td>' + Table.tc(this.n, i, j, false, i1) + (j ? '</table>' : '<tr>')
+							}
+						});
+						s += '</table>'
+					}
+				}
+				return a + Table.colsp(c, s)
+			}, st)
+			if (!b) {
+				sb += '<th>'.repeat(this.columns - j + (this.number ? 1 : 0))
+			}
+
+		}
+		return '<thead>' + sb + '<thead>'
 	}
 
-	sortColumns() {
-		let sb = '', j, a, s;
-		if (Array.isArray(this.title[0])) {
-			a = this.title[this.title.length - 1];
-			sb += Table.getRows(this.title, this.number, this.columns, false)
-		}
-		else {
-			a = this.title
-		}
-		sb += '<tr>' + (this.number ? '<th>' + this.nstring : '');
-		if (this.arrow) {
-			return a.reduce((a, e, i) => {
+	getArrowRow(a) {
+		let s, j, c
+		let sb = '<tr>' + (this.number ? '<th>' + this.nstring : '');
+		return a.reduce((a, e, i) => {
+			if (Array.isArray(e)) {
+				c = e[1]
+				e = e[0]//after c = e[1]
+			}
+			else {
+				c = 1
+			}
+			s = e
+			if (this.arrow) {
 				if (this.resetButton && i == 0) {
 					e = Table.tc(this.n) + ' ' + e
 				}
 				if (this.arrows === undefined || this.arrows.includes(i)) {
 					s = '<table width="100%" class="table_noborder"><tr>'
-					//23jun24 old version s = '<table width="100%" class="table_noborder"><tr><td>'
 					this.createATA(e, i).forEach((e, i1) => {
 						s += '<td><table align="center" class="table_noborder"><tr><th rowspan="2">' + e;
 						for (j = 0; j < 2; j++) {
@@ -428,16 +495,13 @@ class Table {
 					});
 					s += '</table>'
 				}
-				else {
-					s = e
-				}
-				return a + '<th>' + s;
 			}
-				, sb);
-		}
-		else {
-			return sb + '<th>' + a.join('<th>')
-		}
+			return a + Table.colsp(c, s);
+		}, sb);
+	}
+
+	static colsp(c, t) {
+		return '<th' + (c === 1 ? '' : ' colspan="' + c + '"') + '>' + t
 	}
 
 	get(row, column) {
@@ -521,65 +585,42 @@ class Table {
 		return (a, b) => -f(a, b)
 	}
 
-	checkRows(t, up = false) {
-		t.forEach((e, ind) => {
-			if (up && ind == t.length - 1) {
-				return;
-			}
-
+	//if up=true check& count number of columns as max(column for each row)
+	//if up=false check with additional check for number of columns
+	checkRowsGetNumberOfColumns(up) {
+		const c = this.columns + (this.number ? 1 : 0)
+		let t = up ? this.title : this.downRows
+		return Math.max(...t.map((e, ind) => {
 			if (!Array.isArray(e)) {
-				//e=[e]
-				//console.log(up,e,t)
 				throw new Error('Title' + ind + ' should be array')
 			}
-			let i, j = 0
+			let i = 0
 			e.forEach((e, ii) => {
 				if (Array.isArray(e)) {
 					if (e.length == 1) {
-						j++;
+						i++;
 					}
 					else if (e.length == 2) {
 						if (typeof e[1] != 'number' || e[1] <= 0 || !Number.isInteger(e[1])) {
 							throw new Error('Title[' + ind + '][' + ii + '][1] should be integer positive number')
 						}
-						j += e[1]
+						i += e[1]
 					}
 					else {
 						throw new Error('Title[' + ind + '][' + ii + '] should be array with length 1 or 2')
 					}
 				}
 				else {
-					j++;
+					i++;
 				}
 			})
-			i = this.columns + (this.number ? 1 : 0)
-			if (j > i) {
-				throw new Error('Number of columns of title[' + ind + '] exceeds number of columns' + j + ' ' + i)
+			if (!up) {//additional check 
+				if (i > c) {
+					throw new Error('Number of columns of title[' + ind + '] exceeds number of columns' + i + ' ' + c)
+				}
 			}
-		})
-	}
-
-	static getRows(title, number, columns, withLastRow = true) {
-		let i, j, t, c, sb = ''
-		for (i = 0; i < title.length - (withLastRow ? 0 : 1); i++) {
-			sb += '<tr' + (title[i].class ? ' class="' + title[i].class + '"' : '') + '>'
-			j = 0
-			title[i].forEach(e => {
-				if (Array.isArray(e)) {
-					t = e[0]
-					c = e.length > 1 ? e[1] : 1
-				}
-				else {
-					t = e
-					c = 1
-				}
-				j += c
-				sb += '<th' + (c === 1 ? '' : ' colspan="' + c + '"') + '>' + t
-			})
-			sb += '<th>'.repeat(columns - j + (number ? 1 : 0))
-		}
-		//console.log(sb)
-		return sb;
+			return i
+		}))
 	}
 
 	getVerticalHeads(title, top = false) {
