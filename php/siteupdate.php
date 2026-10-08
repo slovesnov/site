@@ -1,19 +1,28 @@
 <?php
 define("SEPARATOR", "\n");
 
+const BUTTONS = ['update remote table', 'show query', 'query to file', 'query to clipboard', 'rows show', 'save pages', 'show pages'];
+$jsCode = '';
+foreach (BUTTONS as $index => $button) {
+	$constantName = strtoupper(str_replace(' ', '_', $button));
+	define($constantName, $index);
+	$jsCode .= "const {$constantName}={$index};";
+}
+
 const BEGIN = ["</table></table>", "</h3></table>", "class=\"presentation\">"];
 const EC = "</div></div></body></html>";
 const EC1 = "<h[34] id=\"versions\">";
-const HEAD = "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
+define('HEAD', "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
 <link rel='shortcut icon' href='../favicon/phpmyadmin.ico' />
 <meta name='viewport' content='width=device-width, initial-scale=1' />
 <link rel='stylesheet' type='text/css' href='../css/common.css'>
 <link rel='stylesheet' type='text/css' href='../css/combobox.css'>
 <link rel='stylesheet' type='text/css' href='../css/siteupdate.css'>
 <link rel='stylesheet' type='text/css' href='../css/table.css'>
+<script>$jsCode</script>
 <script src='../scripts/common.js'></script>
 <script src='../scripts/siteupdate.js'></script>
-<script src='../scripts/table.js'></script>";
+<script src='../scripts/table.js'></script>");
 const HEADE =  "</head><body style='margin-left:7px'><p>";
 const HEAD1 = HEAD . HEADE;
 const IAL_VIDEOS = 0;
@@ -47,8 +56,6 @@ const ETB = '2025-01-21';
 const START_MASS = 70;
 const CALORIE_DAYS = 4;
 const SLQ = ['save', 'load', 'query', 'query paste'];
-
-const BUTTONS = ['update remote table', 'show query', 'query to file', 'query to clipboard', 'rows show', 'save pages', 'show pages'];
 
 include("calorieCommon.php");
 connect();
@@ -1397,12 +1404,6 @@ if (IS_LOCAL) {
 		}
 	}
 
-	$jsCode = '';
-	foreach (BUTTONS as $index => $button) {
-		$constantName = strtoupper(str_replace(' ', '_', $button));
-		define($constantName, $index);
-		$jsCode .= "const {$constantName} = {$index};\n";
-	}
 	if (isset($_POST['pages'])) {
 		if (in_array($_POST['option'], [SAVE_PAGES, SHOW_PAGES])) {
 			$show = $_POST['option'] == SHOW_PAGES;
@@ -1496,7 +1497,7 @@ if (IS_LOCAL) {
 			die($query);
 		}
 	}
-	defaultBody($jsCode);
+	defaultBody();
 } else { //remote
 	date_default_timezone_set('Europe/Moscow');
 	$date = new DateTime();
@@ -2637,7 +2638,7 @@ function dateSring($s) {
 	return ($a[2] % 100) . mb_substr(MONTH_JS[$a[1] - 1], 0, 3) . intval($a[0]);
 }
 
-function defaultBody($s) {
+function defaultBody() {
 	global $mysqli;
 	$tablesList = [];
 	$r = $mysqli->query("show tables");
@@ -2652,9 +2653,6 @@ function defaultBody($s) {
 	$opt = '<option>' . implode('</option><option>', ['pages', 'menus', 'versions', 'videos']) . '</option>';
 
 	$h = HEAD;
-	if (!empty($s)) {
-		$h = preg_replace('/<script/i', "<script>$s</script>$0", $h, 1);
-	}
 	if (IS_LOCAL) {
 		$b = "<button onclick='query()'>query</button>";
 		$bs = js_reduce(BUTTONS, fn($a, $e, $i) => "$a<button onclick=\"pagesClick($i)\"" .

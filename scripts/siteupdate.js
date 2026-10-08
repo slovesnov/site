@@ -376,14 +376,9 @@ function load(p, p1) {
 	}
 
 }
-/*
-0 - execute query
-1 - show query
-2 - save query to file
-3 - show table rows
-*/
+
 function prepareFetch(o, pages = 0, option = 0) {
-	if (option != 2) {
+	if (option != QUERY_TO_FILE) {
 		s = 'overflow:auto;width:800px;white-space:pre-line;'
 		// if (option == 4) {
 		// 	s += 'vertical-align: top;'
@@ -397,7 +392,7 @@ function prepareFetch(o, pages = 0, option = 0) {
 	fetchpost('siteupdate.php', o, clickCallback, pages, option, new Date())
 }
 
-//defined in php see foreach (BUTTONS as $index => $button) {
+//defined in php see foreach (BUTTONS as $index => $button)
 // const UPDATE_REMOTE_TABLE = 0;
 // const SHOW_QUERY = 1;
 // const QUERY_TO_FILE = 2;
