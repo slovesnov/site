@@ -117,9 +117,18 @@ function normalize(s, digits = null) {
 	return Number(digits === null ? s.toString() : Number(s).toFixed(digits))
 }
 
+//fastest version
 function tag2text(s) {
-	const e = { '<': '&lt;', '>': '&gt;', '&': '&amp;' };
-	return s.replace(new RegExp('[' + Object.keys(e).join('') + ']', 'g'), a => e[a])
+	return s.trim()
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#039;");
+}
+
+function codeString(s, lng, width) {
+	return `<pre class="code-container"${width ? ` style="width:${width}px"` : ''}><code class="language-${lng}">${tag2text(s)}</code></pre>`
 }
 
 //1456 -> 24:16

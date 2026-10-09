@@ -29,7 +29,7 @@ const JS_EXT = '.js';
 const FILE = 'index.php';
 const MOBILE_MODE_OFFLINE = 2;
 const REDIRECT_SECONDS = 3;
-const HAS_SCRIPTS = ['table', 'calendar'];
+const TABLE_CALENDAR = ['table', 'calendar'];
 
 $q = prepareQueryString();
 if ($q == 'error') {
@@ -121,6 +121,7 @@ $exists_on_another_language = ($result->num_rows == 1);
 
 $redirect = false;
 $result = $mysqli->query("SELECT title,content,script,onload,css,type,keywords,menu,favicon,latex,admin_only,save_button,video FROM pages WHERE name ='$name' and LANGUAGE='$language'") or die('error line' . __LINE__ . $mysqli->error);
+$pageExists = $result->num_rows != 0;
 if ($result->num_rows == 0) {
 	$title = $language_array[ERROR];
 	if ($exists_on_another_language) {
@@ -157,7 +158,18 @@ if ($result->num_rows == 0) {
 		}
 	}
 	$type = $row['type'];
-	$content = $i ? ADMIN_ONLY_STRING : $row['content'];
+	if ($i) {
+		$content = ADMIN_ONLY_STRING;
+	} else {
+		$content = preg_replace_callback(
+			'/(<code class="language-[^"]+">)(.*?)(<\/code>)/is',
+			function ($matches) {
+				$clean_code = htmlspecialchars(trim($matches[2]));
+				return '<pre class="code-container">' . $matches[1] . $clean_code . $matches[3] . '</pre>';
+			},
+			$row['content']
+		);
+	}
 	$menu = $i ? NULL : $row['menu'];
 	$latex = $row['latex'];
 	$save_button = $row['save_button'];
@@ -167,18 +179,18 @@ if ($result->num_rows == 0) {
 		$script = array_merge($script, explode(' ', str_replace(SELF_SYMBOL, $name, $row['script'])));
 	}
 
-	$hasScripts = array_map(
+	$hasTableCalendar = array_map(
 		fn($word) => (bool)preg_match("/\\b{$word}\\b/", $row['script'] ?? ''),
-		HAS_SCRIPTS
+		TABLE_CALENDAR
 	);
 	if (is_null($row['onload'])) {
-		if (in_array(true, $hasScripts)) {
+		if (in_array(true, $hasTableCalendar)) {
 			die('possible error onload=null with table or calendar in script');
 		}
 	} else {
 		$s = '';
-		foreach (HAS_SCRIPTS as $index => $word) {
-			if (!empty($hasScripts[$index])) {
+		foreach (TABLE_CALENDAR as $index => $word) {
+			if (!empty($hasTableCalendar[$index])) {
 				$className = ucfirst($word);
 				$s .= "{$className}.setLocalImagePath();";
 			}
@@ -296,13 +308,19 @@ if ($latex) {
 	echo '<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>';
 }
 
+if ($pageExists && (in_array($name, ['parser','modal_dialog','cgi']) || strpos($row['content'], 'class="language-') !== false)) {
+	$cdn = "cdnjs" . ".cloudflare" . ".com/ajax/libs/prism/1.29.0";
+	echo "<link rel='stylesheet' href='https://{$cdn}/themes/prism-tomorrow.min.css'>" .
+		"<script src='https://{$cdn}/prism.min.js'></script>" .
+		"<script src='https://{$cdn}/plugins/autoloader/prism-autoloader.min.js'></script>";
+}
+
 $a = [
 	TYPE_NORMAL => 'normal',
 	TYPE_FULLSCREEN => 'fullscreen',
 	TYPE_NOMENU => 'fullscreen',
 	TYPE_PRESENTATION => 'presentation'
 ];
-
 
 echo make_tags($script, '<script src="' . JS_DIR, JS_EXT . '"></script>') .
 	'<title>' . $title . '</title>' . '</head>' .

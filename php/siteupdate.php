@@ -9,20 +9,18 @@ foreach (BUTTONS as $index => $button) {
 	$jsCode .= "const {$constantName}={$index};";
 }
 
+$s = implode("", array_map(
+	fn($e) => "<link rel='stylesheet' type='text/css' href='../css/$e.css'>",
+	['common', 'combobox', 'siteupdate', 'table']
+)) ."<script>$jsCode</script>". implode("", array_map(
+	fn($e) => "<script src='../scripts/$e.js'></script>",
+	['common', 'siteupdate', 'table']
+));
+
 const BEGIN = ["</table></table>", "</h3></table>", "class=\"presentation\">"];
 const EC = "</div></div></body></html>";
 const EC1 = "<h[34] id=\"versions\">";
-define('HEAD', "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
-<link rel='shortcut icon' href='../favicon/phpmyadmin.ico' />
-<meta name='viewport' content='width=device-width, initial-scale=1' />
-<link rel='stylesheet' type='text/css' href='../css/common.css'>
-<link rel='stylesheet' type='text/css' href='../css/combobox.css'>
-<link rel='stylesheet' type='text/css' href='../css/siteupdate.css'>
-<link rel='stylesheet' type='text/css' href='../css/table.css'>
-<script>$jsCode</script>
-<script src='../scripts/common.js'></script>
-<script src='../scripts/siteupdate.js'></script>
-<script src='../scripts/table.js'></script>");
+define('HEAD', "<html><head><meta http-equiv='Content-Type' content='text/html; charset=utf-8'><link rel='shortcut icon' href='../favicon/phpmyadmin.ico' /><meta name='viewport' content='width=device-width, initial-scale=1' />$s");
 const HEADE =  "</head><body style='margin-left:7px'><p>";
 const HEAD1 = HEAD . HEADE;
 const IAL_VIDEOS = 0;

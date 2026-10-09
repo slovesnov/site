@@ -406,7 +406,7 @@ class Table {
 					if (this.arrows === undefined || this.arrows.includes(i)) {
 						s = '<table width="100%" class="table_noborder"><tr>'
 						this.createATA(e, ir).forEach((e, i1) => {
-							s += '<td><table align="center" class="table_noborder"><tr>'+Table.th(2) + e;
+							s += '<td><table align="center" class="table_noborder"><tr>' + Table.th(2) + e;
 							for (k = 0; k < 2; k++) {
 								s += '<td>' + Table.tc(this.n, ir, k, false, i1) + (k ? '</table>' : '<tr>')
 							}
@@ -419,7 +419,7 @@ class Table {
 		}, '<thead>') + '<thead>'
 	}
 
-	static th(c, rowspan=true) {
+	static th(c, rowspan = true) {
 		return '<th' + (c == 1 ? '' : ` ${rowspan ? 'row' : 'col'}span="` + c + '"') + '>'
 	}
 
@@ -569,8 +569,7 @@ class Table {
 					ne[j] += rs
 					fi[j]++
 					s1 += Table.th(rs)
-
-					if (top && this.arrow && j + 1 == title.length && (!this.number || i != 0)) {
+					if (top && this.arrow && j == this.arrowsRow && (!this.number || i)) {
 						this.createATA(s, i - this.number).forEach((e, i1) => {
 							s1 += '<table align="center" class="table_noborder"><th>' + e;
 							for (k = 0; k < 2; k++) {

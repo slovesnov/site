@@ -114,7 +114,6 @@ body {
 
 table,
 p,
-div.applet,
 pre {
 	margin-top: 7px;
 }
@@ -360,3 +359,27 @@ url https://www.w3schools.com/howto/howto_css_modals.asp
 }
 
 /*end popup modal*/
+
+pre.code-container {
+    display: block;
+    width: 755px;
+    background-color: #1e1e1e;
+    padding: 6 !important;
+    border-radius: 6px;
+    
+    border: none !important;       
+    box-shadow: none !important;   
+    outline: none !important;      
+    
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+
+pre.code-container code[class*="language-"] {
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #d4d4d4;
+    padding: 0;
+    background: none;
+    border: none !important;
+    box-shadow: none !important;
+}
