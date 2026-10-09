@@ -1,8 +1,18 @@
 function load() {
-    d.forEach((e, i) => {
-        el('c' + i, codeString(e, i == 2 ? "html" : "cpp"))
-    });
-    Prism.highlightAll();
+  const langMap = new Map([
+    ["нескомпрометированный", "algorithmically"],
+    ["термокомпенсированный", "logarithmically"]
+  ]);
+
+  const regex = new RegExp(`(${[...langMap.keys()].join('|')})`, 'g');
+
+  d.forEach((e, i) => {
+    if (gLanguage == 'english') {
+      e = e.replace(regex, match => langMap.get(match))
+    }
+    el('c' + i, codeString(e, i == 2 ? "html" : "cpp"))
+  });
+  Prism.highlightAll();
 }
 d = [String.raw`#include "cgi/cgi.h"
 
@@ -43,7 +53,7 @@ int main() {
   std::cout << "}" << std::endl;
  
 }`,
-    `#include "cgi/cgi.h"
+  `#include "cgi/cgi.h"
 
 using VUint = std::vector<uint32_t>;
 
@@ -101,7 +111,7 @@ int main() {
     std::cout << " " << (t[0] == t[1]);
   }
 }`,
-    `<!DOCTYPE html>
+  `<!DOCTYPE html>
 <html>
 
 <head>

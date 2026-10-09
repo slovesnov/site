@@ -1,5 +1,4 @@
 function load() {
-	setSourceCodeButtons()
 	for (n = 0; n < 3; n++) {
 		if (n == 0) {
 			data = [['help.txt', 1000, 'ok'], ['table.js', 8654, 'ok'], ['table.css', 54, 'ok']]

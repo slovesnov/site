@@ -127,8 +127,18 @@ function tag2text(s) {
 		.replace(/'/g, "&#039;");
 }
 
-function codeString(s, lng, width) {
-	return `<pre class="code-container"${width ? ` style="width:${width}px"` : ''}><code class="language-${lng}">${tag2text(s)}</code></pre>`
+function codeString(text, lng, width) {
+	let s = ''
+	if (width) {
+		if (typeof width=='string' && width.endsWith('%')) {
+			s = width
+		}
+		else {
+			s = width + 'px'
+		}
+		s = ` style="width:${s}"`
+	}
+	return `<pre class="code-container"${s}><code class="language-${lng}">${tag2text(text)}</code></pre>`
 }
 
 //1456 -> 24:16

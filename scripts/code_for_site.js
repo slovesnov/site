@@ -1,7 +1,34 @@
 const outID = 'p1'
 function load() {
 	if (gPageName == 'p5') {
-		setSourceCodeButtons()
+		el('c', codeString(`<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+  <script>
+    document.addEventListener('paste', e => {
+      p = document.getElementById('p')
+      if (t = e.clipboardData.getData('text/html').match(/<div.*<\/div>/)) {
+        t = t[0];
+        //use innerText on success to leave <>&
+        navigator.clipboard.writeText(t).then(() => p.innerText = 'copied to clipboard\n' + t
+          , () => p.innerHTML = 'error copying to clipboard');
+      }
+      else {
+        p.innerHTML = 'there is no html text on the clipboard'
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <p id="p">Copy text from vs code and press ctrl+v in this window. The converted text will be
+    automatically copied to the clipboard, to paste it press ctrl+v in the text editor.</p>
+</body>
+
+</html>`, 'html'))
+		Prism.highlightAll();
 	}
 	document.addEventListener('drop', drop)
 	document.addEventListener('dragover', allowDrop)

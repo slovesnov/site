@@ -30,6 +30,27 @@ const FILE = 'index.php';
 const MOBILE_MODE_OFFLINE = 2;
 const REDIRECT_SECONDS = 3;
 const TABLE_CALENDAR = ['table', 'calendar'];
+const CODE_PAGES = [ //todo just search
+	'cube1' => 850,
+	'p1' => 930,
+	'p3' => 835,
+	'p5' => 900
+];
+//todo sort
+const HIGHLIGHT_PAGES = [
+	'bignumber',
+	'bridge_logic52',
+	'calendar_formula',
+	'calendar_javascript',
+	'cgi',
+	'combobox_javascript',
+	'matrix',
+	'modal_dialog',
+	'p4',
+	'parser',
+	'pyramid',
+	'selfprint'
+];
 
 $q = prepareQueryString();
 if ($q == 'error') {
@@ -121,7 +142,7 @@ $exists_on_another_language = ($result->num_rows == 1);
 
 $redirect = false;
 $result = $mysqli->query("SELECT title,content,script,onload,css,type,keywords,menu,favicon,latex,admin_only,save_button,video FROM pages WHERE name ='$name' and LANGUAGE='$language'") or die('error line' . __LINE__ . $mysqli->error);
-$pageExists = $result->num_rows != 0;
+$hasHighlightCode = false;
 if ($result->num_rows == 0) {
 	$title = $language_array[ERROR];
 	if ($exists_on_another_language) {
@@ -160,15 +181,24 @@ if ($result->num_rows == 0) {
 	$type = $row['type'];
 	if ($i) {
 		$content = ADMIN_ONLY_STRING;
-	} else {
-		$content = preg_replace_callback(
-			'/(<code class="language-[^"]+">)(.*?)(<\/code>)/is',
-			function ($matches) {
-				$clean_code = htmlspecialchars(trim($matches[2]));
-				return '<pre class="code-container">' . $matches[1] . $clean_code . $matches[3] . '</pre>';
-			},
-			$row['content']
-		);
+	} else { //todo just for search
+		$hasHighlightCode = strpos($row['content'], 'class="language-') !== false;
+		$content = $row['content'];
+		if ($hasHighlightCode) {
+			if (isset(CODE_PAGES[$name])) {
+				$s = ' style="width:' . CODE_PAGES[$name] . 'px"';
+			} else {
+				$s = '';
+			}
+			$content = preg_replace_callback(
+				'/(<code class="language-[^"]+">)(.*?)(<\/code>)/is',
+				function ($matches) use ($s) {
+					$clean_code = htmlspecialchars(trim($matches[2]));
+					return "<pre class=\"code-container\"{$s}>" . $matches[1] . $clean_code . $matches[3] . '</pre>';
+				},
+				$content
+			);
+		}
 	}
 	$menu = $i ? NULL : $row['menu'];
 	$latex = $row['latex'];
@@ -307,12 +337,12 @@ echo "</script>";
 if ($latex) {
 	echo '<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>';
 }
-
-if ($pageExists && (in_array($name, ['parser','modal_dialog','cgi']) || strpos($row['content'], 'class="language-') !== false)) {
-	$cdn = "cdnjs" . ".cloudflare" . ".com/ajax/libs/prism/1.29.0";
-	echo "<link rel='stylesheet' href='https://{$cdn}/themes/prism-tomorrow.min.css'>" .
-		"<script src='https://{$cdn}/prism.min.js'></script>" .
-		"<script src='https://{$cdn}/plugins/autoloader/prism-autoloader.min.js'></script>";
+//todo just for search
+if (in_array($name, HIGHLIGHT_PAGES) || $hasHighlightCode) {
+	$cdn = "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0";
+	echo "<link rel='stylesheet' href='{$cdn}/themes/prism-tomorrow.min.css'>" .
+		"<script src='{$cdn}/prism.min.js'></script>" .
+		"<script src='{$cdn}/plugins/autoloader/prism-autoloader.min.js'></script>";
 }
 
 $a = [
