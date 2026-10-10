@@ -3,72 +3,69 @@
 include('../config.php');
 connect();
 
-const HIGHLIGHT_PAGES = [
-	'aslov',
-	'bignumber',
-	'bridge_logic52',
-	'calendar_formula',
-	'calendar_javascript',
-	'cgi',
-	'combobox_javascript',
-	'matrix',
-	'modal_dialog',
-	'p4',
-	'parser',
-	'permutations',
-	'pyramid',
-	'selfprint',
-	'table_javascript'
-];
-
-$result = $mysqli->query("SELECT name,language,content FROM pages where 1") or die('error line' . __LINE__ . $mysqli->error);
+$result = $mysqli->query("SELECT name,code FROM code where name='cube1'") or die('error line' . __LINE__ . $mysqli->error);
 $c = 1;
 $users = [];
-echo "<table><tr><td>";
-echo "<table>";
 while ($row = $result->fetch_row()) {
-    $h1 = in_array($row[0], HIGHLIGHT_PAGES);
-    if($h1){
-        continue;
-    }
-    $hasHighlightCode = strpos($row[2], 'class="language-') !== false || $h1;
-    if ($hasHighlightCode) {
-        $users[] = [$row[0], $row[1]];
-        echo '<tr><td>' . implode('<td>', [$c++, $row[0], $row[1]]);
+    $a=json_decode($row[1]);
+    if(is_array($a) && count($a)==1){
+        echo $row[0]."<br>";
     }
 }
-echo "</table>";
 
+$a="package main;
 
-$combined = [];
-foreach ($users as $user) {
-    $name = $user[0];
-    $lang = $user[1];
-    $shortLang = ($lang === 'english') ? 'en' : 'ru';
-    $combined[$name][$shortLang] = true;
-}
+import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 
-echo "<td valign=top>";
-echo '<table border="1" cellpadding="8" style="border-collapse: collapse;">';
-echo '<thead><tr style="background-color: #f2f2f2;"><th>User</th><th>Languages</th></tr></thead>';
-$c = 1;
-$s = '';
-foreach ($combined as $name => $langs) {
-    $langString = implode('+', array_keys($langs));
+class Cube {
 
-    if (!in_array($name, HIGHLIGHT_PAGES)) {
-        echo '<tr><td>' . implode('<td>', [$c++, $name . (in_array($name, HIGHLIGHT_PAGES) ? "*" : ""), $langString]);
+  public static void main(String[] arg) {
+    final int init[][] = { { 1, 12, 114, 1068, 10011 }, { 1, 18, 243 } };
+    final int q[][] = { { 2, 8, 12, 8 }, { 18, 12 } };
+    final BigInteger g = new BigInteger(\"43252003274489856000\");
+    BigInteger l[], sum, la, psum;
+    int in[], i, layer, metric;
+
+    DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+    symbols.setGroupingSeparator(',');
+    DecimalFormat df = new DecimalFormat();
+    df.setGroupingSize(6);
+    df.setDecimalFormatSymbols(symbols);
+
+    for (metric = 0; metric < 2; metric++) {
+      in = init[metric];
+      l = new BigInteger[in.length];
+      System.out.println(metric == 0 ? \"qtm\" : \"htm\");
+      for (sum = new BigInteger(\"0\"), layer = 0;; layer++) {
+        if (layer < l.length) {
+          la = l[layer] = new BigInteger(in[layer] + \"\");
+        } else {
+          la = new BigInteger(\"0\");
+          for (i = 1; i < l.length; i++) {
+            la = la.add(l[i].multiply(new BigInteger(q[metric][i - 1] + \"\")));
+          }
+          for (i = 1; i < l.length - 1; i++) {
+            l[i] = l[i + 1];
+          }
+          l[l.length - 1] = la;
+        }
+        psum = sum.add(la);
+        if (psum.compareTo(g) == 1) {
+          System.out.printf(\"layer %2d left %s\\n\", layer - 1, df.format(g.subtract(sum)));
+          break;
+        } else {
+          sum = psum;
+          System.out.printf(\"layer %2d %24s total %24s\\n\", layer, df.format(la), df.format(sum));
+        }
+
+      }
+
     }
-}
-echo '</table>';
-echo "Found " . $result->num_rows . " rows.<br>$s";
-echo '</table>';
 
+  }
 
-/*
-    $b = filter_var($row[3], FILTER_VALIDATE_BOOLEAN);
-    $c = $row[2];
-    $f = strpos($c, "\\(") !== false || strpos($c, "$$") !== false;
-    if ($b != $f)
-        echo '<tr><td>' . implode('<td>', [$row[0], $row[1],var_export($b,1),var_export($f,1)]);
-*/
+}";
+$s=$mysqli->real_escape_string(json_encode($a));
+//$result = $mysqli->query("update code set code='$s' where name='cube1'") or die('error line' . __LINE__ . $mysqli->error);

@@ -30,28 +30,6 @@ const FILE = 'index.php';
 const MOBILE_MODE_OFFLINE = 2;
 const REDIRECT_SECONDS = 3;
 const TABLE_CALENDAR = ['table', 'calendar'];
-const CODE_PAGES = [
-	'cube1' => 850,
-	'p1' => 930,
-	'p3' => 835
-];
-const HIGHLIGHT_PAGES = [
-	'aslov',
-	'bignumber',
-	'bridge_logic52',
-	'calendar_formula',
-	'calendar_javascript',
-	'cgi',
-	'combobox_javascript',
-	'matrix',
-	'modal_dialog',
-	'p4',//todo
-	'parser',
-	'permutations',
-	'pyramid',
-	'selfprint',
-	'table_javascript'
-];
 
 $q = prepareQueryString();
 if ($q == 'error') {
@@ -140,10 +118,9 @@ $admin_only = false;
 $videostr = '';
 $result = $mysqli->query("SELECT 1 FROM pages WHERE NAME ='$name' and LANGUAGE='$opposite_language' LIMIT 1") or die('error line' . __LINE__ . $mysqli->error);
 $exists_on_another_language = ($result->num_rows == 1);
-
+$hasHighlightCode = false;
 $redirect = false;
 $result = $mysqli->query("SELECT title,content,script,onload,css,type,keywords,menu,favicon,admin_only,save_button,video FROM pages WHERE name ='$name' and LANGUAGE='$language'") or die('error line' . __LINE__ . $mysqli->error);
-$hasHighlightCode = in_array($name, HIGHLIGHT_PAGES);
 if ($result->num_rows == 0) {
 	$title = $language_array[ERROR];
 	if ($exists_on_another_language) {
@@ -184,23 +161,32 @@ if ($result->num_rows == 0) {
 		$content = ADMIN_ONLY_STRING;
 	} else {
 		$content = $row['content'];
-		if (!$hasHighlightCode) {
-			$hasHighlightCode = strpos($row['content'], 'class="language-') !== false;
-			if ($hasHighlightCode) {
-				if (isset(CODE_PAGES[$name])) {
-					$s = ' style="width:' . CODE_PAGES[$name] . 'px"';
-				} else {
-					$s = '';
-				}
-				$content = preg_replace_callback(
-					'/(<code class="language-[^"]+">)(.*?)(<\/code>)/is',
-					function ($matches) use ($s) {
-						$clean_code = htmlspecialchars(trim($matches[2]));
-						return "<pre class=\"code-container\"{$s}>" . $matches[1] . $clean_code . $matches[3] . '</pre>';
-					},
-					$content
-				);
-			}
+		$res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
+		if ($res->num_rows) {
+			$hasHighlightCode = true;
+			$ar = array_map(fn($v) => json_decode($v, true), $res->fetch_row());
+			$content = preg_replace_callback(
+				'~<p id="c(\d+)"></p>~',
+				function ($m) use ($ar, $language) {
+					$n = $m[1];
+					$f = fn($i) => is_array($ar[$i])  ? $ar[$i][$n]:$ar[$i];
+					$code = $f(0);
+					$lng = $f(1);
+					if (!is_null($ar[2]) && $language == 'russian') {
+						$code = strtr($code, $ar[2]);
+					}
+					$code = htmlspecialchars($code);
+					$w = '';
+					if (!is_null($ar[3])) {
+						$w = $f(3);
+						if (!is_null($w)) {
+							$w = " style=\"width:{$w}px\"";
+						}
+					}
+					return "<pre class=\"code-container\"$w><code class=\"language-$lng\">$code</code></pre>";
+				},
+				$content
+			);
 		}
 	}
 	$menu = $i ? NULL : $row['menu'];
