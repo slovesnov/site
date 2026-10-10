@@ -13,13 +13,6 @@ languageString = [[
 //gLanguage='english'
 
 function load() {
-	if (gPageName == 'bridge_logic52') {
-		gs.forEach((e, i) => {
-			el('c' + i, codeString(e, "cpp"));
-		});
-		Prism.highlightAll();
-		return
-	}
 	languageString[0].forEach((e, i) => {
 		window['g' + e.replace(' ', '_')] = i;
 	});
@@ -413,28 +406,3 @@ function countBridgeScore(contract, trump, tricks, doubleRedouble, vulnerable) {
 	}
 	return res;
 }
-
-gs = [`struct HashItem {
-  int32_t code[3];
-  int16_t code3;
-  int8_t f;
-  int8_t v;
-};
-
-struct Hash{
-  HashItem i[HASH_ITEMS];
-  int32_t next;
-};`, `struct Hash {
-  int16_t code[3];
-  int8_t f;
-  int8_t v;
-};`, `struct HashItem {
-  int16_t code[3];
-  int8_t f;
-  int8_t v;
-};
-
-struct Hash{
-  HashItem i[HASH_ITEMS];
-  int32_t next;
-};`]
