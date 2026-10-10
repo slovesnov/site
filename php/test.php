@@ -4,6 +4,7 @@ include('../config.php');
 connect();
 
 const HIGHLIGHT_PAGES = [
+    'aslov',
     'bignumber',
     'bridge_logic52',
     'calendar_formula',
@@ -14,8 +15,10 @@ const HIGHLIGHT_PAGES = [
     'modal_dialog',
     'p4',
     'parser',
+    'permutations',
     'pyramid',
-    'selfprint'
+    'selfprint',
+    'table_javascript'
 ];
 
 $result = $mysqli->query("SELECT name,language,content FROM pages where 1") or die('error line' . __LINE__ . $mysqli->error);
@@ -25,6 +28,9 @@ echo "<table><tr><td>";
 echo "<table>";
 while ($row = $result->fetch_row()) {
     $h1 = in_array($row[0], HIGHLIGHT_PAGES);
+    if($h1){
+        continue;
+    }
     $hasHighlightCode = strpos($row[2], 'class="language-') !== false || $h1;
     if ($hasHighlightCode) {
         $users[] = [$row[0], $row[1]];
@@ -46,12 +52,12 @@ echo "<td valign=top>";
 echo '<table border="1" cellpadding="8" style="border-collapse: collapse;">';
 echo '<thead><tr style="background-color: #f2f2f2;"><th>User</th><th>Languages</th></tr></thead>';
 $c = 1;
-$s='';
+$s = '';
 foreach ($combined as $name => $langs) {
     $langString = implode('+', array_keys($langs));
-    echo '<tr><td>' . implode('<td>', [$c++, $name.(in_array($name, HIGHLIGHT_PAGES)?"*":""), $langString]);
-    if(!in_array($name, HIGHLIGHT_PAGES) && $langString=='en+ru'){
-        $s.=$name." ";
+
+    if (!in_array($name, HIGHLIGHT_PAGES)) {
+        echo '<tr><td>' . implode('<td>', [$c++, $name . (in_array($name, HIGHLIGHT_PAGES) ? "*" : ""), $langString]);
     }
 }
 echo '</table>';

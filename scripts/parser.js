@@ -247,7 +247,7 @@ public class Example1 {
   }
 
 }`
-	, `package demo;
+	, String.raw`package demo;
 
 import estimator.ExpressionEstimator;
 
@@ -259,22 +259,22 @@ public class Example2 {
 
     try {
       e.compile("x0+2*sin(pi*x1)");
-      s += e.calculate(1, .25) + "\\n";
+      s += e.calculate(1, .25) + "\n";
       double v[] = { 1, 1. / 6 };
-      s += e.calculate(v) + "\\n";
+      s += e.calculate(v) + "\n";
       e.compile("x0+2*X1");// case insensitive variable names
-      s += e.calculate(1, .25) + "\\n";
+      s += e.calculate(1, .25) + "\n";
 
       e = new ExpressionEstimator("x0+2*x1");
-      s += e.calculate(1, 3) + "\\n";
+      s += e.calculate(1, 3) + "\n";
 
       e.compile("a+2*b", "a", "b");// case sensitive variable names
       // or e.compile("a+2*b", new String[] { "a", "b" });
-      s += e.calculate(1, 1) + "\\n";
+      s += e.calculate(1, 1) + "\n";
 
       e = new ExpressionEstimator("a+2*A", "a", "A");// case sensitive variable names
       // or e = new ExpressionEstimator("a+2*A", new String[] { "a", "A" });
-      s += e.calculate(1, 2) + "\\n";
+      s += e.calculate(1, 2) + "\n";
 
       System.out.println(s);
     } catch (Exception ex) {

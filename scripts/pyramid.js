@@ -212,11 +212,7 @@ function load() {
             ctx.fillText(q, size * 12 + ax, d + gh * 3 / 2);
         })
     })
-    el('c', codeString(`int code= (27 * sy + 9 * sw + 3 * sb + sr + 81 * pe) << 5;
-for(i = 0; i < 5; ++i){
-  if(o[i])
-    code |= 1 << i;
-}`, 'cpp'))
+    el('c', codeString(gs, 'cpp'))
     Prism.highlightAll();
 }
 
@@ -272,3 +268,9 @@ function arrow(fx, fy, tx, ty, r) {
     ctx.fill()
     ctx.resetTransform()
 }
+
+gs = `int code= (27 * sy + 9 * sw + 3 * sb + sr + 81 * pe) << 5;
+for(i = 0; i < 5; ++i){
+  if(o[i])
+    code |= 1 << i;
+}`

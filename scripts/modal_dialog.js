@@ -11,7 +11,7 @@ let state = new Array(columns.length).fill(true)
 let re = new RegExp('')
 
 function load() {
-	el('source').insertAdjacentHTML("afterend", codeString(code, "html", 855))
+	el('source').insertAdjacentHTML("afterend", codeString(gs, "html", 855))
 	Prism.highlightAll();
 }
 
@@ -69,7 +69,7 @@ function show(n) {
 	}
 }
 
-code = `<!DOCTYPE html>
+gs = `<!DOCTYPE html>
 <html>
 
 <head>

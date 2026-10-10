@@ -1,20 +1,20 @@
 function load() {
   const langMap = new Map([
-    ["нескомпрометированный", "algorithmically"],
-    ["термокомпенсированный", "logarithmically"]
+    ["algorithmically", "нескомпрометированный"],
+    ["logarithmically", "термокомпенсированный"]
   ]);
 
   const regex = new RegExp(`(${[...langMap.keys()].join('|')})`, 'g');
 
-  d.forEach((e, i) => {
-    if (gLanguage == 'english') {
+  gs.forEach((e, i) => {
+    if (gLanguage == 'russian') {
       e = e.replace(regex, match => langMap.get(match))
     }
     el('c' + i, codeString(e, i == 2 ? "html" : "cpp"))
   });
   Prism.highlightAll();
 }
-d = [String.raw`#include "cgi/cgi.h"
+gs = [String.raw`#include "cgi/cgi.h"
 
 int main() {
   Cgi c;
@@ -153,8 +153,8 @@ int main() {
 
 <body onload="load()">
   <form action="cgi-bin/cgi.exe">
-    строка 1 <input type="text" name="s0" value="нескомпрометированный"><br>
-    строка 2 <input type="text" name="s1" value="термокомпенсированный"><br>
+    строка 1 <input type="text" name="s0" value="algorithmically"><br>
+    строка 2 <input type="text" name="s1" value="logarithmically"><br>
     <button type="submit">submit form get</button>
     <button type="submit" formmethod="post">submit form post</button>
   </form>

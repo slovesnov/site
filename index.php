@@ -36,6 +36,7 @@ const CODE_PAGES = [
 	'p3' => 835
 ];
 const HIGHLIGHT_PAGES = [
+	'aslov',
 	'bignumber',
 	'bridge_logic52',
 	'calendar_formula',
@@ -46,8 +47,10 @@ const HIGHLIGHT_PAGES = [
 	'modal_dialog',
 	'p4',
 	'parser',
+	'permutations',
 	'pyramid',
-	'selfprint'
+	'selfprint',
+	'table_javascript'
 ];
 
 $q = prepareQueryString();

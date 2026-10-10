@@ -1,11 +1,11 @@
 function load() {
-    d.forEach((e, i) => {
+    gs.forEach((e, i) => {
         el('c' + i).insertAdjacentHTML("afterend", codeString(e, 'cpp'))
     });
     Prism.highlightAll();
 }
 
-d = [`Matrix M(3, 2);
+gs = [`Matrix M(3, 2);
 int i = M.GetRows(); // i = 3
 int j = M.GetCols(); // j = 2`, `Matrix M(2, 2, 1, 2, 3, 4);
 int i = M(1, 0); // i = 3 equals to the element of the second row and first column`, `Matrix A(3, 2);
