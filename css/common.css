@@ -113,8 +113,7 @@ body {
 }
 
 table,
-p,
-pre {
+p {
 	margin-top: 7px;
 }
 
@@ -130,10 +129,6 @@ table.topmenu {
 
 table.topmenu td {
 	text-align: center;
-}
-
-pre {
-	font-size: 10pt;
 }
 
 h3,

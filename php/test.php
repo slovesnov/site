@@ -1,6 +1,10 @@
 <?php
 
 include('../config.php');
+
+var_dump(json_decode(null),json_decode("850"));
+
+/*
 connect();
 
 $result = $mysqli->query("SELECT name,code FROM code where name='cube1'") or die('error line' . __LINE__ . $mysqli->error);
@@ -66,6 +70,6 @@ class Cube {
 
   }
 
-}";
-$s=$mysqli->real_escape_string(json_encode($a));
+}";*/
+//$s=$mysqli->real_escape_string(json_encode($a));
 //$result = $mysqli->query("update code set code='$s' where name='cube1'") or die('error line' . __LINE__ . $mysqli->error);
