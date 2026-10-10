@@ -30,13 +30,11 @@ const FILE = 'index.php';
 const MOBILE_MODE_OFFLINE = 2;
 const REDIRECT_SECONDS = 3;
 const TABLE_CALENDAR = ['table', 'calendar'];
-const CODE_PAGES = [ //todo just search
+const CODE_PAGES = [
 	'cube1' => 850,
 	'p1' => 930,
-	'p3' => 835,
-	'p5' => 900
+	'p3' => 835
 ];
-//todo sort
 const HIGHLIGHT_PAGES = [
 	'bignumber',
 	'bridge_logic52',
@@ -141,8 +139,8 @@ $result = $mysqli->query("SELECT 1 FROM pages WHERE NAME ='$name' and LANGUAGE='
 $exists_on_another_language = ($result->num_rows == 1);
 
 $redirect = false;
-$result = $mysqli->query("SELECT title,content,script,onload,css,type,keywords,menu,favicon,latex,admin_only,save_button,video FROM pages WHERE name ='$name' and LANGUAGE='$language'") or die('error line' . __LINE__ . $mysqli->error);
-$hasHighlightCode = false;
+$result = $mysqli->query("SELECT title,content,script,onload,css,type,keywords,menu,favicon,admin_only,save_button,video FROM pages WHERE name ='$name' and LANGUAGE='$language'") or die('error line' . __LINE__ . $mysqli->error);
+$hasHighlightCode = in_array($name, HIGHLIGHT_PAGES);
 if ($result->num_rows == 0) {
 	$title = $language_array[ERROR];
 	if ($exists_on_another_language) {
@@ -181,27 +179,29 @@ if ($result->num_rows == 0) {
 	$type = $row['type'];
 	if ($i) {
 		$content = ADMIN_ONLY_STRING;
-	} else { //todo just for search
-		$hasHighlightCode = strpos($row['content'], 'class="language-') !== false;
+	} else {
 		$content = $row['content'];
-		if ($hasHighlightCode) {
-			if (isset(CODE_PAGES[$name])) {
-				$s = ' style="width:' . CODE_PAGES[$name] . 'px"';
-			} else {
-				$s = '';
+		if (!$hasHighlightCode) {
+			$hasHighlightCode = strpos($row['content'], 'class="language-') !== false;
+			if ($hasHighlightCode) {
+				if (isset(CODE_PAGES[$name])) {
+					$s = ' style="width:' . CODE_PAGES[$name] . 'px"';
+				} else {
+					$s = '';
+				}
+				$content = preg_replace_callback(
+					'/(<code class="language-[^"]+">)(.*?)(<\/code>)/is',
+					function ($matches) use ($s) {
+						$clean_code = htmlspecialchars(trim($matches[2]));
+						return "<pre class=\"code-container\"{$s}>" . $matches[1] . $clean_code . $matches[3] . '</pre>';
+					},
+					$content
+				);
 			}
-			$content = preg_replace_callback(
-				'/(<code class="language-[^"]+">)(.*?)(<\/code>)/is',
-				function ($matches) use ($s) {
-					$clean_code = htmlspecialchars(trim($matches[2]));
-					return "<pre class=\"code-container\"{$s}>" . $matches[1] . $clean_code . $matches[3] . '</pre>';
-				},
-				$content
-			);
 		}
 	}
 	$menu = $i ? NULL : $row['menu'];
-	$latex = $row['latex'];
+	$latex = strpos($row['content'], "\\(") !== false || strpos($row['content'], "$$") !== false;
 	$save_button = $row['save_button'];
 	$video = $row['video'];
 
@@ -337,8 +337,7 @@ echo "</script>";
 if ($latex) {
 	echo '<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>';
 }
-//todo just for search
-if (in_array($name, HIGHLIGHT_PAGES) || $hasHighlightCode) {
+if ($hasHighlightCode) {
 	$cdn = "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0";
 	echo "<link rel='stylesheet' href='{$cdn}/themes/prism-tomorrow.min.css'>" .
 		"<script src='{$cdn}/prism.min.js'></script>" .
@@ -384,7 +383,7 @@ echo $content;
 $result = $mysqli->query("SELECT content,use_title,h3 FROM `versions` WHERE NAME ='$name' and LANGUAGE='$language'") or die('error on line' . __LINE__ . $mysqli->error);
 
 if ($result->num_rows != 0) {
-	$row = $result->fetch_array();
+	$row = $result->fetch_assoc();
 	if ($row['use_title']) {
 		$i = $row['h3'] ? 'h3' : 'h4';
 		echo '<' . $i . ' id="versions">' . $language_array[VERSION_HISTORY] . '</' . $i . '>';

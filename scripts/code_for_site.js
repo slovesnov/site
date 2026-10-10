@@ -1,68 +1,35 @@
 const outID = 'p1'
 function load() {
-	if (gPageName == 'p5') {
-		el('c', codeString(`<!DOCTYPE html>
-<html>
-
-<head>
-  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-  <script>
-    document.addEventListener('paste', e => {
-      p = document.getElementById('p')
-      if (t = e.clipboardData.getData('text/html').match(/<div.*<\/div>/)) {
-        t = t[0];
-        //use innerText on success to leave <>&
-        navigator.clipboard.writeText(t).then(() => p.innerText = 'copied to clipboard\n' + t
-          , () => p.innerHTML = 'error copying to clipboard');
-      }
-      else {
-        p.innerHTML = 'there is no html text on the clipboard'
-      }
-    });
-  </script>
-</head>
-
-<body>
-  <p id="p">Copy text from vs code and press ctrl+v in this window. The converted text will be
-    automatically copied to the clipboard, to paste it press ctrl+v in the text editor.</p>
-</body>
-
-</html>`, 'html'))
-		Prism.highlightAll();
-	}
 	document.addEventListener('drop', drop)
 	document.addEventListener('dragover', allowDrop)
 
 	l = gLanguage == 'russian' ? [
 		'ошибка копирования в буфер обмена'//0
 		, 'скопировано в буфер обмена'//1
-		, 'Скопируйте текст из vs code и нажмите ctrl+v в этом окне. Перекодированный текст, автоматически скопируется в буфер обмена, чтобы его вставить  нужно нажать ctrl+v в текстовом редакторе. Можно перетащить файл тогда применяется опция zip text и имя переменной считывается из файла.'//2
-		, 'в буфере обмена нет html текста'//3
+		, 'Скопируйте текст и нажмите ctrl+v в этом окне. Сжатый текст, автоматически скопируется в буфер обмена, чтобы его вставить нужно нажать ctrl+v в текстовом редакторе. Можно перетащить файл тогда имя переменной считывается из файла.'//2
+		, 'перезаписывать скрипт даже если переменная не найдена'//3
 		, 'копировать в буфер обмена'//4
 		, 'не задано имя переменной при указанном файле'//5
 		, 'переменная'//6
 		, 'имя скрипта name или name.js'//7
 		, 'должна быть одна переменная, найдено'//8
-		, 'перезаписывать скрипт даже если переменная не найдена'//9
 	]
 		: [
 			'error copying to clipboard'//0
 			, 'copied to clipboard'//1
-			, 'Copy text from vs code and press ctrl+v in this window. The converted text will be automatically copied to the clipboard, to paste it press ctrl+v in the text editor. If you drag and drop a file, the “zip text” option is applied, and the variable name is read from the file.'//2
-			, 'there is no html text on the clipboard'//3
+			, 'Copy text and press ctrl+v in this window. The zipped text will be automatically copied to the clipboard, to paste it press ctrl+v in the text editor. You can drag and drop a file to read the variable name from it.'//2
+			, 'overwrite script even if variable is not found'//3
 			, 'copy to clipboard'//4
 			, 'variable name is not specified for the provided file'//5
 			, 'variable'//6
 			, 'name or name.js to change'//7
 			, 'there must be one variable but found'//8
-			, 'overwrite script even if variable is not found'//9
 		]
 
-	gShowFile = isLocal() && gPageName != 'p5'
+	gShowFile = isLocal()
 	el('p', l[2] + `<br>`
-		+ ['vscode', 'zip vscode', 'zip text'].map((e, i) => `<label><input type="radio" name="o"${i == 1 ? ' checked' : ''}> ${e}</label>`).join('')
 		+ ` <input type='text' placeholder='${l[6]}' id='v' style='width:100px'>`
-		+ (gShowFile ? ` <input type='text' placeholder='${l[7]}' id='script' style='width:190px'><br><label><input type='checkbox' checked id='always_overwrite'>${l[9]}</label>` : '')
+		+ (gShowFile ? ` <input type='text' placeholder='${l[7]}' id='script' style='width:190px'><br><label><input type='checkbox' checked id='always_overwrite'>${l[3]}</label>` : '')
 		+ `<p id='${outID}'></p>`
 	)
 	el('v').value = 'source'
@@ -73,22 +40,12 @@ function load() {
 }
 
 function pasteEvent(e) {
-	[text, zip] = params()
-	t = typeof e == 'string' ? e : e.clipboardData.getData(text ? 'text' : 'text/html')
-	if (text || (t = t.match(/<div.*<\/div>/))) {
-		if (!text) {
-			t = t[0]
-		}
-		len = t.length
-		t = zip ? gzdeflate(t) : t.replace(/[\\`$]/g, `\\$&`)
-		v = el('v').value
-		t = (v ? v + '=' : '') + `\`${t}\``
-		copyToClipBoard(t, len)
-	}
-	else {
-		out(l[3])
-	}
-
+	t = typeof e == 'string' ? e : e.clipboardData.getData('text')
+	len = t.length
+	t = gzdeflate(t)
+	v = el('v').value
+	t = (v ? v + '=' : '') + `\`${t}\``
+	copyToClipBoard(t, len)
 }
 
 function copyToClipBoard(t, lenBefore) {
@@ -96,9 +53,9 @@ function copyToClipBoard(t, lenBefore) {
 	navigator.clipboard.writeText(t).then(() => {
 		le = [lenBefore, t.length]
 		m = le.map(e => formatString(e, ','))
-		s = l[1] + getSourceCodeButtons("copyToClipBoard()") + "<br>"
-			+ (zip ? t : tag2text(t)).slice(0, 30) + `… `
-			+ (zip ? `${m[0]} ➔ ${m[1]}, zip ${formatNumber((le[0] - le[1]) / le[0] * 100, 0)}%` : m[1])
+		s = l[1] + '<button title="копировать в буфер обмена" class="comboboxbutton" onclick="copyToClipBoard()"><img src="img/jm/copy16.png"></button><br>'
+			+ t .slice(0, 30) + `… `
+			+  `${m[0]} ➔ ${m[1]}, zip ${formatNumber((le[0] - le[1]) / le[0] * 100, 0)}%`
 		out(s)
 		if (gShowFile) {
 			if (script = el('script').value) {
@@ -117,18 +74,6 @@ function out(text, add = false) {
 	let o = el(outID)
 	o.innerHTML = (add ? o.innerHTML + '<br>' : '') + text
 }
-
-function params() {
-	let i = rindex()
-	return [i == 2, i != 0]
-}
-
-function rindex() {
-	const radioList = document.querySelectorAll('input[name="o"]');
-	const checkedRadio = document.querySelector('input[name="o"]:checked');
-	return [...radioList].indexOf(checkedRadio);
-}
-
 
 function allowDrop(e) {
 	e.preventDefault();

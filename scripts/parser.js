@@ -29,7 +29,7 @@ function load() {
 
 	]
 
-	t = b ? ['Примеры', 'Исходный код'] : ['Examples', 'Source code']
+	t = b ? ['Примеры', 'Исходный код (разбит на несколько проектов)'] : ['Examples', 'Source code (split into multiple projects)']
 	t = t.map(e => `<table><thead><h4 style="margin:0;padding:0">${e}</h4></thead>`)
 
 	f = (e, i, j) => j ? `<a href='${r[i]}'>${e[0]}</a>` + e[1] : `<a href="${i == 4 ? '?parser_versions' : '#' + (i ? e : 'cpp')}">${e}</a>`

@@ -441,39 +441,6 @@ function downloadCopyCode(i, buttonIndex) {
 	}
 }
 
-function setSourceCodeButtons(...names) {
-	gSourceCodeSelector = document.querySelectorAll("[style*='background-color: #1f1f1f']");
-	if (names.length && typeof names[0] == 'object' && names[0].all !== undefined) {
-		names = new Array(gSourceCodeSelector.length).fill(names[0].all)
-	}
-	gSourceCodeFileNames = names;
-	gSourceCodeSelector.forEach((e, i) => {
-		//after style document.querySelectorAll("[style*='background-color: #1f1f1f']"); will not work have to usedocument.querySelectorAll("[style*='background-color: rgb(31, 31, 31)']");
-		if (gPageType != 1) {
-			e.style.width = '796px'//800-padding left=4=796
-			e.style.marginLeft = '-7px'
-		}
-		e.style.paddingLeft = e.style.paddingTop = '4px'
-		//use previousElementSibling instead of previousSibling
-		e.previousElementSibling.innerHTML += getSourceCodeButtons(i)
-		//downloadCopyCode(i, gCommonDebugOutputname)//output recognized file type
-	})
-}
-
-function getSourceCodeButtons(n) {
-	const useText = 0
-	let t = gLanguage == 'russian' ? ['скачать исходный код', 'копировать в буфер обмена'] : ['download source code', 'copy to clipboard'];
-	let a = useText ? t : ['save', 'copy']
-	if (typeof n == 'string') {
-		t = t.slice(1)
-		a = a.slice(1)
-	}
-	return a.reduce((a, e, i) => a += ` <button title="${t[i]}" class="comboboxbutton" onclick="`
-		+ (typeof n == 'number' ? `downloadCopyCode(${n},${i})` : n) + `">`
-		+ (useText ? e : `<img src="img/jm/${e}16.png">`) + `</button>`
-		, '');
-}
-
 function setCanvasSize(c, w, h) {
 	//https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio
 	c.style.width = w + "px";
