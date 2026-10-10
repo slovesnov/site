@@ -3,6 +3,7 @@ function load(){
         el('c' + i, codeString(e, "cpp"))
     });
     Prism.highlightAll();
+    console.log(gs.length)
 }
 
 gs=[`template <typename T, auto FreeFunc> struct GtkResourceDeleter {

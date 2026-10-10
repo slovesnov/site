@@ -1,5 +1,5 @@
 function load() {
-	el('c', codeString(gs,'html', 850))
+	el('c0', codeString(gs[0],'html', 850))
 	Prism.highlightAll();
 }
 
@@ -42,7 +42,7 @@ function outResult() {
 	// 	, '<table><tr><th>' + Object.keys(ga[0]).join('<th>')) + '</table>'
 }
 
-gs=`<!DOCTYPE html>
+gs=[`<!DOCTYPE html>
 <html>
 
 <head>
@@ -91,4 +91,4 @@ gs=`<!DOCTYPE html>
   <p id="p"></p>
 </body>
 
-</html>`
+</html>`]

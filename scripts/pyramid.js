@@ -39,7 +39,7 @@ function load() {
     }
 
     for (d = 0; d < 3; d++) {
-        canvas = el('c' + d);
+        canvas = el('i' + d);
         canvas.style = "float:left;margin-right: 3px;"
         ctx = canvas.getContext('2d');
         canvas.width = mx[0];
@@ -188,7 +188,7 @@ function load() {
             "rrwybwyyrbbwwwyrbrrbybwy ywbyr'b'ryrw'b"]
     ].forEach((p, l) => {
         pl = (p.length + p.length % 2) / 2
-        canvas = el('c' + (l + 3));
+        canvas = el('i' + (l + 3));
         setCanvasSize(canvas, 2 * w, Math.floor(3 * gh * pl) + 1)
         ctx = canvas.getContext('2d');
         ctx.lineWidth = 1;
@@ -212,7 +212,7 @@ function load() {
             ctx.fillText(q, size * 12 + ax, d + gh * 3 / 2);
         })
     })
-    el('c', codeString(gs, 'cpp'))
+    el('c0', codeString(gs[0], 'cpp'))
     Prism.highlightAll();
 }
 
@@ -269,8 +269,8 @@ function arrow(fx, fy, tx, ty, r) {
     ctx.resetTransform()
 }
 
-gs = `int code= (27 * sy + 9 * sw + 3 * sb + sr + 81 * pe) << 5;
+gs = [`int code= (27 * sy + 9 * sw + 3 * sb + sr + 81 * pe) << 5;
 for(i = 0; i < 5; ++i){
   if(o[i])
     code |= 1 << i;
-}`
+}`]
