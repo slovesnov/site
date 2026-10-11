@@ -482,17 +482,14 @@ function fileUploadCB(s, time) {
 	else {
 		try {
 			a = JSON.parse(s);
-			remote = a.pop()
-			
+			remote = a.pop()			
 			gfiles = getPages(a.filter(e => e[2]), 0)
-			s = '<table>'
-			a.forEach((a, j) => {
-				p = a[0]
-				l = a[1]
-				r = a[2] ? "ok" : "<font color='red'>not found</font>";
-				s += `<tr><td>${j + 1}<td><a href='../index.php?${p + ',' + l}' target='_blank'>${p + ' ' + l}</a><td>${r}`
-			})
-			s += '</table>' + remote + timefull(time)
+			s = a.reduce((a,e, i) => {
+				p = e[0]
+				l = e[1]
+				r = e[2]
+				return a + `<tr><td>${i + 1}<td><a href='../index.php?${p + ',' + l}' target='_blank'>${p + ' ' + l}</a><td>${r}`
+			},'<table>') + '</table>' + remote + timefull(time)
 		} catch (e) {
 			//alert(e)
 			//output s which passed to function can be die() in php

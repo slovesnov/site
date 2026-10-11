@@ -109,12 +109,6 @@ $log_file_name = "log.txt";
 
 function variable_to_string($p) {
 	if (is_array($p)) {
-		// ksort($p);
-		// if (!empty($p) && array_key_exists(0, $p) && is_array($p[0])) {
-		// 	foreach ($p as $k => $e) {
-		// 		ksort($p[$k]);
-		// 	}
-		// }
 		return print_r($p, true);
 	} else if (is_string($p)) {
 		return $p;

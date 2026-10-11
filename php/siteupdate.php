@@ -55,6 +55,7 @@ const START_MASS = 70;
 const CALORIE_DAYS = 4;
 const SLQ = ['save', 'load', 'query', 'query paste'];
 const LANGUAGE = ["english", "russian"];
+const END_CODE = "<#>";
 
 include("calorieCommon.php");
 connect();
@@ -1319,11 +1320,14 @@ if (IS_LOCAL) {
 		$affectedCodeRows = null;
 		$filename = $_FILES['file']['name'];
 		$cf = count($filename);
-		clearlog();
 		if (in_array($cf, [1, 2])) {
 			$pageLanguageText = [];
+			$hasEndTag = [];
 			foreach ($_FILES["file"]['tmp_name'] as $path) {
+				//const END_CODE="<#>";
+
 				$text = file_get_contents($path);
+				$hasEndTag[] = str_contains($text, END_CODE);
 				$d = getPageLanguage($text);
 				$d[] = $text;
 				$pageLanguageText[] = $d;
@@ -1333,14 +1337,14 @@ if (IS_LOCAL) {
 			$res = $mysqli->query("SELECT count(*) FROM pages where name='" . $pageLanguageText[0][0] . "'");
 			$row = $res->fetch_row();
 
-			if ($cf == 1 && (int)$row[0] == 2 || $pageLanguageText[0][0] != $pageLanguageText[1][0] || $l !== LANGUAGE) { //pass one file,two in db can't update
+			if ($cf == 1 && !$hasEndTag[0] || $cf == 2 && !$hasEndTag[0] && !$hasEndTag[1] || $cf == 1 && (int)$row[0] == 2 || $pageLanguageText[0][0] != $pageLanguageText[1][0] || $l !== LANGUAGE) { //pass one file,two in db can't update
 			} else {
 				$v = codeUpdate($pageLanguageText);
-				if (is_string($v)) {
-					$d[2] = false;
+				$b = $cf == 2 && $hasEndTag[0] != $hasEndTag[1];
+				if (is_string($v) || $b) {
+					$d[2] = $b ? "one file has " . END_CODE . " and other not " : $v;
 					$r[] = $d;
-					$r[] = $v;
-					printlog($r);
+					$r[] = "";
 					die(json_encode($r));
 				}
 				$affectedCodeRows = $v[2];
@@ -1756,7 +1760,7 @@ function updatePage($c) {
 	$w = "WHERE name='$p' AND language='$l'";
 	$r = $mysqli->query("SELECT 1 FROM pages $w limit 1") or die('error at line' . __LINE__ . $mysqli->error);
 	if ($r->num_rows == 0) {
-		return [$p, $l, false];
+		return [$p, $l, "page not found"];
 	}
 
 	$s = $mysqli->real_escape_string(trim($s));
@@ -1765,7 +1769,7 @@ function updatePage($c) {
 	$r = $mysqli->query("UPDATE pages SET title='$title', content='$s' $w") or die('error at line' . __LINE__ . $mysqli->error);
 	// echo "[$p][$l][$s][$i][$j]";
 
-	return [$p, $l, true];
+	return [$p, $l, "ok"];
 }
 
 function multiQuery($query, $number = false) {
@@ -2751,7 +2755,7 @@ function codeUpdate($pageLanguageText) {
 	foreach (array_keys($t[0]) as $k) {
 		if (in_array($k, ['languge', 'count'])) {
 			if ($t[0][$k] != $t[1][$k]) {
-				return "different $k " . $t[0][$k] . " != " . $t[1][$k];
+				return "different $k " . $t[0][$k] . " != " . $t[1][$k] . " line" . __LINE__;
 			}
 		}
 	}
@@ -2767,7 +2771,7 @@ function codeInfo($pageLanguageText) {
 	global $mysqli;
 	$res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$pageLanguageText[0]'") or die('error on line' . __LINE__ . $mysqli->error);
 	if ($res->num_rows == 0) {
-		return "error code not found";
+		return "error code not found" . " line" . __LINE__;
 	}
 	$text = $pageLanguageText[2];
 	$t = $res->fetch_row();
@@ -2826,7 +2830,7 @@ function codeInfo($pageLanguageText) {
 }
 
 function codePositions($text, $n) {
-	$pattern = '/(?P<type1><p id="c(?P<num>\d+)"><\/p>)|(?P<type2><#(?P<lng>\w*)>(?P<content>.*?)<#>)/us';
+	$pattern = '/(?P<type1><p id="c(?P<num>\d+)"><\/p>)|(?P<type2><#(?P<lng>\w*)>(?P<content>.*?)' . END_CODE . ')/us';
 	$positions = [];
 	$allid = [];
 
@@ -2839,7 +2843,7 @@ function codePositions($text, $n) {
 			if ($matches['type1'][$key][1] !== -1) {
 				$id = (int)$matches['num'][$key][0];
 				if ($id >= $n) {
-					return "code id>=db_code_count";
+					return "code id>=db_code_count" . " line" . __LINE__;
 				}
 				$allid[] = $id;
 				$lng = '';
@@ -2847,10 +2851,10 @@ function codePositions($text, $n) {
 				$id = $matches['content'][$key][0];
 				$lng = $matches['lng'][$key][0];
 				if (empty($lng)) {
-					return "error language not set at " . $fullText;
+					return "error language not set at " . $fullText . " line" . __LINE__;
 				}
 				if (!in_array($lng, ['cpp', 'java', 'html', 'js', 'php'])) {
-					return "invalid language $lng";
+					return "invalid language $lng" . " line" . __LINE__;
 				}
 			}
 
@@ -2859,10 +2863,10 @@ function codePositions($text, $n) {
 	}
 	$len = count(array_unique($allid));
 	if ($len !== $n) {
-		return "db code count$n != code from html" . $len;
+		return "db code count$n != code from html" . $len . " line" . __LINE__;
 	}
 	if (min($allid) !== 0 || max($allid) !== $n - 1) {
-		return "min code id!=0 or max code id!=db_length-1";
+		return "min code id!=0 or max code id!=db_length-1" . " line" . __LINE__;
 	}
 	return $positions;
 }
