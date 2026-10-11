@@ -2,31 +2,43 @@
 
 include_once  '../config.php';
 connect();
-// $name = "aslov";
+$name = "permutations";
 
-//   $res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
-//   if ($res->num_rows == 0) {
-//     die("error code not found");
-//   }
-//   $t = $res->fetch_row();
-//   $code = json_decode($t[0]);
-//   $lng = json_decode($t[1]);
+$res = $mysqli->query("SELECT map FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
+if ($res->num_rows == 0) {
+  die("error code not found");
+}
+$t = $res->fetch_row();
+$m = json_decode($t[0]);
 
-// echo "<p style='white-space:pre'>";
-// var_dump($code);
-// print_r($code);
-// print_r($lng);
 
-//   return;
+echo "<p style='white-space:pre'>";
+print_r($t[0]);
+print_r($m);
+
+$n = [];
+foreach ($m as $k => $v) {
+  $n[substr($k, 2)] = substr($v, 2);
+}
+$n = json_encode($n, JSON_UNESCAPED_UNICODE);
+print_r($n);
+$q = "update code set map='" . $mysqli->real_escape_string($n) . "' where name='$name'";
+$res = $mysqli->query("$q") or die('error on line' . __LINE__ . $mysqli->error);
+echo "affectedRows " . $mysqli->affected_rows;;
+
+return;
 /*
 в английской версии <#cpp>....<#>
 в русской можно просто <#cpp><#> без контента
 если текст отличается нужно задать изменения в таблице code поле map
 */
 
+
+
 $name = "aslov";
+const LNG = ["english", "russian"];
 $t = [];
-foreach (["english", "russian"] as $l) {
+foreach (LNG as $l) {
   $t[] = codeUpdate($name, $l);
 }
 echo "<p style='white-space:pre'>";
@@ -38,16 +50,28 @@ foreach (array_keys($t[0]) as $k) {
   }
 }
 
-$q = "update code set code='" . $mysqli->real_escape_string($t[0]['code']) . "',language='" . $mysqli->real_escape_string($t[0]['language']) . "' where name='$name'";
-// echo $q;
-$res = $mysqli->query("$q") or die('error on line' . __LINE__ . $mysqli->error);
-echo "affectedRows " . $mysqli->affected_rows;;
+// $q = "update code set code='" . $mysqli->real_escape_string($t[0]['code']) . "',language='" . $mysqli->real_escape_string($t[0]['language']) . "' where name='$name'";
+// $res = $mysqli->query("$q") or die('error on line' . __LINE__ . $mysqli->error);
+// echo "affectedRows " . $mysqli->affected_rows;;
 
-$i = -1;
-foreach (["english", "russian"] as $l) {
-  $i++;
-  file_put_contents(fullname($name, $l) . '-', $t[$i]['content']);
-}
+// $i = -1;
+// foreach (LNG as $l) {
+//   $i++;
+//   file_put_contents(fullname($name, $l) . '-', $t[$i]['content']);
+// }
+/*
+UPDATE code AS target
+JOIN code AS source ON source.name = 'aslov1'
+SET target.code = source.code,
+    target.language = source.language
+WHERE target.name = 'aslov';
+
+INSERT INTO code (name, code, LANGUAGE,map,width)
+SELECT 'parser_reserve', code, LANGUAGE,map,width
+FROM code
+WHERE name = 'parser';
+*/
+echo "end";
 
 function fullname($name, $language) {
   return "../$name,$language.html";
@@ -55,50 +79,41 @@ function fullname($name, $language) {
 
 function codeUpdate($name, $language) {
   global $mysqli;
-  $s = file_get_contents(fullname($name, $language));
-  $p = allcode($s);
   $res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
   if ($res->num_rows == 0) {
     die("error code not found");
   }
   $t = $res->fetch_row();
   $code = json_decode($t[0]);
+  if (!is_array($code)) {
+    $code = [$code];
+  }
   $lng = json_decode($t[1]);
+  $s = file_get_contents(fullname($name, $language));
+  $p = allcode($s, count($code));
   $sameLng = !is_array($lng);
-  $number = 0;
   foreach ($p as $e) {
     $l = $e[3];
-    if (empty($l)) {
-      $number++;
-    } else { //<code>
+    if (!empty($l)) { //<code>
       if ($l != $lng) {
         $sameLng = false;
       }
     }
   }
-  if (count($code) != $number) {
-    // echo "<pre>";
-    // print_r($p);
-    die("invalid code count($language) " . count($code) . " " . $number);
-  }
 
-  if (!is_array($code)) {
-    $code = [$code];
-  }
   if (!$sameLng && !is_array($lng)) {
     $lng = array_fill(0, count($code), $lng);
   }
-  $j = 0;
   $newCode = [];
   $newLng = [];
   foreach ($p as $e) {
     $l = $e[3];
     if (empty($l)) {
-      $c = $code[$j];
+      $i = $e[2];
+      $c = $code[$i];
       if (!$sameLng) {
-        $l = $lng[$j];
+        $l = $lng[$i];
       }
-      $j++;
     } else { //<code>
       $c = $e[2];
     }
@@ -122,24 +137,23 @@ function codeUpdate($name, $language) {
   return ['content' => $s, 'count' => count($p), 'code' => $c, 'language' => $l];
 }
 
-function allcode($text) {
+function allcode($text, $n) {
   $pattern = '/(?P<type1><p id="c(?P<num>\d+)"><\/p>)|(?P<type2><#(?P<lng>\w*)>(?P<content>.*?)<#>)/us';
   $positions = [];
-  $i = -1;
+  $allid = [];
 
   if (preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE)) {
     foreach ($matches[0] as $key => $match) {
       $fullText = $match[0];
       $startPos = $match[1];
-
       $endPos = $startPos + strlen($fullText);
 
       if ($matches['type1'][$key][1] !== -1) {
-        $i++;
         $id = (int)$matches['num'][$key][0];
-        if ($id != $i) {
-          die('invalid id order');
+        if ($id >= $n) {
+          die("code id>=db_code_count");
         }
+        $allid[] = $id;
         $lng = '';
       } else {
         $id = $matches['content'][$key][0];
@@ -155,75 +169,8 @@ function allcode($text) {
       $positions[] = [$startPos, $endPos, $id, $lng];
     }
   }
+  if (min($allid) !== 0 || max($allid) !== $n - 1 || count(array_unique($allid)) !== $n) {
+    die("not sequence id");
+  }
   return $positions;
 }
-
-/*
-connect();
-
-$result = $mysqli->query("SELECT name,code FROM code where name='cube1'") or die('error line' . __LINE__ . $mysqli->error);
-$c = 1;
-$users = [];
-while ($row = $result->fetch_row()) {
-    $a=json_decode($row[1]);
-    if(is_array($a) && count($a)==1){
-        echo $row[0]."<br>";
-    }
-}
-
-$a="package main;
-
-import java.math.BigInteger;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-
-class Cube {
-
-  public static void main(String[] arg) {
-    final int init[][] = { { 1, 12, 114, 1068, 10011 }, { 1, 18, 243 } };
-    final int q[][] = { { 2, 8, 12, 8 }, { 18, 12 } };
-    final BigInteger g = new BigInteger(\"43252003274489856000\");
-    BigInteger l[], sum, la, psum;
-    int in[], i, layer, metric;
-
-    DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-    symbols.setGroupingSeparator(',');
-    DecimalFormat df = new DecimalFormat();
-    df.setGroupingSize(6);
-    df.setDecimalFormatSymbols(symbols);
-
-    for (metric = 0; metric < 2; metric++) {
-      in = init[metric];
-      l = new BigInteger[in.length];
-      System.out.println(metric == 0 ? \"qtm\" : \"htm\");
-      for (sum = new BigInteger(\"0\"), layer = 0;; layer++) {
-        if (layer < l.length) {
-          la = l[layer] = new BigInteger(in[layer] + \"\");
-        } else {
-          la = new BigInteger(\"0\");
-          for (i = 1; i < l.length; i++) {
-            la = la.add(l[i].multiply(new BigInteger(q[metric][i - 1] + \"\")));
-          }
-          for (i = 1; i < l.length - 1; i++) {
-            l[i] = l[i + 1];
-          }
-          l[l.length - 1] = la;
-        }
-        psum = sum.add(la);
-        if (psum.compareTo(g) == 1) {
-          System.out.printf(\"layer %2d left %s\\n\", layer - 1, df.format(g.subtract(sum)));
-          break;
-        } else {
-          sum = psum;
-          System.out.printf(\"layer %2d %24s total %24s\\n\", layer, df.format(la), df.format(sum));
-        }
-
-      }
-
-    }
-
-  }
-
-}";*/
-//$s=$mysqli->real_escape_string(json_encode($a));
-//$result = $mysqli->query("update code set code='$s' where name='cube1'") or die('error line' . __LINE__ . $mysqli->error);
