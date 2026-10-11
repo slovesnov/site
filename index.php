@@ -18,7 +18,7 @@ SELF_SYMBOL='=' in script or css means file with same name
 */
 
 header("Expires: Thu, 01 Jan 1970 00:00:01 GMT"); //always expire
-include("config.php");
+include_once "config.php";
 connect();
 
 const SELF_SYMBOL = '=';
@@ -161,32 +161,34 @@ if ($result->num_rows == 0) {
 		$content = ADMIN_ONLY_STRING;
 	} else {
 		$content = $row['content'];
-		$res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
-		if ($res->num_rows) {
-			$hasHighlightCode = true;
-			$ar = array_map(fn($v) => json_decode($v, true), $res->fetch_row());
-			$content = preg_replace_callback(
-				'~<p id="c(\d+)"></p>~',
-				function ($m) use ($ar, $language) {
-					$n = $m[1];
-					$f = fn($i) => is_array($ar[$i])  ? $ar[$i][$n]:$ar[$i];
-					$code = $f(0);
-					$lng = $f(1);
-					if (!is_null($ar[2]) && $language == 'russian') {
-						$code = strtr($code, $ar[2]);
-					}
-					$code = htmlspecialchars($code);
-					$w = '';
-					if (!is_null($ar[3])) {
-						$w = $f(3);
-						if (!is_null($w)) {
-							$w = " style=\"width:{$w}px\"";
+		if (!isset($_POST['not_use_code'])) {
+			$res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
+			if ($res->num_rows) {
+				$hasHighlightCode = true;
+				$ar = array_map(fn($v) => json_decode($v, true), $res->fetch_row());
+				$content = preg_replace_callback(
+					'~<p id="c(\d+)"></p>~',
+					function ($m) use ($ar, $language) {
+						$n = $m[1];
+						$f = fn($i) => is_array($ar[$i])  ? $ar[$i][$n] : $ar[$i];
+						$code = $f(0);
+						$lng = $f(1);
+						if (!is_null($ar[2]) && $language == 'russian') {
+							$code = strtr($code, $ar[2]);
 						}
-					}
-					return "<pre class=\"code-container\"$w><code class=\"language-$lng\">$code</code></pre>";
-				},
-				$content
-			);
+						$code = htmlspecialchars($code);
+						$w = '';
+						if (!is_null($ar[3])) {
+							$w = $f(3);
+							if (!is_null($w)) {
+								$w = " style=\"width:{$w}px\"";
+							}
+						}
+						return "<pre class=\"code-container\"$w><code class=\"language-$lng\">$code</code></pre>";
+					},
+					$content
+				);
+			}
 		}
 	}
 	$menu = $i ? NULL : $row['menu'];

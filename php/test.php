@@ -1,8 +1,162 @@
 <?php
 
-include('../config.php');
+include_once  '../config.php';
+connect();
+// $name = "aslov";
 
-var_dump(json_decode(null),json_decode("850"));
+//   $res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
+//   if ($res->num_rows == 0) {
+//     die("error code not found");
+//   }
+//   $t = $res->fetch_row();
+//   $code = json_decode($t[0]);
+//   $lng = json_decode($t[1]);
+
+// echo "<p style='white-space:pre'>";
+// var_dump($code);
+// print_r($code);
+// print_r($lng);
+
+//   return;
+/*
+в английской версии <#cpp>....<#>
+в русской можно просто <#cpp><#> без контента
+если текст отличается нужно задать изменения в таблице code поле map
+*/
+
+$name = "aslov";
+$t = [];
+foreach (["english", "russian"] as $l) {
+  $t[] = codeUpdate($name, $l);
+}
+echo "<p style='white-space:pre'>";
+foreach (array_keys($t[0]) as $k) {
+  if (in_array($k, ['languge', 'count'])) {
+    if ($t[0][$k] != $t[1][$k]) {
+      die("different $k " . $t[0][$k] . " != " . $t[1][$k]);
+    }
+  }
+}
+
+$q = "update code set code='" . $mysqli->real_escape_string($t[0]['code']) . "',language='" . $mysqli->real_escape_string($t[0]['language']) . "' where name='$name'";
+// echo $q;
+$res = $mysqli->query("$q") or die('error on line' . __LINE__ . $mysqli->error);
+echo "affectedRows " . $mysqli->affected_rows;;
+
+$i = -1;
+foreach (["english", "russian"] as $l) {
+  $i++;
+  file_put_contents(fullname($name, $l) . '-', $t[$i]['content']);
+}
+
+function fullname($name, $language) {
+  return "../$name,$language.html";
+}
+
+function codeUpdate($name, $language) {
+  global $mysqli;
+  $s = file_get_contents(fullname($name, $language));
+  $p = allcode($s);
+  $res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
+  if ($res->num_rows == 0) {
+    die("error code not found");
+  }
+  $t = $res->fetch_row();
+  $code = json_decode($t[0]);
+  $lng = json_decode($t[1]);
+  $sameLng = !is_array($lng);
+  $number = 0;
+  foreach ($p as $e) {
+    $l = $e[3];
+    if (empty($l)) {
+      $number++;
+    } else { //<code>
+      if ($l != $lng) {
+        $sameLng = false;
+      }
+    }
+  }
+  if (count($code) != $number) {
+    // echo "<pre>";
+    // print_r($p);
+    die("invalid code count($language) " . count($code) . " " . $number);
+  }
+
+  if (!is_array($code)) {
+    $code = [$code];
+  }
+  if (!$sameLng && !is_array($lng)) {
+    $lng = array_fill(0, count($code), $lng);
+  }
+  $j = 0;
+  $newCode = [];
+  $newLng = [];
+  foreach ($p as $e) {
+    $l = $e[3];
+    if (empty($l)) {
+      $c = $code[$j];
+      if (!$sameLng) {
+        $l = $lng[$j];
+      }
+      $j++;
+    } else { //<code>
+      $c = $e[2];
+    }
+    $newCode[] = htmlspecialchars_decode($c);
+    if (!$sameLng) {
+      $newLng[] = $l;
+    }
+  }
+  $c = json_encode($newCode);
+  $l = json_encode($sameLng ? $lng : $newLng);
+
+  for ($i = count($p) - 1; $i >= 0; $i--) {
+    $start = $p[$i][0];
+    $end   = $p[$i][1];
+    $N     = $i;
+    $length = $end - $start;
+    $replacement = '<p id="c' . $N . '"></p>';
+    $s = substr_replace($s, $replacement, $start, $length);
+  }
+
+  return ['content' => $s, 'count' => count($p), 'code' => $c, 'language' => $l];
+}
+
+function allcode($text) {
+  $pattern = '/(?P<type1><p id="c(?P<num>\d+)"><\/p>)|(?P<type2><#(?P<lng>\w*)>(?P<content>.*?)<#>)/us';
+  $positions = [];
+  $i = -1;
+
+  if (preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE)) {
+    foreach ($matches[0] as $key => $match) {
+      $fullText = $match[0];
+      $startPos = $match[1];
+
+      $endPos = $startPos + strlen($fullText);
+
+      if ($matches['type1'][$key][1] !== -1) {
+        $i++;
+        $id = (int)$matches['num'][$key][0];
+        if ($id != $i) {
+          die('invalid id order');
+        }
+        $lng = '';
+      } else {
+        $id = $matches['content'][$key][0];
+        $lng = $matches['lng'][$key][0];
+        if (empty($lng)) {
+          die("error language not set at " . $fullText);
+        }
+        if (!in_array($lng, ['cpp', 'java', 'html', 'js', 'php'])) {
+          die("invalid language $lng");
+        }
+      }
+
+      $positions[] = [$startPos, $endPos, $id, $lng];
+    }
+  }
+  return $positions;
+}
 
 /*
 connect();

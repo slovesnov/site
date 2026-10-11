@@ -12,7 +12,7 @@ foreach (BUTTONS as $index => $button) {
 $s = implode("", array_map(
 	fn($e) => "<link rel='stylesheet' type='text/css' href='../css/$e.css'>",
 	['common', 'combobox', 'siteupdate', 'table']
-)) ."<script>$jsCode</script>". implode("", array_map(
+)) . "<script>$jsCode</script>" . implode("", array_map(
 	fn($e) => "<script src='../scripts/$e.js'></script>",
 	['common', 'siteupdate', 'table']
 ));
@@ -2338,9 +2338,14 @@ function storeToFile($e) {
 	$ch = curl_init("localhost?$e");
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_COOKIE, JM_PWD_COOKIE . "=$jm_pwd;" . JM_USER_COOKIE . "=$jm_user;");
+	$postFields = [
+		'not_use_code' => '1'
+	];
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postFields));
 	$o = curl_exec($ch);
 	$i = curl_errno($ch);
-	curl_close($ch);
+	// curl_close($ch);
 	if ($i) {
 		return "error$i[$e] line" . __LINE__;
 	} else {
