@@ -105,42 +105,51 @@ function isMobile() {
 	return isset($_SERVER["HTTP_USER_AGENT"]) ? preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]) : 0;
 }
 
-$debug_file_name = "debug.txt";
+$log_file_name = "log.txt";
 
 function variable_to_string($p) {
 	if (is_array($p)) {
-		ksort($p);
-		if (!empty($p) && array_key_exists(0, $p) && is_array($p[0])) {
-			foreach ($p as $k => $e) {
-				ksort($p[$k]);
-			}
-		}
+		// ksort($p);
+		// if (!empty($p) && array_key_exists(0, $p) && is_array($p[0])) {
+		// 	foreach ($p as $k => $e) {
+		// 		ksort($p[$k]);
+		// 	}
+		// }
 		return print_r($p, true);
 	} else if (is_string($p)) {
 		return $p;
 	} else {
-		return var_export($p, true);
+		return var_export($p, true)." ".gettype($p);
 	}
 }
 
-function append_debug_file($variable = '', $title = '') {
-	//Note line can be invalid, it's php bug
-	global $debug_file_name;
-	$a = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-	$b = $a[(int)array_key_exists(1, $a)];
-	$q = ($title == '' ? '' : variable_to_string($title) . " ") . basename($b['file']) . " " . $b['function'] . "():" . $b['line'] . " " . mb_strtolower(date('dM H:i:s'));
-	$s = "=============== $q ===============\n" . variable_to_string($variable) . "\n";
-	file_put_contents($debug_file_name, $s, FILE_APPEND);
+function printlog(...$variables) {
+    global $log_file_name;
+    $a = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+    
+    $file = isset($a[0]['file']) ? basename($a[0]['file']) : 'unknown_file';
+    $line = isset($a[0]['line']) ? $a[0]['line'] : 0;
+    
+    if (isset($a[1]['function'])) {
+        $function = $a[1]['function'] . "()";
+        $q = "{$file} {$function}:{$line} " . mb_strtolower(date('dM H:i:s'));
+    } else {
+        $q = "{$file}:{$line} " . mb_strtolower(date('dM H:i:s'));
+    }
+
+    $s = "==== $q ====\n";
+
+    foreach ($variables as $variable) {
+        $s .= variable_to_string($variable) . "\n";
+    }
+
+    $s .= "\n"; 
+    file_put_contents($log_file_name, $s, FILE_APPEND);
 }
 
-function clear_debug_file() {
-	global $debug_file_name;
-	file_put_contents($debug_file_name, "");
-}
-
-function set_debug_file_name($s) {
-	global $debug_file_name;
-	$debug_file_name = $s;
+function clearlog() {
+	global $log_file_name;
+	file_put_contents($log_file_name, "");
 }
 
 function js_reduce($array, $fu, $initialValue = null) {

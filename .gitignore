@@ -1,6 +1,7 @@
 /*
 #logpass.php !dbbackup.bat has passwords
 !/php/
+/php/*.txt
 !/scripts/
 !/css/
 !.gitignore

@@ -483,6 +483,7 @@ function fileUploadCB(s, time) {
 		try {
 			a = JSON.parse(s);
 			remote = a.pop()
+			
 			gfiles = getPages(a.filter(e => e[2]), 0)
 			s = '<table>'
 			a.forEach((a, j) => {

@@ -2,95 +2,81 @@
 
 include_once  '../config.php';
 connect();
-$name = "permutations";
 
-$res = $mysqli->query("SELECT map FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
-if ($res->num_rows == 0) {
-  die("error code not found");
-}
-$t = $res->fetch_row();
-$m = json_decode($t[0]);
-
-
-echo "<p style='white-space:pre'>";
-print_r($t[0]);
-print_r($m);
-
-$n = [];
-foreach ($m as $k => $v) {
-  $n[substr($k, 2)] = substr($v, 2);
-}
-$n = json_encode($n, JSON_UNESCAPED_UNICODE);
-print_r($n);
-$q = "update code set map='" . $mysqli->real_escape_string($n) . "' where name='$name'";
-$res = $mysqli->query("$q") or die('error on line' . __LINE__ . $mysqli->error);
-echo "affectedRows " . $mysqli->affected_rows;;
-
-return;
 /*
+["cpp","cpp","java","js"]
 в английской версии <#cpp>....<#>
 в русской можно просто <#cpp><#> без контента
 если текст отличается нужно задать изменения в таблице code поле map
+
+CREATE TABLE code_reserve AS SELECT * FROM code;
+//todo width reorder
+
+REPLACE INTO code SELECT * FROM code_reserve WHERE NAME = 'aslov1';
 */
-
-
 
 $name = "aslov";
-const LNG = ["english", "russian"];
-$t = [];
-foreach (LNG as $l) {
-  $t[] = codeUpdate($name, $l);
+const LANGUAGE = ["english", "russian"];
+
+$pageLanguageText = [];
+foreach (LANGUAGE as $language) {
+  $text = file_get_contents("../$name,$language.html");
+  $d = getPageLanguage($text);
+  $d[] = $text;
+  $pageLanguageText[] = $d;
 }
+$l = array_column($pageLanguageText, 1);
+sort($l, SORT_NATURAL | SORT_FLAG_CASE);
+$proceedCode = $pageLanguageText[0][0] == $pageLanguageText[1][0] && $l == LANGUAGE;
+
+if (!$proceedCode) {
+  die('not proceed code'); //todo
+}
+codeUpdate($pageLanguageText, true, false);
 echo "<p style='white-space:pre'>";
-foreach (array_keys($t[0]) as $k) {
-  if (in_array($k, ['languge', 'count'])) {
-    if ($t[0][$k] != $t[1][$k]) {
-      die("different $k " . $t[0][$k] . " != " . $t[1][$k]);
-    }
-  }
-}
-
-// $q = "update code set code='" . $mysqli->real_escape_string($t[0]['code']) . "',language='" . $mysqli->real_escape_string($t[0]['language']) . "' where name='$name'";
-// $res = $mysqli->query("$q") or die('error on line' . __LINE__ . $mysqli->error);
-// echo "affectedRows " . $mysqli->affected_rows;;
-
-// $i = -1;
-// foreach (LNG as $l) {
-//   $i++;
-//   file_put_contents(fullname($name, $l) . '-', $t[$i]['content']);
-// }
-/*
-UPDATE code AS target
-JOIN code AS source ON source.name = 'aslov1'
-SET target.code = source.code,
-    target.language = source.language
-WHERE target.name = 'aslov';
-
-INSERT INTO code (name, code, LANGUAGE,map,width)
-SELECT 'parser_reserve', code, LANGUAGE,map,width
-FROM code
-WHERE name = 'parser';
-*/
 echo "end";
 
-function fullname($name, $language) {
-  return "../$name,$language.html";
+// function codefullname(string $name, string  $language) {
+//   return "../$name,$language.html";
+// }
+
+
+function codeUpdate($pageLanguageText) {
+  global $mysqli;
+  $t = [];
+  foreach ($pageLanguageText as $e) {
+    $t[] = codeInfo($e);
+  }
+  foreach (array_keys($t[0]) as $k) {
+    if (in_array($k, ['languge', 'count'])) {
+      if ($t[0][$k] != $t[1][$k]) {
+        die("different $k " . $t[0][$k] . " != " . $t[1][$k]);
+      }
+    }
+  }
+
+  $name = $pageLanguageText[0][0];
+  $q = "update code set code='" . $mysqli->real_escape_string($t[0]['code']) . "',language='" . $mysqli->real_escape_string($t[0]['language']) . "' where name='$name'";
+  $mysqli->query("$q") or die('error on line' . __LINE__ . $mysqli->error);
+  printlog($q,"affectedRows " . $mysqli->affected_rows)
+
+  return [$t[0]['content'], $t[1]['content']];
 }
 
-function codeUpdate($name, $language) {
+function codeInfo($pageLanguageText) {
   global $mysqli;
-  $res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
+  $res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$pageLanguageText[0]'") or die('error on line' . __LINE__ . $mysqli->error);
   if ($res->num_rows == 0) {
     die("error code not found");
   }
+  $text = $pageLanguageText[2];
   $t = $res->fetch_row();
   $code = json_decode($t[0]);
   if (!is_array($code)) {
     $code = [$code];
   }
   $lng = json_decode($t[1]);
-  $s = file_get_contents(fullname($name, $language));
-  $p = allcode($s, count($code));
+  $p = codePositions($text, count($code));
   $sameLng = !is_array($lng);
   foreach ($p as $e) {
     $l = $e[3];
@@ -131,13 +117,12 @@ function codeUpdate($name, $language) {
     $N     = $i;
     $length = $end - $start;
     $replacement = '<p id="c' . $N . '"></p>';
-    $s = substr_replace($s, $replacement, $start, $length);
+    $text = substr_replace($text, $replacement, $start, $length);
   }
-
-  return ['content' => $s, 'count' => count($p), 'code' => $c, 'language' => $l];
+  return ['content' => $text, 'count' => count($p), 'code' => $c, 'language' => $l];
 }
 
-function allcode($text, $n) {
+function codePositions($text, $n) {
   $pattern = '/(?P<type1><p id="c(?P<num>\d+)"><\/p>)|(?P<type2><#(?P<lng>\w*)>(?P<content>.*?)<#>)/us';
   $positions = [];
   $allid = [];
@@ -173,4 +158,45 @@ function allcode($text, $n) {
     die("not sequence id");
   }
   return $positions;
+}
+
+function getPageLanguage($text) {
+  $i = 0;
+  foreach (['gLanguage', 'gPageName'] as $e) {
+    preg_match("/\b$e\s*=\s*'(\w+)'/", $text, $m) or die("error at line" . __LINE__ . " no $e found");
+    $j = $m[1];
+    if ($i == 0) {
+      $l = $j;
+    } else {
+      $p = $j;
+    }
+    $i++;
+  }
+  return [$p, $l];
+}
+
+function f665() {
+  $name = "permutations";
+
+  $res = $mysqli->query("SELECT map FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
+  if ($res->num_rows == 0) {
+    die("error code not found");
+  }
+  $t = $res->fetch_row();
+  $m = json_decode($t[0]);
+
+
+  echo "<p style='white-space:pre'>";
+  print_r($t[0]);
+  print_r($m);
+
+  $n = [];
+  foreach ($m as $k => $v) {
+    $n[substr($k, 2)] = substr($v, 2);
+  }
+  $n = json_encode($n, JSON_UNESCAPED_UNICODE);
+  print_r($n);
+  $q = "update code set map='" . $mysqli->real_escape_string($n) . "' where name='$name'";
+  $res = $mysqli->query("$q") or die('error on line' . __LINE__ . $mysqli->error);
+  echo "affectedRows " . $mysqli->affected_rows;;
 }

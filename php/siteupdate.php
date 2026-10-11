@@ -54,6 +54,7 @@ const ETB = '2025-01-21';
 const START_MASS = 70;
 const CALORIE_DAYS = 4;
 const SLQ = ['save', 'load', 'query', 'query paste'];
+const LANGUAGE = ["english", "russian"];
 
 include("calorieCommon.php");
 connect();
@@ -1314,23 +1315,68 @@ if (IS_LOCAL) {
 	if (isset($_FILES["file"])) {
 		$r = [];
 		$q = [];
-		foreach ($_FILES["file"]['tmp_name'] as $path) {
-			if (strlen($path) == 0) {
-				die('error at line' . __LINE__ . ' file is not set');
+		$content = null;
+		$affectedCodeRows = null;
+		$filename = $_FILES['file']['name'];
+		$cf = count($filename);
+		clearlog();
+		if (in_array($cf, [1, 2])) {
+			$pageLanguageText = [];
+			foreach ($_FILES["file"]['tmp_name'] as $path) {
+				$text = file_get_contents($path);
+				$d = getPageLanguage($text);
+				$d[] = $text;
+				$pageLanguageText[] = $d;
 			}
-			$e = updatePage($path);
+			$l = array_column($pageLanguageText, 1);
+			sort($l, SORT_NATURAL | SORT_FLAG_CASE);
+			$res = $mysqli->query("SELECT count(*) FROM pages where name='" . $pageLanguageText[0][0] . "'");
+			$row = $res->fetch_row();
+
+			if ($cf == 1 && (int)$row[0] == 2 || $pageLanguageText[0][0] != $pageLanguageText[1][0] || $l !== LANGUAGE) { //pass one file,two in db can't update
+			} else {
+				$v = codeUpdate($pageLanguageText);
+				if (is_string($v)) {
+					$d[2] = false;
+					$r[] = $d;
+					$r[] = $v;
+					printlog($r);
+					die(json_encode($r));
+				}
+				$affectedCodeRows = $v[2];
+				$content = array_slice($v, 0, 2);
+			}
+		}
+		if (!$content) {
+			$content = [];
+			foreach ($_FILES["file"]['tmp_name'] as $path) {
+				if (strlen($path) == 0) {
+					die('error at line' . __LINE__ . ' file is not set');
+				}
+				$content[] = file_get_contents($path);
+			}
+		} else {
+		}
+		foreach ($content as $s) {
+			$e = updatePage($s);
 			$r[] = $e;
 			if ($e[2]) {
 				$q[] = "name='$e[0]' AND language='$e[1]'";
 			}
 		}
+
 		if ($_POST['withremote'] === 'true') {
 			$query = dumpTableData('pages', "WHERE " . implode(" OR ", $q));
-			$r[] = remoteQuery($query, REMOTE_TYPE_ZIP);
+			$s = remoteQuery($query, REMOTE_TYPE_ZIP);
 		} else {
-			$r[] = ""; //no addititonal text
+			$s = "";
 		}
+		if (!is_null($affectedCodeRows)) {
+			$s .= "affected code rows " . $affectedCodeRows . "<br>";
+		}
+		$r[] = $s; //addititonal text
 		//implode(" OR ",$q);
+		// printlog($r);
 		die(json_encode($r));
 	}
 
@@ -1670,26 +1716,11 @@ function stateString($r) {
 	return "max=" . $r[0] . " auto_increment=" . $r[1];
 }
 
-function updatePage($path) {
+function updatePage($c) {
 	global $mysqli;
-
-	$c = file_get_contents($path);
-
 	preg_match("|<title>(.*?)</title>|", $c, $m) or die("error at line" . __LINE__ . " no title found");
 	$title = $m[1];
-
-	$i = 0;
-	foreach (['gLanguage', 'gPageName'] as $e) {
-		preg_match("/\b$e\s*=\s*'(\w+)'/", $c, $m) or die("error at line" . __LINE__ . " no $e found");
-		$j = $m[1];
-		if ($i == 0) {
-			$l = $j;
-		} else {
-			$p = $j;
-		}
-		$i++;
-	}
-
+	[$p, $l] = getPageLanguage($c);
 	$ol = $l == 'russian' ? 'english' : 'russian';
 	$ol2 = substr($ol, 0, 2);
 
@@ -2706,3 +2737,163 @@ $rc
 <br><p class='cellw'>" . implode(' ', $tablesList) . " " . count($tablesList) . " <button onclick='querySelected()'>query selected</button> <select id='history' onchange='chistory()' class='smallfont'></select></p>
 <textarea id='buffer' rows='10' class='cellw' placeholder='buffer to store text'></textarea>$r</body></html>");
 }
+
+function codeUpdate($pageLanguageText) {
+	global $mysqli;
+	$t = [];
+	foreach ($pageLanguageText as $e) {
+		$v = codeInfo($e);
+		if (is_string($v)) {
+			return $v;
+		}
+		$t[] = $v;
+	}
+	foreach (array_keys($t[0]) as $k) {
+		if (in_array($k, ['languge', 'count'])) {
+			if ($t[0][$k] != $t[1][$k]) {
+				return "different $k " . $t[0][$k] . " != " . $t[1][$k];
+			}
+		}
+	}
+
+	$name = $pageLanguageText[0][0];
+	$q = "update code set code='" . $mysqli->real_escape_string($t[0]['code']) . "',language='" . $mysqli->real_escape_string($t[0]['language']) . "' where name='$name'";
+	$mysqli->query("$q") or die('error on line' . __LINE__ . $mysqli->error);
+	//printlog(strlen($q), "affectedRows " . $mysqli->affected_rows); //todo
+	return [$t[0]['content'], $t[1]['content'], $mysqli->affected_rows];
+}
+
+function codeInfo($pageLanguageText) {
+	global $mysqli;
+	$res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$pageLanguageText[0]'") or die('error on line' . __LINE__ . $mysqli->error);
+	if ($res->num_rows == 0) {
+		return "error code not found";
+	}
+	$text = $pageLanguageText[2];
+	$t = $res->fetch_row();
+	$code = json_decode($t[0]);
+	if (!is_array($code)) {
+		$code = [$code];
+	}
+	$lng = json_decode($t[1]);
+	$p = codePositions($text, count($code));
+	if (is_string($p)) {
+		return $p;
+	}
+	$sameLng = !is_array($lng);
+	foreach ($p as $e) {
+		$l = $e[3];
+		if (!empty($l)) { //<code>
+			if ($l != $lng) {
+				$sameLng = false;
+			}
+		}
+	}
+
+	if (!$sameLng && !is_array($lng)) {
+		$lng = array_fill(0, count($code), $lng);
+	}
+	$newCode = [];
+	$newLng = [];
+	foreach ($p as $e) {
+		$l = $e[3];
+		if (empty($l)) {
+			$i = $e[2];
+			$c = $code[$i];
+			if (!$sameLng) {
+				$l = $lng[$i];
+			}
+		} else { //<code>
+			$c = $e[2];
+		}
+		$newCode[] = htmlspecialchars_decode($c);
+		if (!$sameLng) {
+			$newLng[] = $l;
+		}
+	}
+	$c = json_encode($newCode);
+	$l = json_encode($sameLng ? $lng : $newLng);
+
+	for ($i = count($p) - 1; $i >= 0; $i--) {
+		$start = $p[$i][0];
+		$end   = $p[$i][1];
+		$N     = $i;
+		$length = $end - $start;
+		$replacement = '<p id="c' . $N . '"></p>';
+		$text = substr_replace($text, $replacement, $start, $length);
+	}
+	return ['content' => $text, 'count' => count($p), 'code' => $c, 'language' => $l];
+}
+
+function codePositions($text, $n) {
+	$pattern = '/(?P<type1><p id="c(?P<num>\d+)"><\/p>)|(?P<type2><#(?P<lng>\w*)>(?P<content>.*?)<#>)/us';
+	$positions = [];
+	$allid = [];
+
+	if (preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE)) {
+		foreach ($matches[0] as $key => $match) {
+			$fullText = $match[0];
+			$startPos = $match[1];
+			$endPos = $startPos + strlen($fullText);
+
+			if ($matches['type1'][$key][1] !== -1) {
+				$id = (int)$matches['num'][$key][0];
+				if ($id >= $n) {
+					return "code id>=db_code_count";
+				}
+				$allid[] = $id;
+				$lng = '';
+			} else {
+				$id = $matches['content'][$key][0];
+				$lng = $matches['lng'][$key][0];
+				if (empty($lng)) {
+					return "error language not set at " . $fullText;
+				}
+				if (!in_array($lng, ['cpp', 'java', 'html', 'js', 'php'])) {
+					return "invalid language $lng";
+				}
+			}
+
+			$positions[] = [$startPos, $endPos, $id, $lng];
+		}
+	}
+	$len = count(array_unique($allid));
+	if ($len !== $n) {
+		return "db code count$n != code from html" . $len;
+	}
+	if (min($allid) !== 0 || max($allid) !== $n - 1) {
+		return "min code id!=0 or max code id!=db_length-1";
+	}
+	return $positions;
+}
+
+function getPageLanguage($text) {
+	$l = null;
+	$p = null;
+	foreach (['gLanguage', 'gPageName'] as $e) {
+		if (!preg_match("/\b$e\s*=\s*'(\w+)'/", $text, $m)) {
+			die("Error: variable '$e' not found in text.");
+		}
+		if ($e === 'gLanguage') {
+			$l = $m[1];
+		} else {
+			$p = $m[1];
+		}
+	}
+	return [$p, $l];
+}
+
+// function getPageLanguage($text) {
+// 	$i = 0;
+// 	foreach (['gLanguage', 'gPageName'] as $e) {
+// 		preg_match("/\b$e\s*=\s*'(\w+)'/", $text, $m) or die("error at line" . __LINE__ . " no $e found");
+// 		$j = $m[1];
+// 		if ($i == 0) {
+// 			$l = $j;
+// 		} else {
+// 			$p = $j;
+// 		}
+// 		$i++;
+// 	}
+// 	return [$p, $l];
+// }
