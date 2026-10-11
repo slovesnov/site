@@ -1320,6 +1320,7 @@ if (IS_LOCAL) {
 		$affectedCodeRows = null;
 		$filename = $_FILES['file']['name'];
 		$cf = count($filename);
+		//clearlog();
 		if (in_array($cf, [1, 2])) {
 			$pageLanguageText = [];
 			$hasEndTag = [];
@@ -1337,8 +1338,14 @@ if (IS_LOCAL) {
 			$res = $mysqli->query("SELECT count(*) FROM pages where name='" . $pageLanguageText[0][0] . "'");
 			$row = $res->fetch_row();
 
-			if ($cf == 1 && !$hasEndTag[0] || $cf == 2 && !$hasEndTag[0] && !$hasEndTag[1] || $cf == 1 && (int)$row[0] == 2 || $pageLanguageText[0][0] != $pageLanguageText[1][0] || $l !== LANGUAGE) { //pass one file,two in db can't update
+			$skip = false;
+			if ($cf == 1) {
+				$skip = !$hasEndTag[0] || (int)$row[0] == 2;
 			} else {
+				$skip = !$hasEndTag[0] && !$hasEndTag[1] || $pageLanguageText[0][0] != $pageLanguageText[1][0] || $l !== LANGUAGE;
+			}
+
+			if (!$skip) {
 				$v = codeUpdate($pageLanguageText);
 				$b = $cf == 2 && $hasEndTag[0] != $hasEndTag[1];
 				if (is_string($v) || $b) {
@@ -1347,8 +1354,8 @@ if (IS_LOCAL) {
 					$r[] = "";
 					die(json_encode($r));
 				}
-				$affectedCodeRows = $v[2];
-				$content = array_slice($v, 0, 2);
+				$affectedCodeRows = $v[1];
+				$content = $v[0];
 			}
 		}
 		if (!$content) {
@@ -1380,7 +1387,6 @@ if (IS_LOCAL) {
 		}
 		$r[] = $s; //addititonal text
 		//implode(" OR ",$q);
-		// printlog($r);
 		die(json_encode($r));
 	}
 
@@ -2752,34 +2758,44 @@ function codeUpdate($pageLanguageText) {
 		}
 		$t[] = $v;
 	}
-	foreach (array_keys($t[0]) as $k) {
-		if (in_array($k, ['languge', 'count'])) {
-			if ($t[0][$k] != $t[1][$k]) {
-				return "different $k " . $t[0][$k] . " != " . $t[1][$k] . " line" . __LINE__;
+	if (count($t) > 1) {
+		foreach (array_keys($t[0]) as $k) {
+			if (in_array($k, ['languge', 'count'])) {
+				if ($t[0][$k] != $t[1][$k]) {
+					return "different $k " . $t[0][$k] . " != " . $t[1][$k] . " line" . __LINE__;
+				}
 			}
 		}
 	}
-
 	$name = $pageLanguageText[0][0];
-	$q = "update code set code='" . $mysqli->real_escape_string($t[0]['code']) . "',language='" . $mysqli->real_escape_string($t[0]['language']) . "' where name='$name'";
+	$q = "INSERT INTO code (name,code, language) 
+VALUES ('$name','" . $mysqli->real_escape_string($t[0]['code']) . "', '" . $mysqli->real_escape_string($t[0]['language']) . "')
+ON DUPLICATE KEY UPDATE 
+code = VALUES(code),
+language = VALUES(language)";
+	// $q = "update code set code='" . $mysqli->real_escape_string($t[0]['code']) . "',language='" . $mysqli->real_escape_string($t[0]['language']) . "' where name='$name'";
 	$mysqli->query("$q") or die('error on line' . __LINE__ . $mysqli->error);
-	//printlog(strlen($q), "affectedRows " . $mysqli->affected_rows); //todo
-	return [$t[0]['content'], $t[1]['content'], $mysqli->affected_rows];
+	//printlog($q, "affectedRows " . $mysqli->affected_rows);
+	return [array_column($t, 'content'), $mysqli->affected_rows];
 }
 
 function codeInfo($pageLanguageText) {
 	global $mysqli;
-	$res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$pageLanguageText[0]'") or die('error on line' . __LINE__ . $mysqli->error);
-	if ($res->num_rows == 0) {
-		return "error code not found" . " line" . __LINE__;
-	}
 	$text = $pageLanguageText[2];
-	$t = $res->fetch_row();
-	$code = json_decode($t[0]);
-	if (!is_array($code)) {
-		$code = [$code];
+	$res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$pageLanguageText[0]'") or die('error on line' . __LINE__ . $mysqli->error);
+	$emptydb = $res->num_rows == 0;
+
+	if ($emptydb) {
+		$code = [];
+		$lng = null;
+	} else {
+		$t = $res->fetch_row();
+		$code = json_decode($t[0]);
+		if (!is_array($code)) {
+			$code = [$code];
+		}
+		$lng = json_decode($t[1]);
 	}
-	$lng = json_decode($t[1]);
 	$p = codePositions($text, count($code));
 	if (is_string($p)) {
 		return $p;
@@ -2788,7 +2804,9 @@ function codeInfo($pageLanguageText) {
 	foreach ($p as $e) {
 		$l = $e[3];
 		if (!empty($l)) { //<code>
-			if ($l != $lng) {
+			if (is_null($lng)) {
+				$lng = $l;
+			} elseif ($l != $lng) {
 				$sameLng = false;
 			}
 		}
@@ -2815,7 +2833,7 @@ function codeInfo($pageLanguageText) {
 			$newLng[] = $l;
 		}
 	}
-	$c = json_encode($newCode);
+	$c = json_encode(count($newCode) == 1 ? $newCode[0] : $newCode);
 	$l = json_encode($sameLng ? $lng : $newLng);
 
 	for ($i = count($p) - 1; $i >= 0; $i--) {
@@ -2826,6 +2844,7 @@ function codeInfo($pageLanguageText) {
 		$replacement = '<p id="c' . $N . '"></p>';
 		$text = substr_replace($text, $replacement, $start, $length);
 	}
+	//printlog(['content' => $text, 'count' => count($p), 'code' => $c, 'language' => $l]);
 	return ['content' => $text, 'count' => count($p), 'code' => $c, 'language' => $l];
 }
 
@@ -2848,7 +2867,7 @@ function codePositions($text, $n) {
 				$allid[] = $id;
 				$lng = '';
 			} else {
-				$id = $matches['content'][$key][0];
+				$id = trim($matches['content'][$key][0]);
 				$lng = $matches['lng'][$key][0];
 				if (empty($lng)) {
 					return "error language not set at " . $fullText . " line" . __LINE__;
@@ -2865,7 +2884,7 @@ function codePositions($text, $n) {
 	if ($len !== $n) {
 		return "db code count$n != code from html" . $len . " line" . __LINE__;
 	}
-	if (min($allid) !== 0 || max($allid) !== $n - 1) {
+	if ($n != 0 && (min($allid) !== 0 || max($allid) !== $n - 1)) {
 		return "min code id!=0 or max code id!=db_length-1" . " line" . __LINE__;
 	}
 	return $positions;
@@ -2886,18 +2905,3 @@ function getPageLanguage($text) {
 	}
 	return [$p, $l];
 }
-
-// function getPageLanguage($text) {
-// 	$i = 0;
-// 	foreach (['gLanguage', 'gPageName'] as $e) {
-// 		preg_match("/\b$e\s*=\s*'(\w+)'/", $text, $m) or die("error at line" . __LINE__ . " no $e found");
-// 		$j = $m[1];
-// 		if ($i == 0) {
-// 			$l = $j;
-// 		} else {
-// 			$p = $j;
-// 		}
-// 		$i++;
-// 	}
-// 	return [$p, $l];
-// }
