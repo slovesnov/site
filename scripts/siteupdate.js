@@ -449,7 +449,7 @@ function timeString(time) {
 function pagesClick(option) {
 	c = el('table');
 	table = c.options[c.selectedIndex].value
-	prepareFetch({ option, pages: el('pi').value, table, regex: el('ci').checked }, 1, option)
+	prepareFetch({ option, pages: el('pi').value, table, regex: el('regex').checked, withcode: el('withcode').checked }, 1, option)
 }
 
 function moneyClick(option) {

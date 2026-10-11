@@ -1500,7 +1500,7 @@ if (IS_LOCAL) {
 					$v = [];
 					foreach ($la as $l) {
 						$c = "$n,$l";
-						$v[] = $show ?  $c : storeToFile($c);
+						$v[] = $show ?  $c : storeToFile($c, $_POST['withcode'] === 'true');
 					}
 					echo implode(' ', $v);
 				} elseif (array_key_exists('s', $r)) {
@@ -2374,16 +2374,18 @@ function showDifferentExercises() {
 	// }
 }
 
-function storeToFile($e) {
+function storeToFile($e, $withCode) {
 	global $jm_user, $jm_pwd;
 	$ch = curl_init("localhost?$e");
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_COOKIE, JM_PWD_COOKIE . "=$jm_pwd;" . JM_USER_COOKIE . "=$jm_user;");
-	$postFields = [
-		'not_use_code' => '1'
-	];
-	curl_setopt($ch, CURLOPT_POST, true);
-	curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postFields));
+	if (!$withCode) {
+		$postFields = [
+			'not_use_code' => '1'
+		];
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postFields));
+	}
 	$o = curl_exec($ch);
 	$i = curl_errno($ch);
 	// curl_close($ch);
@@ -2682,6 +2684,13 @@ function dateSring($s) {
 	return ($a[2] % 100) . mb_substr(MONTH_JS[$a[1] - 1], 0, 3) . intval($a[0]);
 }
 
+function cb($id, $text=null, $checked = false) {
+	if(is_null($text)){
+		$text=$id;
+	}
+	return "<label><input type='checkbox' id='$id'" . ($checked ? " checked" : '') . ">$text</label>";
+}
+
 function defaultBody() {
 	global $mysqli;
 	$tablesList = [];
@@ -2696,6 +2705,10 @@ function defaultBody() {
 	$op = '<option>' . implode('</option><option>', $tablesList) . '</option>';
 	$opt = '<option>' . implode('</option><option>', ['pages', 'menus', 'versions', 'videos']) . '</option>';
 
+	$regex=cb('regex');
+	$withcode=cb('withcode');
+	$qu=cb('querycopy','show query buttons copy to clipboard',true);
+
 	$h = HEAD;
 	if (IS_LOCAL) {
 		$b = "<button onclick='query()'>query</button>";
@@ -2706,13 +2719,12 @@ function defaultBody() {
 		$r = "<td rowspan=7 id='o'>
 <tr><td>Drop or <input type='file' id='selectfile' multiple onchange='uploadFiles()'/>
 <button onclick='updateRemote()'>update remote</button>
-<label><input  id='selectfileremote' type='checkbox' name='remote'>with remote</label>
+<label><input id='selectfileremote' type='checkbox' name='remote'>with remote</label>
 
 <tr><td>
 <select id='table'>$opt</select>
 <input id='pi' type='text' value='' placeholder='index,r jurassic other,en' style='width:300px'>
-<label><input type='checkbox' id='ci'>regex</label>
-<br>$bs
+$regex<br>$bs{$withcode}
 <tr><td>
 <button onclick='updateTableClick(0)'>update</button>
 <button onclick='updateTableClick(1)'>show query</button>
@@ -2722,10 +2734,10 @@ function defaultBody() {
 <input id='videostring' type='text' value='' placeholder='' style='width:300px'>
 <tr><td>
 <table style='margin:0'><tr>
-<td><label><input type='checkbox' id='querycopy' checked />show query buttons copy to clipboard</label>
+<td>$qu
 <td><button onclick='testClick()'>test</button>
 </table></table>";
-		$rc = "<label><input type='checkbox' id='multi_remote'>rem</label><label><input type='checkbox' id='multi_number'>№</label>";
+		$rc = cb('multi_remote','rem').cb('multi_number','№');
 	} else {
 		$ic = 'infinityfree.png';
 		$h = str_replace('phpmyadmin.ico', $ic, $h);
@@ -2768,14 +2780,12 @@ function codeUpdate($pageLanguageText) {
 		}
 	}
 	$name = $pageLanguageText[0][0];
+	$i = (int)strlen($t[1]['code']) > strlen($t[0]['code']);
 	$q = "INSERT INTO code (name,code, language) 
-VALUES ('$name','" . $mysqli->real_escape_string($t[0]['code']) . "', '" . $mysqli->real_escape_string($t[0]['language']) . "')
-ON DUPLICATE KEY UPDATE 
-code = VALUES(code),
-language = VALUES(language)";
-	// $q = "update code set code='" . $mysqli->real_escape_string($t[0]['code']) . "',language='" . $mysqli->real_escape_string($t[0]['language']) . "' where name='$name'";
+VALUES ('$name','" . $mysqli->real_escape_string($t[$i]['code']) . "', '" . $mysqli->real_escape_string($t[$i]['language']) . "')
+ON DUPLICATE KEY UPDATE code = VALUES(code),language = VALUES(language)";
 	$mysqli->query("$q") or die('error on line' . __LINE__ . $mysqli->error);
-	//printlog($q, "affectedRows " . $mysqli->affected_rows);
+	// printlog($q, "affectedRows " . $mysqli->affected_rows);
 	return [array_column($t, 'content'), $mysqli->affected_rows];
 }
 
@@ -2882,7 +2892,7 @@ function codePositions($text, $n) {
 	}
 	$len = count(array_unique($allid));
 	if ($len !== $n) {
-		return "db code count$n != code from html" . $len . " line" . __LINE__;
+		return "db code count $n != $len code from html line" . __LINE__;
 	}
 	if ($n != 0 && (min($allid) !== 0 || max($allid) !== $n - 1)) {
 		return "min code id!=0 or max code id!=db_length-1" . " line" . __LINE__;

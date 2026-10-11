@@ -15,20 +15,33 @@ CREATE TABLE code_reserve AS SELECT * FROM code;
 REPLACE INTO code SELECT * FROM code_reserve WHERE NAME = 'aslov1';
 */
 
-$name = "parser";
+$name = "aslov";
 const LANGUAGE = ["english", "russian"];
 const END_CODE = "<#>";
 
-echo "<pre>";
-$n = 8;
-$pageLanguageText = [];
+/*
+<pre class="code-container" style="width:1500px"><code class="language-cpp">enum class FILEINFO {
+	NAME, EXTENSION, LOWER_EXTENSION, DIRECTORY, SHORT_NAME
+};
+bool isDir(std::string_view path); // returns whether the path is a directory
+std::string getFileInfo(std::string path, FILEINFO fi); // gets information about the file
+int getFileSize(const std::string &amp;path); // gets the file size
+FILE* open(std::string path, const char *flags); // opens a file with conversion of the path from utf8 to local encoding</code></pre>
+*/
+echo "<p style='white-space:pre;'>";
+
+// $res = $mysqli->query("SELECT code FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
+// $t = $res->fetch_row();
+// $code = json_decode($t[0]);
+// var_dump(count($code));
+// exit;
+
 foreach (LANGUAGE as $language) {
   $text = file_get_contents("../$name,$language.html");
-  $d = codePositions($text, $n);
-  $in = array_column($d, 2);
-  print_r($in);
+  $d = codePositions($text);
+  // print_r($d);
+  //print_r(count($d))."<br>";
   // $d[] = $text;
-  $pageLanguageText[] = $d;
 }
 //$d = array_column($pageLanguageText, 2);
 // print_r($d);
@@ -47,45 +60,25 @@ foreach (LANGUAGE as $language) {
 //   return "../$name,$language.html";
 // }
 
+function is_nth_element_same(array $matrix, $n): bool {
+  $elements = array_column($matrix, $n);
+  $uniqueElements = array_unique($elements);
+  return count($uniqueElements) === 1;
+}
 
-function codePositions($text, $n) {
-  $pattern = '/(?P<type1><p id="c(?P<num>\d+)"><\/p>)|(?P<type2><#(?P<lng>\w*)>(?P<content>.*?)' . END_CODE . ')/us';
+function codePositions($text) {
+  $pattern = '~<pre class="code-container"( style="width:(?P<width>\d+)px")?><code class="language-(?P<language>\w+)">(?P<code>.+?)</code></pre>~us';
   $positions = [];
-  $allid = [];
-
   if (preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE)) {
     foreach ($matches[0] as $key => $match) {
       $fullText = $match[0];
       $startPos = $match[1];
       $endPos = $startPos + strlen($fullText);
-
-      if ($matches['type1'][$key][1] !== -1) {
-        $id = (int)$matches['num'][$key][0];
-        if ($id >= $n) {
-          return "code id>=db_code_count" . " line" . __LINE__;
-        }
-        $allid[] = $id;
-        $lng = '';
-      } else {
-        $id = $matches['content'][$key][0];
-        $lng = $matches['lng'][$key][0];
-        if (empty($lng)) {
-          return "error language not set at " . $fullText . " line" . __LINE__;
-        }
-        if (!in_array($lng, ['cpp', 'java', 'html', 'js', 'php'])) {
-          return "invalid language $lng" . " line" . __LINE__;
-        }
-      }
-
-      $positions[] = [$startPos, $endPos, $id, $lng];
+      $positions[] = [$startPos, $endPos, $matches['code'][$key][0], $matches['language'][$key][0], $matches['width'][$key][0]];
     }
   }
-  $len = count(array_unique($allid));
-  if ($len !== $n) {
-    return "db code count$n != code from html" . $len . " line" . __LINE__;
-  }
-  if (min($allid) !== 0 || max($allid) !== $n - 1) {
-    return "min code id!=0 or max code id!=db_length-1" . " line" . __LINE__;
-  }
+  $sameLanguage=is_nth_element_same($positions,3);
+  $sameWidth=is_nth_element_same($positions,4);
+  var_dump($sameLanguage,$sameWidth);
   return $positions;
 }
