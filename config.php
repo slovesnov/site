@@ -103,56 +103,53 @@ function isMobile() {
 
 $log_file_name = "log.txt";
 
-function variable_to_string($p) {
-	if (is_array($p)) {
-		return print_r($p, true);
-	} elseif (is_null($p)) {
-		return "NULL";
-	} else {
-		$s = var_export($p, true);
-		if (is_string($p)) {
-			$s = substr($s, 1, -1); //'abc' => abc		
-			$s = str_replace("\'", "'", $s); // Replace \' with '
+function variables_to_string(...$variables) {
+	$s = "";
+	foreach ($variables as $variable) {
+		if (is_array($variable)) {
+			$s .= print_r($variable, true);
+		} elseif (is_null($variable)) {
+			$s .= "NULL";
+		} else {
+			$export = var_export($variable, true);
+			if (is_string($variable)) {
+				$export = substr($export, 1, -1); // 'abc' => abc
+				$export = str_replace("\'", "'", $export); // Заменяем \' на '
+			}
+			$s .= $export . " " . gettype($variable);
 		}
-		return  $s . " " . gettype($p);
+		$s .= "\n"; // Добавляем перенос строки после каждой переменной
+	}
+	return $s;
+}
+
+function diec($condition, $text, ...$variables) {
+	global $globalthrow;
+	if ($condition) {
+		$s = $text . (count($variables) === 0 ? "" : " " . variables_to_string(...$variables)) . " " . call_info(1);
+		if ($globalthrow) {
+			throw new Exception($s);
+		}
+		die($s);
+		// die("</table>$s");
 	}
 }
 
-function call_info() {
+function call_info($n = 0) {
 	$a = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-
-	$file = isset($a[0]['file']) ? basename($a[0]['file']) : 'unknown_file';
-	$line = isset($a[0]['line']) ? $a[0]['line'] : 0;
-
-	$s = "{$file}";
-	if (isset($a[1]['function'])) {
-		$function = $a[1]['function'] . "()";
-		$s = " " . $function;
+	$file = isset($a[$n]['file']) ? basename($a[$n]['file']) : 'unknown_file';
+	$line = isset($a[$n]['line']) ? $a[$n]['line'] : 0;
+	$s = "{$file}:{$line}";
+	if (isset($a[$n + 1]['function'])) {
+		$function = $a[$n + 1]['function'] . "()";
+		$s .= " " . $function;
 	}
-	$s .= ":{$line}";
 	return $s;
 }
 
 function printlog(...$variables) {
 	global $log_file_name;
-	// $a = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-
-	// $file = isset($a[0]['file']) ? basename($a[0]['file']) : 'unknown_file';
-	// $line = isset($a[0]['line']) ? $a[0]['line'] : 0;
-
-	// $s = "{$file}";
-	// if (isset($a[1]['function'])) {
-	// 	$function = $a[1]['function'] . "()";
-	// 	$s = " {$function}:{$line}";
-	// }
-	// $s .= ":{$line}" . date(' H:i:s') . "\n";
-
-	$s = call_info() . date(' H:i:s') . "\n";
-
-	foreach ($variables as $variable) {
-		$s .= variable_to_string($variable) . "\n";
-	}
-	$s .= "\n";
+	$s = call_info(1) . date(' H:i:s') . (count($variables) === 0 ? "" : "\n" . variables_to_string(...$variables)) . "\n";
 	file_put_contents($log_file_name, $s, FILE_APPEND);
 }
 

@@ -246,14 +246,10 @@ $s = implode("|", $a);
 $alias["молоко(?!\\s+($s)%)"] = 'молоко 3.2%';
 
 //name, namel, unitmass, unittype, unitn
-function parseNameMass($s, $shouldbeinbase)
-{
+function parseNameMass($s, $shouldbeinbase) {
 	global $eggMass, $good_names;
 	$i = 0;
 	$found = false;
-	// if(preg_match("/([a-z])([а-яё])|([а-яё])([a-z])/ui",$s,$g)){
-	// 	diec(true,"в слове встречаются русские и английские буквы [".var_export($g[0],1)."]",__LINE__,$s);
-	// }
 	foreach (["(яйцо)" . pureMaths . "\s*([cсд])([0-3овo])", "(.+?)" . po] as $re) {
 		if (preg_match("/^$re$/ui", $s, $g)) {
 			$n = trim($g[1]);
@@ -282,15 +278,15 @@ function parseNameMass($s, $shouldbeinbase)
 					*/
 						$b = str_replace('.', '\\.', $e);
 						if (preg_match("~\\b$b(\\s|$)~iu", $nl)) {
-							diec($found, "найдено два товара '$found' и '$e' в строке '$s'", __LINE__);
+							diec($found, "найдено два товара '$found' и '$e' в строке '$s'");
 							$found = $e;
 						}
 					}
-					diec($found === false, "товар не найден в строке '$s'", __LINE__);
+					diec($found === false, "товар не найден в строке '$s'");
 				}
 			}
 			$v = getMathValue($g[2]);
-			diec($v === false, "ошибка при вычислении выражения '$g[2]'", __LINE__, "строка $s");
+			diec($v === false, "ошибка при вычислении выражения '$g[2]' строка $s");
 			//var_dump($type);
 			return [
 				name => $n,
@@ -305,13 +301,11 @@ function parseNameMass($s, $shouldbeinbase)
 	return false;
 }
 
-function normalName($name)
-{
+function normalName($name) {
 	return str_replace('ё', 'е', mb_strtolower($name));
 }
 
-function getNamel($name)
-{
+function getNamel($name) {
 	global $alias;
 	//'ё'=>'е' кинза зелёная
 	$n = normalName($name);
@@ -325,8 +319,7 @@ function getNamel($name)
 	return $n;
 }
 
-function getMass($name, $measure)
-{
+function getMass($name, $measure) {
 	global $predefinedPieceMass;
 	$unit = unitGrams;
 	$m = 1;
@@ -336,7 +329,7 @@ function getMass($name, $measure)
 		$unit = unitPercent;
 	} elseif (mb_substr($measure, 0, 1) == 'ш') {
 		$unit = unitPiece;
-		diec(!array_key_exists($name, $predefinedPieceMass), "не задана масса штуки для продукта " . $name, __LINE__);
+		diec(!array_key_exists($name, $predefinedPieceMass), "не задана масса штуки для продукта " . $name);
 		$m = $predefinedPieceMass[$name];
 	} elseif ($measure == 'мл' || $measure == 'л') {
 		if ($measure == 'л') {
@@ -363,20 +356,19 @@ function getMass($name, $measure)
 				$m = PREDEFINED_MASS[$name][$i];
 			} else {
 				$m = ['столовой ложки', 'чайной ложки', 'стакана'][$i];
-				diec(true, "не задана масса $m ложки для продукта ", __LINE__, "[$name]");
+				diec(true, "не задана масса $m ложки для продукта [$name]");
 			}
 		}
 	}
 	return [$m, $unit];
 }
 
-function getMathValue($m, $check = true)
-{
+function getMathValue($m, $check = true) {
 	if (preg_match("/^" . pureMathBase . "$/u", $m)) {
 		try {
 			$r = eval("return " . str_replace(mb_str_split(rfrom), rto, $m) . ";");
 			if ($check) {
-				diec(is_numeric($r) && $r < 0, "задано отрицательное значение", __LINE__, $m);
+				diec(is_numeric($r) && $r < 0, "задано отрицательное значение $m");
 			}
 			return $r;
 		} catch (Throwable $e) { //catch all exceptions, do not remove $e not working on php7.4
@@ -386,22 +378,9 @@ function getMathValue($m, $check = true)
 	return false;
 }
 
-function diec($condition, $text, $line, $value = '')
-{
-	global $globalthrow;
-	if ($condition) {
-		$s = "$text" . ($value == '' ? '' : " '$value'") . " строка$line";
-		if ($globalthrow) {
-			throw new Exception($s);
-		}
-		die("</table>$s");
-	}
-}
-
 $calorieTable = 'calorie_slovesno';
 
-function getLogin()
-{
+function getLogin() {
 	global $jm_user, $jm_pwd;
 	if (isset($_COOKIE[JM_USER_COOKIE]) && isset($_COOKIE[JM_PWD_COOKIE])) {
 		$jm_user = $_COOKIE[JM_USER_COOKIE];
@@ -420,8 +399,7 @@ function getLogin()
 	return false;
 }
 
-function getLoginUP($user, $pwd)
-{
+function getLoginUP($user, $pwd) {
 	global $jm_user, $jm_pwd;
 	if (checkUserPassword($user, $pwd)) {
 		$jm_user = $user;
@@ -433,21 +411,18 @@ function getLoginUP($user, $pwd)
 	return false;
 }
 
-function set_calorie_table()
-{
+function set_calorie_table() {
 	global $calorieTable, $jm_user;
 	$calorieTable = "`calorie_$jm_user`";
 }
 
-function isUserExists($jm_user)
-{
+function isUserExists($jm_user) {
 	global $mysqli;
 	$r = $mysqli->query("SELECT 1 FROM users WHERE user='$jm_user'") or die('error on line' . __LINE__ . $mysqli->error);
 	return $r->num_rows == 1;
 }
 
-function recipe($options)
-{
+function recipe($options) {
 	global $globalthrow;
 	$globalthrow = 1; //for diec
 	try {
@@ -457,8 +432,7 @@ function recipe($options)
 	}
 }
 
-function recipe_inner($options)
-{
+function recipe_inner($options) {
 	global $params, $eggMass, $fullData, $filteredData, $url, $recipeFirstLine, $mysqli, $jm_user, $alias;
 	$out = '';
 	$params = [
@@ -495,7 +469,7 @@ function recipe_inner($options)
 
 	$b = isset($options['mass']);
 	$i = $b + isset($options['days']);
-	diec($i == 1, $b ? 'задана масса, без указания числа дней' : 'задано число дней масса, без указания массы', __LINE__);
+	diec($i == 1, $b ? 'задана масса, без указания числа дней' : 'задано число дней масса, без указания массы');
 	$manmassFromTitle = false;
 	if ($i) {
 		$manmass = $options['mass'];
@@ -503,11 +477,11 @@ function recipe_inner($options)
 		if ($manmass == 'fromtitle') {
 			$manmassFromTitle = true;
 		} else {
-			diec(!is_numeric($manmass), 'масса человека не является числом', __LINE__);
-			diec($manmass <= 0, 'масса человека должна быть неотрицательным числом', __LINE__);
+			diec(!is_numeric($manmass), 'масса человека не является числом');
+			diec($manmass <= 0, 'масса человека должна быть неотрицательным числом');
 		}
-		diec(!is_numeric($days), 'число дней не является числом', __LINE__);
-		diec($days <= 0, 'число дней должно быть неотрицательным числом ', __LINE__);
+		diec(!is_numeric($days), 'число дней не является числом');
+		diec($days <= 0, 'число дней должно быть неотрицательным числом ');
 	}
 
 	/*after eggMass
@@ -521,7 +495,7 @@ function recipe_inner($options)
 	if ($params['goods'] == 2) {
 		$data = "";
 	} else {
-		diec(!isset($options['p']), 'не установлен параметр p', __LINE__);
+		diec(!isset($options['p']), 'не установлен параметр p');
 		$data = $options['p'];
 		if (!in_array($data, ['loss_all', 'predefined_all'])) {
 			if ($params['subrecipes'] == SUBRECIPE_UNION) {
@@ -554,7 +528,7 @@ function recipe_inner($options)
 					$re = "(.+?)" . po . "(.*)";
 					if (preg_match("/^$re$/ui", $e, $g)) {
 						$a = parse($e);
-						diec($a === false, "не распознан товар в строке [$e].", __LINE__);
+						diec($a === false, "не распознан товар в строке [$e].");
 						$n = $a[namel];
 						if (!array_key_exists($n, $t)) {
 							//create addon string									
@@ -623,7 +597,7 @@ function recipe_inner($options)
 				$s = "яйцо {$quantity}c$c ц$g[3]*1000/($quantity*$mass)";
 			} else {
 				$r = parseMassPrice($a);
-				diec($r['mass'] == UNKNOWN, "не распознан товар в строке [$a]. Возможно нужно снять галочку 'чек'", __LINE__);
+				diec($r['mass'] == UNKNOWN, "не распознан товар в строке [$a]. Возможно нужно снять галочку 'чек'");
 				//@масло подсолнечное рафинированное 0.9л 4*97.99 need $r['quantity']
 				$s .= " " . $r['mass'] * $r['quantity'] . ($r['kg'] ? 'кг' : 'л');
 				$massLoss = 0;
@@ -689,7 +663,7 @@ function recipe_inner($options)
 
 	$filteredData = [];
 	$fullData = [];
-	diec(!ALLOW_EMPTY_RECIPE && $params['goods'] == 0 && empty($data), 'нет данных', __LINE__);
+	diec(!ALLOW_EMPTY_RECIPE && $params['goods'] == 0 && empty($data), 'нет данных');
 
 	/*need empty check if(!empty($filteredData)){
 /люда изи кук
@@ -752,7 +726,7 @@ function recipe_inner($options)
 масло подсолнечное нерафинированное 12
 				*/
 				if ($n && empty($g[1])) { //only if coefficent
-					diec($car < 2 || trim($ar[$car - 1]) != '}', 'нет закрывающей скобки для {', __LINE__);
+					diec($car < 2 || trim($ar[$car - 1]) != '}', 'нет закрывающей скобки для {');
 					$mul = parseGetV($g[2]);
 					continue;
 				}
@@ -786,7 +760,7 @@ function recipe_inner($options)
 		array_unshift($a, 'все продукты, количество - ' . count($good_with_check));
 		$fullData[] = $a;
 	} else {
-		diec(!ALLOW_EMPTY_RECIPE && count($fullData) == 0, 'нет данных', __LINE__);
+		diec(!ALLOW_EMPTY_RECIPE && count($fullData) == 0, 'нет данных');
 	}
 
 	foreach ($fullData as $fd) {
@@ -870,7 +844,6 @@ function recipe_inner($options)
 						$v = $bold ? '' : 'база'; //$bold for last summary row
 					} else {
 						$bm = $rows[$lastBaseIndex][massbegin];
-						// diec($bm == 0, 'масса базового продукта равна нулю'.$a[massbegin], __LINE__);
 						//make clove, black pepper non zero output
 						if ($bm == 0) {
 							$sort = $a[massbegin] == 0 ? NAN : INF;
@@ -960,10 +933,10 @@ function recipe_inner($options)
 			if ($b0) {
 				if ($manmassFromTitle) {
 					$q = preg_split("/\s+/", $title);
-					diec(count($q) < 2, 'масса человека не задана в заголовке, опция fromtitle', __LINE__);
+					diec(count($q) < 2, 'масса человека не задана в заголовке, опция fromtitle');
 					$manmass = $q[1];
-					diec(!is_numeric($manmass), 'масса человека в заголовке не является числом', __LINE__);
-					diec($manmass <= 0, 'масса человека в заголовке должна быть неотрицательным числом', __LINE__);
+					diec(!is_numeric($manmass), 'масса человека в заголовке не является числом');
+					diec($manmass <= 0, 'масса человека в заголовке должна быть неотрицательным числом');
 				}
 				if ($b) {
 					$s .= '<br>';
@@ -1065,8 +1038,7 @@ function recipe_inner($options)
 }
 
 //mb_strlen('товара нет в чеках цена=0 (по умолчанию)') = 39
-function ro($n, $digits = DIGITS)
-{
+function ro($n, $digits = DIGITS) {
 	if (is_numeric($n)) {
 		//123.9999999999995
 		return formatNumber($n, $digits); //." $digits";
@@ -1080,8 +1052,7 @@ function ro($n, $digits = DIGITS)
 	}
 }
 
-function getPercent($bold, $c, $ta, $key, $a, $useMass = false)
-{
+function getPercent($bold, $c, $ta, $key, $a, $useMass = false) {
 	global $params;
 	$ct = $ta[$key];
 	if ($bold) {
@@ -1104,16 +1075,14 @@ function getPercent($bold, $c, $ta, $key, $a, $useMass = false)
 	return  [is_numeric($p) ? ro($p * 100) . '%' : $p, $p];
 }
 
-function parseGetV($s)
-{
+function parseGetV($s) {
 	$n = getMathValue($s);
-	diec($n === false, 'ошибка при вычислении выражения', __LINE__, $s);
-	diec($n < 0, 'ошибка отрицательное значение', __LINE__, $s);
+	diec($n === false, 'ошибка при вычислении выражения' . $s);
+	diec($n < 0, 'ошибка отрицательное значение' . $s);
 	return $n;
 }
 
-function parse($s, $mul = 1, $data = [])
-{
+function parse($s, $mul = 1, $data = []) {
 	global $params;
 	$originalString = $rs = $s = keyboard($s);
 	$f = [];
@@ -1122,7 +1091,7 @@ function parse($s, $mul = 1, $data = [])
 	$startmul = $mul != 1;
 
 	$n = preg_match_all(REMAINDER_R, $rs);
-	diec($n > 1, "ошибка таг [" . TAG[remainder] . "] указан больше одного раза", __LINE__, $s);
+	diec($n > 1, "ошибка таг [" . TAG[remainder] . "] указан больше одного раза $s");
 	$remainderAfter = $n == 1;
 	if ($remainderAfter) {
 		$rs = preg_replace(REMAINDER_R, "", $rs);
@@ -1141,7 +1110,7 @@ function parse($s, $mul = 1, $data = [])
 		$n = preg_match_all("~(?<=[\s\d])$e~ui", $rs, $g, PREG_OFFSET_CAPTURE);
 		//add slash ?<![а-яё\/] / because of "капуста б/к 444"
 		// $n = preg_match_all("/(?<![а-яё\/])$e/ui", $rs, $g, PREG_OFFSET_CAPTURE);
-		diec($n > 1, "ошибка таг [$v] указан больше одного раза [$e]", __LINE__, $s);
+		diec($n > 1, "ошибка таг [$v] указан больше одного раза [$e] $s");
 
 		if ($n == 1) {
 			if ($k == coefficient) {
@@ -1153,12 +1122,12 @@ function parse($s, $mul = 1, $data = [])
 						$f[$k][] = parseGetV($g[$i][0][0]);
 					}
 				} else {
-					diec($k == remainder && $remainderAfter, "ошибка таг [$v] указан больше одного раза", __LINE__, $s);
+					diec($k == remainder && $remainderAfter, "ошибка таг [$v] указан больше одного раза " . $s);
 					if (($k == remainder || $k == loss)  && $g[4][0][0] == '%') {
 						$measurePercent[$k] = true;
 					}
 					$f[$k] = parseGetV($g[3][0][0]);
-					diec($k == remainder && $f[$k] == 0, 'ошибка остаток=0', __LINE__);
+					diec($k == remainder && $f[$k] == 0, 'ошибка остаток=0');
 				}
 			}
 			$n = $g[0][0][1];
@@ -1172,9 +1141,9 @@ function parse($s, $mul = 1, $data = [])
 	$pfcp = array_key_exists(pfcp, $f);
 	if ($pfcp) {
 		if ($pfc) {
-			diec(1, "ошибка одновременно задано бжу и бжуц", __LINE__, $s);
+			diec(1, "ошибка одновременно задано бжу и бжуц" . $s);
 		}
-		diec(array_key_exists(price, $f), "ошибка одновременно задано бжуц и цена", __LINE__, $s);
+		diec(array_key_exists(price, $f), "ошибка одновременно задано бжуц и цена" . $s);
 		$f[price] = $f[pfcp][3];
 	}
 
@@ -1183,14 +1152,14 @@ function parse($s, $mul = 1, $data = [])
 		$e = array_key_exists($k, $f);
 		if ($pfc || $pfcp) {
 			$s1 = $pfc ? '' : 'ц';
-			diec($e, "ошибка одновременно задано бжу$s1 и " . TAG[$k], __LINE__, $s);
+			diec($e, "ошибка одновременно задано бжу$s1 и " . TAG[$k] . $s);
 			$pfca[] = $f[$pfc ? pfc : pfcp][$i++];
 		} elseif ($e) {
 			$pfca[] = $f[$k];
 		}
 	}
 	$pfc = count($pfca);
-	diec($pfc == 1 || $pfc == 2, 'белки, жиры, углеводы заданы частично', __LINE__, $s . var_export($pfca, 1));
+	diec($pfc == 1 || $pfc == 2, 'белки, жиры, углеводы заданы частично' . $s . var_export($pfca, 1));
 	//set $a[protein...] later
 
 	$a = parseNameMass(trim($rs), $pfc == 0);
@@ -1202,7 +1171,7 @@ function parse($s, $mul = 1, $data = [])
 	$a[massv] = $a[unitn] * $a[unitmass]; //need for massloss, remainder
 	//change $a[massv] for unitPercent 
 	if ($a[unittype] == unitPercent) {
-		diec(empty($data), 'масса не может быть задана в процентах так как не задана база', __LINE__);
+		diec(empty($data), 'масса не может быть задана в процентах так как не задана база');
 		$a[unittype] = unitGrams; //change type to grams
 		$a[massv] *= $data[0][massv] / 100 / $mul;
 	}
@@ -1221,7 +1190,7 @@ function parse($s, $mul = 1, $data = [])
 	if (array_key_exists(animalFoodTag, $f)) {
 		for ($i = 0; $i < 2; $i++) {
 			$v = $a[$i ? saturatedFat : animalProtein] = $f[animalFoodTag][$i];
-			diec($v < 0 || $v > 1, 'животный ' . ($i ? 'жир' : 'белок') . ' должен быть от 0 до 1 ' . $originalString, __LINE__);
+			diec($v < 0 || $v > 1, 'животный ' . ($i ? 'жир' : 'белок') . ' должен быть от 0 до 1 ' . $originalString);
 		}
 	} else {
 		$v = getGoodsKeys($a[namel], ['animal protein', 'saturated fat'], false);
@@ -1280,7 +1249,7 @@ function parse($s, $mul = 1, $data = [])
 	}
 
 	if (array_key_exists(remainder, $f)) {
-		diec($a[lossall], 'ошибка задан остаток при потере массы 100%', __LINE__);
+		diec($a[lossall], 'ошибка задан остаток при потере массы 100%');
 		if ($priceFormula != "0") {
 			if (!$measurePercent[remainder] && $m != $f[remainder]) {
 				$priceFormula .= "*$ms/" . round($f[remainder], 2);
@@ -1312,13 +1281,13 @@ function parse($s, $mul = 1, $data = [])
 	if (array_key_exists(loss, $f)) {
 		$m = $a[massv];
 		$a[massv] = $m - $f[loss];
-		diec($a[massv] < 0, 'ошибка потеря массы больше массы масса=' . $m, __LINE__);
+		diec($a[massv] < 0, 'ошибка потеря массы больше массы масса=' . $m);
 	}
 
 	//$a[massv] can be changed
 	if (array_key_exists(remainder, $f)) {
 		$k = $a[massv] / $f[remainder];
-		diec($k < 1, 'ошибка остаток больше массы', __LINE__, $f[remainder] . " &gt;" . $a[massv] . " " . $originalString);
+		diec($k < 1, 'ошибка остаток больше массы' . $f[remainder] . " &gt;" . $a[massv] . " " . $originalString);
 		foreach ([protein, fat, carbohydrate] as $i) {
 			$a[$i] *= $k;
 		}
@@ -1331,13 +1300,12 @@ function parse($s, $mul = 1, $data = [])
 
 	//after mass loss modification
 	foreach ([protein, fat, carbohydrate] as $e) {
-		diec($a[$e] > 100, "ошибка " . TAG[$e] . " > 100", __LINE__);
+		diec($a[$e] > 100, "ошибка " . TAG[$e] . " > 100");
 	}
-	diec($a[protein] + $a[carbohydrate] + $a[fat] > 100, 'ошибка б+ж+у > 100', __LINE__);
+	diec($a[protein] + $a[carbohydrate] + $a[fat] > 100, 'ошибка б+ж+у > 100');
 	$a[ccal] = ($a[protein] + $a[carbohydrate]) * 4 + $a[fat] * 9;
 	//if p+f+c<=100 then 4p+9f+4c<=900 because
 	//4p+9f+4c=4(p+f+c)+5f<=400+5f<=400+500<=900
-	//diec($a[ccal]>900,'ошибка ккал/100г > 900',__LINE__);//so not need to check this condition
 	$a[ccaltotal] = $a[ccal] * $a[massv] / 100;
 	$a[massbegin] = $m;
 
@@ -1367,9 +1335,9 @@ function parse($s, $mul = 1, $data = [])
 		if (array_key_exists($e, $f)) {
 			$v = $f[$e][0]; //array with length=1
 			if ($i == 0) {
-				diec($v < 0, 'b12<0 ' . $originalString, __LINE__);
+				diec($v < 0, 'b12<0 ' . $originalString);
 			} else {
-				diec($v < 0 || $v > 100, 'клетчатка<0 || клетчатка>100' . $originalString, __LINE__);
+				diec($v < 0 || $v > 100, 'клетчатка<0 || клетчатка>100' . $originalString);
 			}
 		} else {
 			$v = getGoodsKeys($a[namel],  ['b12', 'fiber'][$i], false); //array with length=1
@@ -1386,14 +1354,12 @@ function parse($s, $mul = 1, $data = [])
 	return $a;
 }
 
-function mdiv($a, $b, $mul = 1)
-{
+function mdiv($a, $b, $mul = 1) {
 	return $b == 0 ? ($a == 0 ? ZERO_DIV_ZERO : INFINITY) : $a * $mul / $b;
 }
 
 //$n - lowered & modified name
-function getGoodsKeys($n, $keys, $dieIfNotFound = true)
-{
+function getGoodsKeys($n, $keys, $dieIfNotFound = true) {
 	global $mysqli, $jm_user;
 	$k = "`" . implode("`,`", is_array($keys) ? $keys : [$keys]) . "`";
 	$result = $mysqli->query("SELECT $k FROM `money_goods_$jm_user` WHERE REPLACE(LOWER(name), 'ё', 'е')='$n' and food=1") or die('error on line' . __LINE__ . $mysqli->error);
@@ -1401,15 +1367,14 @@ function getGoodsKeys($n, $keys, $dieIfNotFound = true)
 		return $result->fetch_row();
 	}
 	if ($dieIfNotFound) {
-		diec(true, "товар не найден", __LINE__, $n);
+		diec(true, "товар не найден " . $n);
 	} else {
 		return false;
 	}
 }
 
 //$n - lowered & modified name
-function getPriceComment($n)
-{
+function getPriceComment($n) {
 	global $mysqli, $jm_user, $eggMass, $params;
 	$r = getGoodsKeys($n, ['mass loss', 'density']);
 	$massLoss = $r[0];
@@ -1417,7 +1382,7 @@ function getPriceComment($n)
 	$q = nameRegexDate("'$n'");
 	$result = $mysqli->query("SELECT text,date,id FROM `money_$jm_user` WHERE $q ORDER BY id DESC LIMIT 1") or die('error on line' . __LINE__ . $mysqli->error);
 
-	diec($result->num_rows == 0, "товар с чеком не найден до даты " . $params['date'], __LINE__, $n);
+	diec($result->num_rows == 0, "товар с чеком не найден до даты " . $params['date'] . " " . $n);
 	$row = $result->fetch_assoc();
 	foreach (explode("\n", $row['text']) as $e) {
 		$e = mb_strtolower($e);
@@ -1429,14 +1394,14 @@ function getPriceComment($n)
 			if ($mass == UNKNOWN) {
 				//from jm.php changed $a to $e
 				$i = preg_match_all("/\b(\d+)\s*штук\b/iu", $e, $gr);
-				diec($i == 0, "не задана масса или не установлен счётчик яиц", __LINE__, $e . " checkID=" . $row['id']);
-				diec($i > 1, "two or more eggs count set", __LINE__);
+				diec($i == 0, "не задана масса или не установлен счётчик яиц " . $e . " checkID=" . $row['id']);
+				diec($i > 1, "two or more eggs count set");
 				//allow english char C first char in group, and russian chars 2-3 in group С and case insensitive
 				$e = str_ireplace("со скидкой", "", $e); //со - category also
 				$e = mb_strtolower($e);
 				$i = preg_match_all("/\b[cсд]([0-3овo])\b/u", $e, $g1);
-				diec($i == 0, "no eggs category set", __LINE__);
-				diec($i > 1, "two or more eggs category set", __LINE__);
+				diec($i == 0, "no eggs category set");
+				diec($i > 1, "two or more eggs category set");
 				$i = mb_strtolower($g1[1][0]);
 				$category = is_numeric($i) ? $i + 1 : intval($i != "в");
 				$mass = $gr[1][0] * $eggMass[$category] / 1000;
@@ -1476,11 +1441,10 @@ function getPriceComment($n)
 			return [$s, str_replace('@', '', $e) . " " . date("j", $date) . mb_substr(MONTH_NAMES[intval(date("m", $date)) - 1], 0, 3) . date("y", $date)];
 		}
 	}
-	diec(true, "getPriceComment internal error", __LINE__, $n);
+	diec(true, "getPriceComment internal error " . $n);
 }
 
-function sum($p, $key, $o = 1)
-{
+function sum($p, $key, $o = 1) {
 	$v = 0;
 	foreach ($p as $e) {
 		if (!array_key_exists($key, $e) || !is_numeric($e[$key])) {
@@ -1491,8 +1455,7 @@ function sum($p, $key, $o = 1)
 	return $v;
 }
 
-function getTotal($p, $name, $full = false, $moneyAddon = 0)
-{
+function getTotal($p, $name, $full = false, $moneyAddon = 0) {
 	if ($full) {
 		//copy fields
 		foreach ($p as &$v) {
@@ -1555,15 +1518,13 @@ function getTotal($p, $name, $full = false, $moneyAddon = 0)
 	return $a;
 }
 
-function addRows(&$rows, $a, $color, $bold)
-{
+function addRows(&$rows, $a, $color, $bold) {
 	$a[colorIndex] = $color;
 	$a[boldIndex] = $bold;
 	$rows[] = $a;
 }
 
-function addRowsSummary(&$rows, $p, $n, &$t)
-{
+function addRowsSummary(&$rows, $p, $n, &$t) {
 	$a = getTotal($p, $n);
 	if (count($t) > 0) {
 		$v = mdiv($a[massv], $t[0][massv]);
@@ -1578,8 +1539,7 @@ function addRowsSummary(&$rows, $p, $n, &$t)
 	$t[] = $a;
 }
 
-function keyboard($n)
-{
+function keyboard($n) {
 	if (preg_match("/[а-яё]/ui", $n)) {
 		return $n;
 	}
@@ -1594,8 +1554,7 @@ function keyboard($n)
 	return $n;
 }
 
-function addFullData()
-{
+function addFullData() {
 	global $fullData, $filteredData, $url, $recipeFirstLine;
 	if (!empty($filteredData)) {
 		if (useUrl) {
@@ -1617,13 +1576,11 @@ formatNonZero(0.012,1)="0.01" - return string is always nonzero
 on js realized in marinade.js
 on php realized in calorieRecipe.php
 */
-function formatNonZero($v, $digits)
-{
+function formatNonZero($v, $digits) {
 	return formatNumber($v, $v == 0 ? $digits : max(floor(-log10($v)) + 1, $digits));
 }
 
-function parseRecipe($fd, $moneyAddon = null, $mul = 1)
-{
+function parseRecipe($fd, $moneyAddon = null, $mul = 1) {
 	$title = array_shift($fd);
 	if ($moneyAddon === null) {
 		$a = getRemoveParameter($title, MONEYADDON);
@@ -1637,17 +1594,17 @@ function parseRecipe($fd, $moneyAddon = null, $mul = 1)
 	$p = [];
 	for ($number = 0; $number < count($fd); $number++) {
 		$d = $fd[$number];
-		diec($d === '}', "неожиданный символ }", __LINE__);
+		diec($d === '}', "неожиданный символ }");
 		if (str_ends_with($d, '{')) {
 			$n = preg_match("/^(.*?)" . pureMaths . "\s*\{$/", $d, $g);
-			diec($n == 0, "неверная строка для внутреннего рецепта или коэффициента", __LINE__, $d);
+			diec($n == 0, "неверная строка для внутреннего рецепта или коэффициента " . $d);
 			$name = $g[1];
 			$coefficient = empty($name);
 			$v = getMathValue($g[2]);
-			diec($v === false, ($coefficient ? 'коэффициент' : 'масса') . ' не является арифметическим выражением', __LINE__, $g[2]);
-			diec($v < 0, ($coefficient ? 'коэффициент должен' : 'масса должна') . ' быть положительным числом', __LINE__, $g[2]);
+			diec($v === false, ($coefficient ? 'коэффициент' : 'масса') . ' не является арифметическим выражением ' . $g[2]);
+			diec($v < 0, ($coefficient ? 'коэффициент должен' : 'масса должна') . ' быть положительным числом ' . $g[2]);
 			$inner = getInner($fd, $number);
-			diec(count($inner) == 0, "пустой внутренний рецепт", __LINE__, $d);
+			diec(count($inner) == 0, "пустой внутренний рецепт " . $d);
 			$number += count($inner) + 1; //and +1 in cycle
 			array_unshift($inner, "");
 			$b = parseRecipe($inner, 0,  $coefficient ? $mul * $v : 1)[1];
@@ -1757,7 +1714,7 @@ function parseRecipe($fd, $moneyAddon = null, $mul = 1)
 	if (!empty($rows)) {
 		foreach ($rows as $e) {
 			if (array_key_exists(remainderAfter, $e) && $e[remainderAfter]) {
-				diec(true, 'не задан общий остаток', __LINE__, $e[originalString]);
+				diec(true, 'не задан общий остаток ' . $e[originalString]);
 			}
 		}
 	}
@@ -1769,22 +1726,20 @@ function parseRecipe($fd, $moneyAddon = null, $mul = 1)
 	return [$title, $rows];
 }
 
-function getRemoveParameter($s, $p)
-{
+function getRemoveParameter($s, $p) {
 	$e = sregex($p, true);
 	$n = preg_match_all($e, $s, $g);
 	if ($n == 0) {
 		return false;
 	}
-	diec($n > 1, "ошибка параметр $p задан больше одного раза", __LINE__, $s);
+	diec($n > 1, "ошибка параметр $p задан больше одного раза " . $s);
 	$r = getMathValue($g[2][0]);
-	diec($r === false, "ошибка параметр $p не является арифметическим выражением", __LINE__, $s);
-	diec($r < 0, "ошибка отрицательный параметр $p", __LINE__, $s);
+	diec($r === false, "ошибка параметр $p не является арифметическим выражением " . $s);
+	diec($r < 0, "ошибка отрицательный параметр $p " . $s);
 	return [preg_replace($e, "", $s), $r];
 }
 
-function applyReminder($rows, $r, $full = 1)
-{
+function applyReminder($rows, $r, $full = 1) {
 	[$title, $remainder] = $r;
 	$m = 0;
 	$tm = 0;
@@ -1801,14 +1756,14 @@ function applyReminder($rows, $r, $full = 1)
 				$remainder -= $r[massv];
 			}
 		} else {
-			diec($r[boldIndex] == 0, 'system error', __LINE__);
+			diec($r[boldIndex] == 0, 'system error');
 			$a = getRemoveParameter($r[name], TAG[remainder]);
-			diec(is_array($a), "ошибка остаток задан одновременно в общем рецепте и в одном из подрецептов", __LINE__, $r[name]);
+			diec(is_array($a), "ошибка остаток задан одновременно в общем рецепте и в одном из подрецептов " . $r[name]);
 		}
 	}
-	diec(!$found, "ошибка задан общий остаток и ни один элемент рецепта не имеет подстроки 'остаток#'", __LINE__);
-	diec($remainders > $tm, "ошибка остаток больше начальной массы", __LINE__);
-	diec($remainder < 0, "ошибка остаток слишком мал", __LINE__);
+	diec(!$found, "ошибка задан общий остаток и ни один элемент рецепта не имеет подстроки 'остаток#'");
+	diec($remainders > $tm, "ошибка остаток больше начальной массы");
+	diec($remainder < 0, "ошибка остаток слишком мал");
 	if ($full) {
 		$recipe = [$title];
 	}
@@ -1827,8 +1782,7 @@ function applyReminder($rows, $r, $full = 1)
 	return $recipe;
 }
 
-function sregex($s, $math)
-{
+function sregex($s, $math) {
 	$e = "(?<![а-яё])" . mb_substr($s, 0, 1) . "(" . mb_substr($s, 1) . ")?";
 	if ($math) {
 		$e = "/" . $e . pureMaths . "/ui";
@@ -1836,8 +1790,7 @@ function sregex($s, $math)
 	return $e;
 }
 
-function getInner($a, $begin)
-{
+function getInner($a, $begin) {
 	$n = 0;
 	for ($i = $begin; $i < count($a); $i++) {
 		$e = $a[$i];
@@ -1850,36 +1803,31 @@ function getInner($a, $begin)
 			$n--;
 		}
 	}
-	diec(true, 'не найдено } для ' . $a[$begin], __LINE__);
+	diec(true, 'не найдено } для ' . $a[$begin]);
 }
 
-function removeSpaces($s)
-{
+function removeSpaces($s) {
 	return str_replace(' ', '', $s);
 }
 
-function nameRegexDate($n)
-{
+function nameRegexDate($n) {
 	global $params;
 	$p = $params['date'];
 	return "LOWER(text) REGEXP CONCAT('(^|\\\\s|@|\\\\*)',$n,'($|\\\\s)') AND date<='$p'";
 }
 
-function filterColumns($a)
-{
+function filterColumns($a) {
 	global $params;
 	return array_values(array_filter($a, fn($n) => $params['columns'][$n], ARRAY_FILTER_USE_KEY));
 }
 
-function addPfcTotal(&$a)
-{
+function addPfcTotal(&$a) {
 	for ($i = 0; $i < 3; $i++) {
 		$a[proteinTotal + $i] = $a[protein + $i] / 100 * $a[massbegin];
 	}
 }
 
-function countAnimalProteinFat($a, $excludeLast = false)
-{
+function countAnimalProteinFat($a, $excludeLast = false) {
 	$r = [0, 0];
 	$t = [0, 0];
 	for ($i = 0; $i < count($a) - $excludeLast; $i++) {

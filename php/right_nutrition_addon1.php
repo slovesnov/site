@@ -10,7 +10,6 @@ for ($i = 0; $i < 2; $i++) {
 			$v = $i == 0 ? $m[1] : 4 * $m[1] + 9 * $m[2] + 4 * $m[3];
 		} else {
 			$n = parseNameMass($e . " 1", true); //add mass at the end
-			//diec($n === false, "не распознан товар в строке [$e].", __LINE__);
 			$n = $n[namel];
 			$r = $mysqli->query("SELECT $q FROM money_goods_slovesno where name='$n'") or die('error line' . __LINE__ . $mysqli->error);
 			if ($r->num_rows == 0) {

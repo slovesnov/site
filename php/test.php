@@ -15,12 +15,13 @@ CREATE TABLE code_reserve AS SELECT * FROM code;
 REPLACE INTO code SELECT * FROM code_reserve WHERE NAME = 'aslov1';
 */
 // echo "<p style='white-space:pre;'>";
-
-
-echo call_info();
 f34324();
-printlog("###");
+clearlog();
+printlog(1,"error",true,false);
+ f34324();
 
 function f34324() {
-  echo call_info();
+$i=3;
+$s=null;
+printlog(1,"error",$i,$s);
 }

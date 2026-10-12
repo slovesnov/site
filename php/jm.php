@@ -2289,8 +2289,6 @@ function checkGoodsInCommentsInner($e)
 		if ($i != -1) {
 			return false;
 		}
-		// diec($i == 0, "не задана масса или не установлен счётчик яиц", __LINE__,$e." checkID=".$id);
-		// diec($i > 1, "two or more eggs count set", __LINE__);
 	}
 	return true;
 }
