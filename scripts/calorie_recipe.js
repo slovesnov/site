@@ -163,7 +163,6 @@ function load() {
 }
 
 function getTitle(p) {
-	//from calorie_recipe.php
 	const mathSymbol = '[-\\d+*\\/().,eE\\s]*';
 	const pureMathBase = mathSymbol + '\\d' + mathSymbol;
 	const pureMath = '(' + pureMathBase + ')';
@@ -179,7 +178,6 @@ function ref(s, i, j) {
 
 function wrapcv(s) {
 	return '<label>' + s + '</label>'
-	//return '<span class="checkboxes"><label><span>' + s + '</span></label></span>'
 }
 
 function rc(i, j) {

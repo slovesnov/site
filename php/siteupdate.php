@@ -2758,7 +2758,7 @@ $regex<br>$bs
 <td>$qu
 <td><button onclick='testClick()'>test</button>
 </table></table>";
-		$rc = cb('multi_remote', 'rem') . cb('multi_number', '№');
+		$rc = cb('multi_remote', 'rem') . cb('multi_number', 'N');
 	} else {
 		$ic = 'infinityfree.png';
 		$h = str_replace('phpmyadmin.ico', $ic, $h);

@@ -3,25 +3,60 @@
 include_once  '../config.php';
 connect();
 
-/*
-["cpp","cpp","java","js"]
-в английской версии <#cpp>....<#>
-в русской можно просто <#cpp><#> без контента
-если текст отличается нужно задать изменения в таблице code поле map
+echo "<p style='white-space:pre;'>";
 
-CREATE TABLE code_reserve AS SELECT * FROM code;
-//todo width reorder
+// $type = ['php' => '.', 'js' => '../scripts'];
+// $type = ['php' => '.', 'js' => '../scripts'];
 
-REPLACE INTO code SELECT * FROM code_reserve WHERE NAME = 'aslov1';
-*/
-// echo "<p style='white-space:pre;'>";
-f34324();
-clearlog();
-printlog(1,"error",true,false);
- f34324();
 
-function f34324() {
-$i=3;
-$s=null;
-printlog(1,"error",$i,$s);
+$jsref = [];
+foreach (['js' => '../scripts'] as $ex => $dir) {
+    foreach (glob("$dir/*.$ex") as $f) {
+        if (is_file($f)) {
+            $found_files = phplist($f); 
+            $jsref = array_merge($jsref, $found_files);
+        }
+    }
+}
+$jsref = array_values(array_unique($jsref));
+
+$php = [];
+foreach (['php' => '.'] as $ex => $dir) {
+  foreach (glob("$dir/*.$ex") as $f) {
+    if (is_file($f)) {
+      $php[] = basename($f);
+    }
+  }
+}
+// print_r($php);
+
+// $r=minus($jsref,$php);
+// print_r($r);
+
+$r=minus($php,$jsref);
+print_r($r);
+
+// $l=phplist("../scripts/common.js");
+// print_r($l);
+
+//filectime fileatime
+//print_r($d);
+
+function minus($a,$b){
+  $r=[];
+  foreach($a as $e){
+    if(!in_array($e,$b)){
+      $r[]=$e;
+    }
+  }
+  return $r;
+}
+
+function phplist($f) {
+  $text = file_get_contents($f);
+  $pattern = '~\b\w+\.php\b~us';
+  if (preg_match_all($pattern, $text, $matches)) {
+    return array_values(array_unique($matches[0]));
+  }
+  return [];
 }
