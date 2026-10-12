@@ -117,7 +117,7 @@ function normalize(s, digits = null) {
 	return Number(digits === null ? s.toString() : Number(s).toFixed(digits))
 }
 
-//fastest version
+//fastest version analog htmlspecialchars() in php
 function tag2text(s) {
 	return s.trim()
 		.replace(/&/g, "&amp;")

@@ -574,7 +574,7 @@ function insertRow(i) {
 	let table = getTable()
 	r = table.insertRow(fromSubmit ? 1 : -1);
 
-	s = '<td style="white-space:pre;">'
+	s = '<td class="pre">'
 	if (!gJournal) {
 		s += '<td><table class="itable">'
 		for (j = 0; j < gDateSumType.length; j++) {

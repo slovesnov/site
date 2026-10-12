@@ -58,6 +58,14 @@ const LANGUAGE = ["english", "russian"];
 const END_CODE0 = '</code></pre>';
 const END_CODE1 = "<#>";
 
+const CI_FILE_CONTENT = 0;
+const CI_COUNT  = 1;
+const CI_CODE  = 2;
+const CI_LANGUAGE = 3;
+const CI_WIDTH = 4;
+
+const FILE_LANGUAGE_SEPARATOR = "-";
+
 include("calorieCommon.php");
 connect();
 $qs = prepareQueryString();
@@ -316,7 +324,7 @@ if ($qs == 'crlf') {
 }
 
 if (isset($_POST['videostring'])) {
-	die(tag2text(videoString($_POST['videostring'], TYPE_NORMAL, 'russian')));
+	die(htmlspecialchars(videoString($_POST['videostring'], TYPE_NORMAL, 'russian')));
 }
 
 if ($qs == 'phpinfo') {
@@ -1320,7 +1328,7 @@ if (IS_LOCAL) {
 		$affectedCodeRows = null;
 		$filename = $_FILES['file']['name'];
 		$cf = count($filename);
-		clearlog();
+		//clearlog();
 		if (in_array($cf, [1, 2])) {
 			$pageLanguageText = [];
 			$hasEndTag = [];
@@ -1352,6 +1360,7 @@ if (IS_LOCAL) {
 				}
 				$affectedCodeRows = $v[1];
 				$content = $v[0];
+				//printlog($content);
 			}
 		}
 		if (!$content) {
@@ -1495,7 +1504,7 @@ if (IS_LOCAL) {
 					}
 					$v = [];
 					foreach ($la as $l) {
-						$c = "$n,$l";
+						$c = $n . FILE_LANGUAGE_SEPARATOR . $l;
 						$v[] = $show ?  $c : storeToFile($c);
 					}
 					echo implode(' ', $v);
@@ -1741,7 +1750,7 @@ function updatePage($c) {
 	if ($i === false) {
 		$c = '';
 		foreach ($a as $s) {
-			$c .= '<br>' . tag2text($s);
+			$c .= '<br>' . htmlspecialchars($s);
 		}
 		die("error at line" . __LINE__ . " no one of BEGIN is found$c");
 	}
@@ -1751,7 +1760,7 @@ function updatePage($c) {
 	} else {
 		$j = strpos($c, EC, $i);
 		if ($j === false) {
-			die("error at line" . __LINE__ . " " . tag2text(EC) . " not found");
+			die("error at line" . __LINE__ . " " . htmlspecialchars(EC) . " not found");
 		}
 	}
 
@@ -1800,7 +1809,7 @@ function multiQuery($query, $number = false) {
 						$s .= "<td>$i";
 					}
 					foreach ($row as $r) {
-						$s .= '<td>' . (is_null($r) ? 'NULL' : tag2text($r));
+						$s .= '<td>' . (is_null($r) ? 'NULL' : htmlspecialchars($r));
 					}
 				}
 				$s .= '</table>';
@@ -2369,7 +2378,7 @@ function showDifferentExercises() {
 
 function storeToFile($e) {
 	global $jm_user, $jm_pwd;
-	$ch = curl_init("localhost?$e");
+	$ch = curl_init("localhost?" . str_replace(FILE_LANGUAGE_SEPARATOR, ',', $e));
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_COOKIE, JM_PWD_COOKIE . "=$jm_pwd;" . JM_USER_COOKIE . "=$jm_user;");
 	$o = curl_exec($ch);
@@ -2524,7 +2533,7 @@ function check_ruen(&$n, $s, $name) {
 				if ($j == $k) {
 					$q .= '<b>';
 				}
-				$q .= tag2text($m[$j][$i][0]);
+				$q .= htmlspecialchars($m[$j][$i][0]);
 				if ($j == $k) {
 					$q .= '</b>';
 				}
@@ -2745,38 +2754,44 @@ $rc
 }
 
 function codeUpdate($pageLanguageText) {
-	global $mysqli;
-	$t = [];
-	foreach ($pageLanguageText as $e) {
-		$t[] = codeInfo($e);
-	}
-	if (count($t) > 1) {
-		foreach (array_keys($t[0]) as $k) {
-			if (in_array($k, ['languge', 'count'])) {
-				if ($t[0][$k] != $t[1][$k]) {
-					return "different $k " . $t[0][$k] . " != " . $t[1][$k] . " line" . __LINE__;
+	$t = array_map(fn($e) => codeInfo($e[2]), $pageLanguageText);
+	$map = [
+		CI_COUNT => 'count',
+		CI_CODE => 'code',
+		CI_LANGUAGE => 'language',
+		CI_WIDTH => 'width'
+	];
+	if (count($t) == 2) {
+		foreach ($map as $k => $v) {
+			if ($k != CI_CODE) {
+				$a = $t[0][$k];
+				$b = $t[1][$k];
+				if ($a != $b) {
+					return "different $v " . $pageLanguageText[0][1] . " $a!=$b " . $pageLanguageText[1][1] . " line" . __LINE__;
 				}
 			}
 		}
 	}
 	$name = $pageLanguageText[0][0];
-	//var_dump($t[1]['code']);
-	$i = count($t) == 1 ? 0 : (int)strlen($t[1]['code']) > strlen($t[0]['code']);
-	$q = "INSERT INTO code (name,code, language) 
-VALUES ('$name','" . $mysqli->real_escape_string($t[$i]['code']) . "', '" . $mysqli->real_escape_string($t[$i]['language']) . "')
-ON DUPLICATE KEY UPDATE code = VALUES(code),language = VALUES(language)";
-	//$mysqli->query("$q") or die('error on line' . __LINE__ . $mysqli->error);
-	// printlog($q, "affectedRows " . $mysqli->affected_rows);
-	return [array_column($t, 'content'), $mysqli->affected_rows];
+	$n = count($t) == 2 && strlen($t[1][CI_CODE]) > strlen($t[0][CI_CODE]);
+
+	$array = ['name' => $name];
+	foreach ($map as $k => $v) {
+		if ($k != CI_COUNT) {
+			$array[$v] = $t[$n][$k];
+		}
+	}
+	//printlog(upsert('code', $array, true));
+	$affected_rows = upsert('code', $array);
+	return [array_column($t, CI_FILE_CONTENT), $affected_rows];
 }
 
-function codeInfo($pageLanguageText) {
-	$text = $pageLanguageText[2];
+function codeInfo($text) {
 	$p = codePositions($text);
 	//start end code language width
-	$code = nth_element_json($p, 2);
-	$language = nth_element_json($p, 3);
-	$width = nth_element_json($p, 4);
+	$code = nth_element_json($p, CI_CODE);
+	$language = nth_element_json($p, CI_LANGUAGE);
+	$width = nth_element_json($p, CI_WIDTH);
 
 	for ($i = count($p) - 1; $i >= 0; $i--) {
 		$start = $p[$i][0];
@@ -2786,47 +2801,29 @@ function codeInfo($pageLanguageText) {
 		$text = substr_replace($text, $replacement, $start, $length);
 	}
 	// printlog($type, count($p),  strlen($code),  $language);
-	return ['content' => $text, 'count' => count($p), 'code' => $code, 'language' => $language, 'width' => $width];
+	//printlog($text);
+	return [$text,  count($p), $code,  $language,  $width];
 }
 
 function codePositions($text) {
-    $pattern = '~<pre class="code-container"( style="width:(?P<w0>\d+)px")?><code class="language-(?P<l0>\w+)">(?P<c0>.+?)' . END_CODE0 . '|<#(?P<l1>\w*)>(?P<c1>.*?)' . END_CODE1 . '~us';
-    $positions = [];
-    
-    if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
-        foreach ($matches as $match) {
-            $fullText = $match[0][0];
-            $startPos = $match[0][1];
-            $endPos   = $startPos + strlen($fullText);
-            
-            $i = (int)str_starts_with($fullText, '<#');
-            
-            $code  = isset($match['c'.$i]) && $match['c'.$i][1] !== -1 ? trim($match['c'.$i][0]) : '';
-            $lang  = isset($match['l'.$i]) && $match['l'.$i][1] !== -1 ? $match['l'.$i][0] : '';
-            $width = isset($match['w'.$i]) && $match['w'.$i][1] !== -1 ? $match['w'.$i][0] : '';
-            
-            printlog($startPos, $endPos, $code, $lang, $width);
-            $positions[] = [$startPos, $endPos, $code, $lang, $width];
-        }
-    }
-    return $positions;
-}
+	$pattern = '~<pre class="code-container"( style="width:(?P<w0>\d+)px")?><code class="language-(?P<l0>\w+)">(?P<c0>.+?)' . END_CODE0 . '|<#(?P<l1>\w*)>(?P<c1>.*?)' . END_CODE1 . '~us';
+	$positions = [];
 
-// function codePositions($text) {
-// 	$pattern = '~<pre class="code-container"( style="width:(?P<w0>\d+)px")?><code class="language-(?P<l0>\w+)">(?P<c0>.+?)' . END_CODE0 . '|<#(?P<l1>\w*)>(?P<c1>.*?)' . END_CODE1 . '~us';
-// 	$positions = [];
-// 	if (preg_match_all($pattern, $text, $matches, PREG_OFFSET_CAPTURE)) {
-// 		foreach ($matches[0] as $key => $match) {
-// 			$fullText = $match[0];
-// 			$startPos = $match[1];
-// 			$endPos = $startPos + strlen($fullText);
-// 			$i = (int)str_starts_with($fullText, '<#');
-// 			printlog($startPos, $endPos, trim($matches['c'.$i][$key][0]), $matches['l'.$i][$key][0], $matches['w'.$i][$key][0]);
-// 			$positions[] = [$startPos, $endPos, trim($matches['c'.$i][$key][0]), $matches['l'.$i][$key][0], $matches['w'.$i][$key][0]];
-// 		}
-// 	}
-// 	return $positions;
-// }
+	if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
+		foreach ($matches as $match) {
+			$fullText = $match[0][0];
+			$startPos = $match[0][1];
+			$endPos   = $startPos + strlen($fullText);
+			$i = (int)str_starts_with($fullText, '<#');
+			$code = htmlspecialchars_decode(trim($match['c' . $i][0]));
+			$lang = $match['l' . $i][0];
+			$width = (isset($match['w' . $i]) && $match['w' . $i][1] !== -1) ? (int)$match['w' . $i][0] : null;
+			//printlog($startPos, $endPos, $code, $lang, $width);
+			$positions[] = [$startPos, $endPos, $code, $lang, $width];
+		}
+	}
+	return $positions;
+}
 
 function getPageLanguage($text) {
 	$l = null;
@@ -2844,9 +2841,10 @@ function getPageLanguage($text) {
 	return [$p, $l];
 }
 
-function nth_element_json(array $matrix, $n): bool {
+function nth_element_json(array $matrix, $n) {
 	$elements = array_column($matrix, $n);
-	return is_nth_element_same($matrix, $n) ? $elements[0] : json_encode($elements);
+	$s = is_nth_element_same($matrix, $n) ? $elements[0] : $elements;
+	return json_encode($s);
 }
 
 function is_nth_element_same(array $matrix, $n): bool {
@@ -2855,23 +2853,28 @@ function is_nth_element_same(array $matrix, $n): bool {
 	return count($uniqueElements) === 1;
 }
 
-function universal_mysqli_upsert(string $table, array $columns, array $values): bool {
+function upsert(string $table, array $array, bool $getquery = false): string|int {
 	global $mysqli;
+	$columns = array_keys($array);
+	$values = array_values($array);
 	$escapedColumns = implode(', ', array_map(fn($col) => "`$col`", $columns));
-	$placeholders = implode(', ', array_fill(0, count($values), '?'));
+	$placeholders = implode(', ', array_fill(0, count($array), '?'));
 	$updateParts = [];
 	foreach ($columns as $col) {
-		$updateParts[] = "`$col` = new_row.`$col`";
+		$updateParts[] = "`$col` = VALUES(`$col`)";
 	}
 	$updateString = implode(', ', $updateParts);
-	$sql = "INSERT INTO `$table` ($escapedColumns) 
-            VALUES ($placeholders) 
-            AS new_row 
-            ON DUPLICATE KEY UPDATE $updateString";
+	$sql = "INSERT INTO `$table` ($escapedColumns) VALUES ($placeholders) 
+ON DUPLICATE KEY UPDATE $updateString";
+	if ($getquery) {
+		return $sql;
+	}
+
 
 	$stmt = $mysqli->prepare($sql);
 	if (!$stmt) {
-		return false;
+		return -1;
 	}
-	return $stmt->execute($values);
+	$stmt->execute($values);
+	return $stmt->affected_rows;
 }

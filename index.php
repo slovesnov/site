@@ -164,11 +164,16 @@ if ($result->num_rows == 0) {
 		$res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
 		if ($res->num_rows) {
 			$hasHighlightCode = true;
-			$ar = array_map(fn($v) => json_decode($v, true), $res->fetch_row());
+			$re=$res->fetch_row();
+			$ar = array_map(fn($v) => json_decode($v),$re );
+			$len = is_array($ar[0]) ? count($ar[0])  : 1;
 			$content = preg_replace_callback(
 				'~<p id="c(\d+)"></p>~',
-				function ($m) use ($ar, $language) {
+				function ($m) use ($ar, $language, $len) {
 					$n = $m[1];
+					if ($n >= $len) {
+						die("error code count $n>=$len (db count)" . " line" . __LINE__);
+					}
 					$f = fn($i) => is_array($ar[$i])  ? $ar[$i][$n] : $ar[$i];
 					$code = $f(0);
 					$lng = $f(1);
@@ -235,8 +240,7 @@ if ($result->num_rows == 0) {
 		$favicon = $row['favicon'];
 	}
 
-	$q = "INSERT INTO counters(name,language,date,counter,admin_counter) 
-	VALUES ('$name','$language',CURDATE(),1,$admin)  UPDATE counter=counter+1";
+	$q = "INSERT INTO counters(name,language,date,counter,admin_counter) VALUES ('$name','$language',CURDATE(),1,$admin) ON DUPLICATE KEY UPDATE counter=counter+1";
 	if ($admin) {
 		$q .= ',admin_counter=admin_counter+1';
 	}
@@ -245,8 +249,7 @@ if ($result->num_rows == 0) {
 	$ip = getIP(); //[ip,key,server]
 	$j = $ip[2] == $ip[0] ? 'NULL' : $ip[2];
 	//'key' is reserves mysql word so use 'skey'
-	$mysqli->query("INSERT INTO ip(ip,date,counter,admin,skey,server) VALUES 
-		('$ip[0]',CURDATE(),1,$admin,'$ip[1]','$j') ON DUPLICATE KEY UPDATE counter=counter+1")
+	$mysqli->query("INSERT INTO ip(ip,date,counter,admin,skey,server) VALUES ('$ip[0]',CURDATE(),1,$admin,'$ip[1]','$j') ON DUPLICATE KEY UPDATE counter=counter+1")
 		or die('error on line' . __LINE__ . $mysqli->error . "('$ip[0]',CURDATE(),1,$admin,'$ip[1]',[$j])" . var_export($_SERVER, 1));
 }
 

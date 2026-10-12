@@ -390,7 +390,7 @@ if (isset($_POST['search'])) { //money find
 }
 
 if (in_array($s, FILES)) {
-	$i = tag2text(file_get_contents($s));
+	$i = htmlspecialchars(file_get_contents($s));
 	echoBegin('money');
 	echo "</head><pre>$i</pre></body></html>";
 	exit;

@@ -370,7 +370,7 @@ function bclick(command, n) {
 		b = new Array(3).fill('')
 	}
 	d = getDateFromStart(n)
-	s1 = `<td rowspan=3 style="white-space:pre;"><div style='height:450px; overflow:auto;'>${gp.slice(n - PREVIOUS_DAYS_DIALOG, n).join('\n')}</div>`
+	s1 = `<td rowspan=3 class="pre"><div style='height:450px; overflow:auto;'>${gp.slice(n - PREVIOUS_DAYS_DIALOG, n).join('\n')}</div>`
 	s = '<table>'
 		+ `<tr><td colspan=3>масса <input type="number" id="mass" value="${m}" oninput="massChanged()" style="width:40px" step=".1"><label><input type="checkbox" id="autoru" checked style="vertical-align: middle;">перекодировать буквы <img src="../img/en.gif">&rarr;<img src="../img/ru.gif"></label> <button class="comboboxbutton" onclick="addPFC(el('ta' + gLastTextArea),' бжу 0 0 0 b12 0 животный белок/жир 0 0')">бжу b12 жив. жир/белок</button>`
 		+ BDS.map((e, i) => `<tr><td>${[...e].join('<br>') + '<br>' + clickableImage('', `fromStorage(${i})`, 'refresh')}<td><textarea id="ta${i}" oninput="textareaInput(this)" onkeydown="textareaKeydown(this,event)" onfocus="gLastTextArea=${i}" style="height:145px;width:300px;">${b[i]}</textarea>` + (i ? '' : s1)

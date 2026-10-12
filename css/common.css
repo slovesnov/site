@@ -379,6 +379,6 @@ pre.code-container code[class*="language-"] {
 	box-shadow: none !important;
 }
 
-p.pre {
+.pre {
 	white-space: pre;
 }

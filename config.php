@@ -26,10 +26,6 @@ function isJmValidUser() {
 		&& $_COOKIE[JM_USER_COOKIE] == $jm_user && $_COOKIE[JM_PWD_COOKIE] == $jm_pwd;
 }
 
-function tag2text($s) {
-	return str_replace(['&', '<', '>'], ['&amp;', '&lt;', '&gt;'], $s);
-}
-
 //like common.js
 function formatString($n, $separator = ' ', $digits = 3) {
 	$s = (string)$n;
@@ -110,33 +106,38 @@ $log_file_name = "log.txt";
 function variable_to_string($p) {
 	if (is_array($p)) {
 		return print_r($p, true);
+	} elseif (is_null($p)) {
+		return "NULL";
 	} else {
-		return var_export($p, true)." ".gettype($p);
+		$s = var_export($p, true);
+		if (is_string($p)) {
+			$s = substr($s, 1, -1); //'abc' => abc		
+			$s = str_replace("\'", "'", $s); // Replace \' with '
+		}
+		return  $s . " " . gettype($p);
 	}
 }
 
 function printlog(...$variables) {
-    global $log_file_name;
-    $a = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-    
-    $file = isset($a[0]['file']) ? basename($a[0]['file']) : 'unknown_file';
-    $line = isset($a[0]['line']) ? $a[0]['line'] : 0;
-    
-    if (isset($a[1]['function'])) {
-        $function = $a[1]['function'] . "()";
-        $q = "{$file} {$function}:{$line} " . mb_strtolower(date('dM H:i:s'));
-    } else {
-        $q = "{$file}:{$line} " . mb_strtolower(date('dM H:i:s'));
-    }
+	global $log_file_name;
+	$a = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-    $s = "==== $q ====\n";
+	$file = isset($a[0]['file']) ? basename($a[0]['file']) : 'unknown_file';
+	$line = isset($a[0]['line']) ? $a[0]['line'] : 0;
 
-    foreach ($variables as $variable) {
-        $s .= variable_to_string($variable) . "\n";
-    }
+	if (isset($a[1]['function'])) {
+		$function = $a[1]['function'] . "()";
+		$s = "{$file} {$function}:{$line}";
+	} else {
+		$s = "{$file}:{$line}";
+	}	 
+	$s .=  date(' H:i:s')."\n";
 
-    $s .= "\n"; 
-    file_put_contents($log_file_name, $s, FILE_APPEND);
+	foreach ($variables as $variable) {
+		$s .= variable_to_string($variable) . "\n";
+	}
+	$s .= "\n";
+	file_put_contents($log_file_name, $s, FILE_APPEND);
 }
 
 function clearlog() {
