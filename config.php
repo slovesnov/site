@@ -110,8 +110,6 @@ $log_file_name = "log.txt";
 function variable_to_string($p) {
 	if (is_array($p)) {
 		return print_r($p, true);
-	} else if (is_string($p)) {
-		return $p;
 	} else {
 		return var_export($p, true)." ".gettype($p);
 	}

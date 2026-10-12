@@ -29,7 +29,6 @@ int getFileSize(const std::string &amp;path); // gets the file size
 FILE* open(std::string path, const char *flags); // opens a file with conversion of the path from utf8 to local encoding</code></pre>
 */
 echo "<p style='white-space:pre;'>";
-
 // $res = $mysqli->query("SELECT code FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
 // $t = $res->fetch_row();
 // $code = json_decode($t[0]);

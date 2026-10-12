@@ -161,34 +161,32 @@ if ($result->num_rows == 0) {
 		$content = ADMIN_ONLY_STRING;
 	} else {
 		$content = $row['content'];
-		if (!isset($_POST['not_use_code'])) {
-			$res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
-			if ($res->num_rows) {
-				$hasHighlightCode = true;
-				$ar = array_map(fn($v) => json_decode($v, true), $res->fetch_row());
-				$content = preg_replace_callback(
-					'~<p id="c(\d+)"></p>~',
-					function ($m) use ($ar, $language) {
-						$n = $m[1];
-						$f = fn($i) => is_array($ar[$i])  ? $ar[$i][$n] : $ar[$i];
-						$code = $f(0);
-						$lng = $f(1);
-						if (!is_null($ar[2]) && $language == 'russian') {
-							$code = strtr($code, $ar[2]);
+		$res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
+		if ($res->num_rows) {
+			$hasHighlightCode = true;
+			$ar = array_map(fn($v) => json_decode($v, true), $res->fetch_row());
+			$content = preg_replace_callback(
+				'~<p id="c(\d+)"></p>~',
+				function ($m) use ($ar, $language) {
+					$n = $m[1];
+					$f = fn($i) => is_array($ar[$i])  ? $ar[$i][$n] : $ar[$i];
+					$code = $f(0);
+					$lng = $f(1);
+					if (!is_null($ar[2]) && $language == 'russian') {
+						$code = strtr($code, $ar[2]);
+					}
+					$code = htmlspecialchars($code);
+					$w = '';
+					if (!is_null($ar[3])) {
+						$w = $f(3);
+						if (!is_null($w)) {
+							$w = " style=\"width:{$w}px\"";
 						}
-						$code = htmlspecialchars($code);
-						$w = '';
-						if (!is_null($ar[3])) {
-							$w = $f(3);
-							if (!is_null($w)) {
-								$w = " style=\"width:{$w}px\"";
-							}
-						}
-						return "<pre class=\"code-container\"$w><code class=\"language-$lng\">$code</code></pre>";
-					},
-					$content
-				);
-			}
+					}
+					return "<pre class=\"code-container\"$w><code class=\"language-$lng\">$code</code></pre>";
+				},
+				$content
+			);
 		}
 	}
 	$menu = $i ? NULL : $row['menu'];
@@ -238,7 +236,7 @@ if ($result->num_rows == 0) {
 	}
 
 	$q = "INSERT INTO counters(name,language,date,counter,admin_counter) 
-	VALUES ('$name','$language',CURDATE(),1,$admin) ON DUPLICATE KEY UPDATE counter=counter+1";
+	VALUES ('$name','$language',CURDATE(),1,$admin)  UPDATE counter=counter+1";
 	if ($admin) {
 		$q .= ',admin_counter=admin_counter+1';
 	}
