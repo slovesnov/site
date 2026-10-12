@@ -16,24 +16,11 @@ REPLACE INTO code SELECT * FROM code_reserve WHERE NAME = 'aslov1';
 */
 // echo "<p style='white-space:pre;'>";
 
-echo "<table border=1>";
-foreach (['css', 'script'] as $f) {
-  $r = $mysqli->query("select name,language,$f from pages ") or die('error line' . __LINE__ . $mysqli->error);
-  $new = [];
-  while ($row = $r->fetch_row()) {
-    $words = preg_split('/\s+/', trim($row[2]));
-    sort($words);
-    $new[2] = implode(' ', $words);
-    if ($new[2] != $row[2]) {
-      echo "<tr><td>" . implode('<td>', [$row[0] . " " . $row[1], $row[2],$new[2]]);
-    }
-  }
+
+echo call_info();
+f34324();
+printlog("###");
+
+function f34324() {
+  echo call_info();
 }
-echo "</table>";
-
-
-// $res = $mysqli->query("SELECT code FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
-// $t = $res->fetch_row();
-// $code = json_decode($t[0]);
-// var_dump(count($code));
-// exit;

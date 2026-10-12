@@ -118,20 +118,36 @@ function variable_to_string($p) {
 	}
 }
 
-function printlog(...$variables) {
-	global $log_file_name;
+function call_info() {
 	$a = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
 	$file = isset($a[0]['file']) ? basename($a[0]['file']) : 'unknown_file';
 	$line = isset($a[0]['line']) ? $a[0]['line'] : 0;
 
+	$s = "{$file}";
 	if (isset($a[1]['function'])) {
 		$function = $a[1]['function'] . "()";
-		$s = "{$file} {$function}:{$line}";
-	} else {
-		$s = "{$file}:{$line}";
-	}	 
-	$s .=  date(' H:i:s')."\n";
+		$s = " " . $function;
+	}
+	$s .= ":{$line}";
+	return $s;
+}
+
+function printlog(...$variables) {
+	global $log_file_name;
+	// $a = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+
+	// $file = isset($a[0]['file']) ? basename($a[0]['file']) : 'unknown_file';
+	// $line = isset($a[0]['line']) ? $a[0]['line'] : 0;
+
+	// $s = "{$file}";
+	// if (isset($a[1]['function'])) {
+	// 	$function = $a[1]['function'] . "()";
+	// 	$s = " {$function}:{$line}";
+	// }
+	// $s .= ":{$line}" . date(' H:i:s') . "\n";
+
+	$s = call_info() . date(' H:i:s') . "\n";
 
 	foreach ($variables as $variable) {
 		$s .= variable_to_string($variable) . "\n";
