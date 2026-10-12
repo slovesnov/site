@@ -3,7 +3,6 @@ const ln = gLanguage == 'russian' ? ['имя', 'размер', 'mtime', 'все�
 
 function load() {
 	fetchpost('../php/files_list.php', {}, callback)
-	// callback()
 }
 
 function callback(s) {
