@@ -16,22 +16,16 @@ REPLACE INTO code SELECT * FROM code_reserve WHERE NAME = 'aslov1';
 */
 // echo "<p style='white-space:pre;'>";
 
-echo "<table>";
+echo "<table border=1>";
 foreach (['css', 'script'] as $f) {
-  $r = $mysqli->query("select name,language,css,script from pages ") or die('error line' . __LINE__ . $mysqli->error);
+  $r = $mysqli->query("select name,language,$f from pages ") or die('error line' . __LINE__ . $mysqli->error);
   $new = [];
   while ($row = $r->fetch_row()) {
-    $show = false;
-    for ($i = 2; $i < 4; $i++) {
-      $words = preg_split('/\s+/', trim($row[$i]));
-      sort($words);
-      $new[$i] = implode(' ', $words);
-      if ($new[$i] != $row[$i]) {
-        $show = true;
-      }
-    }
-    if ($show) {
-      echo "<tr><td>" . implode('<td>', [$row[0] . " " . $row[1], $row[2], $new[2], $row[3], $new[2]]);
+    $words = preg_split('/\s+/', trim($row[2]));
+    sort($words);
+    $new[2] = implode(' ', $words);
+    if ($new[2] != $row[2]) {
+      echo "<tr><td>" . implode('<td>', [$row[0] . " " . $row[1], $row[2],$new[2]]);
     }
   }
 }

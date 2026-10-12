@@ -1057,6 +1057,34 @@ if (IS_LOCAL) {
 
 	//  var_dump($_POST);
 	//  exit;
+	if ($qs == 'script_css_reorder_alphabet') {
+		echo HEAD1 . "<table class='table_color table_border'>";
+		$c = 0;
+		$q = '';
+		foreach (['css', 'script'] as $f) {
+			$r = $mysqli->query("select name,language,$f from pages ") or die('error line' . __LINE__ . $mysqli->error);
+			$new = [];
+			while ($row = $r->fetch_row()) {
+				$words = preg_split('/\s+/', trim($row[2]));
+				sort($words);
+				$new[2] = implode(' ', $words);
+				if ($new[2] != $row[2]) {
+					$c++;
+					echo "<tr><td>" . implode('<td>', [$c, $row[0] . " " . $row[1], $row[2], $new[2]]);
+					$q .= "update pages set $f='$new[2]' where name='$row[0]' and language='$row[1]';\n";
+				}
+			}
+		}
+		echo "</table>";
+		if ($c) {
+			die(multiQuery($q, true));
+		} else {
+			echo "all script & css ordered";
+		}
+		exit;
+	}
+
+
 	if (isset($_POST['versioneditor'])) {
 		$n = $_POST['versioneditor'];
 		$l = $_POST['language'];

@@ -52,6 +52,7 @@ const U = [
 		, ['php/siteupdate.php?cc', 'chars count in name']
 		, ['php/siteupdate.php?script_css_count', 'script/css count (different)']
 		, ['php/siteupdate.php?crlf', 'script/css/php crlf']
+		, ['php/siteupdate.php?script_css_reorder_alphabet', 'script/css reorder alphabet']
 		, ['php/siteupdate.php?strangejscss', 'strange js/css']
 	]
 ]
