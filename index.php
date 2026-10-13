@@ -30,6 +30,7 @@ const FILE = 'index.php';
 const MOBILE_MODE_OFFLINE = 2;
 const REDIRECT_SECONDS = 3;
 const TABLE_CALENDAR = ['table', 'calendar'];
+const CODE_TO_JS = ['parser'];
 
 $q = prepareQueryString();
 if ($q == 'error') {
@@ -118,7 +119,7 @@ $admin_only = false;
 $videostr = '';
 $result = $mysqli->query("SELECT 1 FROM pages WHERE NAME ='$name' and LANGUAGE='$opposite_language' LIMIT 1") or die('error line' . __LINE__ . $mysqli->error);
 $exists_on_another_language = ($result->num_rows == 1);
-$hasHighlightCode = false;
+$codeType = 0;
 $redirect = false;
 $result = $mysqli->query("SELECT title,content,script,onload,css,type,keywords,menu,favicon,admin_only,save_button,video FROM pages WHERE name ='$name' and LANGUAGE='$language'") or die('error line' . __LINE__ . $mysqli->error);
 if ($result->num_rows == 0) {
@@ -163,35 +164,28 @@ if ($result->num_rows == 0) {
 		$content = $row['content'];
 		$res = $mysqli->query("SELECT code,language,map,width FROM code WHERE NAME ='$name'") or die('error on line' . __LINE__ . $mysqli->error);
 		if ($res->num_rows) {
-			$hasHighlightCode = true;
-			$re=$res->fetch_row();
-			$ar = array_map(fn($v) => json_decode($v),$re );
+			$re = $res->fetch_row();
+			$ar = array_map(fn($v) => json_decode($v, true), $re);
 			$len = is_array($ar[0]) ? count($ar[0])  : 1;
-			$content = preg_replace_callback(
-				'~<p id="c(\d+)"></p>~',
-				function ($m) use ($ar, $language, $len) {
-					$n = $m[1];
-					if ($n >= $len) {
-						die("error code count $n>=$len (db count)" . " line" . __LINE__);
-					}
-					$f = fn($i) => is_array($ar[$i])  ? $ar[$i][$n] : $ar[$i];
-					$code = $f(0);
-					$lng = $f(1);
-					if (!is_null($ar[2]) && $language == 'russian') {
-						$code = strtr($code, $ar[2]);
-					}
-					$code = htmlspecialchars($code);
-					$w = '';
-					if (!is_null($ar[3])) {
-						$w = $f(3);
-						if (!is_null($w)) {
-							$w = " style=\"width:{$w}px\"";
-						}
-					}
-					return "<pre class=\"code-container\"$w><code class=\"language-$lng\">$code</code></pre>";
-				},
-				$content
-			);
+			$code = [];
+			for ($i = 0; $i < $len; $i++) {
+				$code[] = code($ar, $i, $language == 'russian');
+			}
+			if (in_array($name, CODE_TO_JS)) {
+				$codeType = 2;
+				$code = json_encode($code, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+			} else {
+				$codeType = 1;
+				$content = preg_replace_callback(
+					'~<p id="c(\d+)"></p>~',
+					function ($m) use ($code, $len) {
+						$index = (int)$m[1];
+						diec($index >= $len, "Error: Index {$index} is out of bounds (max allowed: " . ($len - 1) . ") on line ");
+						return $code[$index];
+					},
+					$content
+				);
+			}
 		}
 	}
 	$menu = $i ? NULL : $row['menu'];
@@ -208,9 +202,7 @@ if ($result->num_rows == 0) {
 		TABLE_CALENDAR
 	);
 	if (is_null($row['onload'])) {
-		if (in_array(true, $hasTableCalendar)) {
-			die('possible error onload=null with table or calendar in script');
-		}
+		diec(in_array(true, $hasTableCalendar), 'possible error onload=null with table or calendar in script');
 	} else {
 		$s = '';
 		foreach (TABLE_CALENDAR as $index => $word) {
@@ -300,22 +292,22 @@ if ($redirect) {
 }
 
 $pp = [
-	'Language' => $language,
-	'PageName' => $name,
-	'Parameter' => $parameter,
+	'Language' => wr($language),
+	'PageName' => wr($name),
+	'Parameter' => wr($parameter),
 	'Mobile' => $mobile,
 	'MobileMode' => $mobile_mode,
 	'Admin' => $admin,
 	'PageType' => $type
 ];
 if ($type == TYPE_PRESENTATION) {
-	$pp['VideoStr'] = $videostr;
+	$pp['VideoStr'] = wr($videostr);
 }
-echo js_reduce($pp, fn($a, $v, $k, $ar, $i) => $a .  ($i ? ',' : '') . "g$k=" . wr($i, $v), '<script>let ');
-// echo "<script>let gLanguage='$language',gPageName='$name',gParameter=`$parameter`,gMobile=$mobile,gMobileMode=$mobile_mode,gAdmin=$admin,gPageType=$type";
-// if ($type == TYPE_PRESENTATION) {
-// 	echo ",gVideoStr=`$videostr`";
-// }
+if ($codeType === 2) {
+	$pp['Code'] = $code;
+}
+
+echo js_reduce($pp, fn($a, $v, $k, $ar, $i) => $a .  ($i ? ',' : '') . "g$k=$v", '<script>let ');
 
 $menu_addon = '';
 if ($has_menu) {
@@ -329,7 +321,7 @@ echo "</script>";
 if ($latex) {
 	echo '<script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>';
 }
-if ($hasHighlightCode) {
+if ($codeType) {
 	$cdn = "https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0";
 	echo "<link rel='stylesheet' href='{$cdn}/themes/prism-tomorrow.min.css'>" .
 		"<script src='{$cdn}/prism.min.js'></script>" .
@@ -436,7 +428,7 @@ function make_tags($a, $begin, $end) {
 	$d = $css ? CSS_DIR : JS_DIR;
 	$b = $css ? '<style>' : '<script>';
 	foreach ($a as $v) {
-		$c = file_get_contents($d . $v . $e) or die('cann\'t open file line:' . __LINE__);
+		$c = file_get_contents($d . $v . $e) or diec(true, 'cann\'t open file');
 		$b .= $c;
 	}
 	return $b . ($css ? '</style>' : '</script>');
@@ -454,7 +446,7 @@ function make_menu($menu, $pageName, $mobile) {
 		}
 		$l = strlen($v);
 		if ($l == 0) {
-			die('error at line' . __LINE__);
+			diec(true, 'error');
 		}
 		if ($v[$l - 1] == '{') {
 			$addlevel = true;
@@ -472,9 +464,7 @@ function make_menu($menu, $pageName, $mobile) {
 
 			$n = explode("^", $items[0]);
 			$name = $n[(int)(count($n) == 2 && $mobile)];
-			if (strlen($name) == 0) {
-				die('Error empty string found in menu line' . __LINE__);
-			}
+			diec(strlen($name) == 0, 'Error empty string found in menu');
 			//mobile has no over event so skip reference if has for top item
 			$ref = count($items) == 1 || $mobile && $addlevel ? '#' : $items[1];
 
@@ -532,13 +522,24 @@ function getIP() {
 	return ['unknown', 'unknown', 'unknown'];
 }
 
-function wr($i, $s) {
-	if ($i < 2) {
-		$w = '\'';
-	} elseif ($i == 2 || $i == 7) {
-		$w = '`';
-	} else {
-		$w = '';
+function code($ar, $n, $change) {
+	$f = fn($i) => is_array($ar[$i])  ? $ar[$i][$n] : $ar[$i];
+	$code = $f(0);
+	$lng = $f(1);
+	if (!is_null($ar[2]) && $change) {
+		$code = strtr($code, $ar[2]);
 	}
-	return "$w$s$w";
+	$code = htmlspecialchars($code);
+	$w = '';
+	if (!is_null($ar[3])) {
+		$w = $f(3);
+		if (!is_null($w)) {
+			$w = " style=\"width:{$w}px\"";
+		}
+	}
+	return "<pre class=\"code-container\"$w><code class=\"language-$lng\">$code</code></pre>";
+}
+
+function wr($v) {
+	return "`$v`";
 }

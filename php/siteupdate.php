@@ -2449,44 +2449,6 @@ function wrap2($s, $c, $left, $right) {
 	return $c ? $left . $s . $right : $s;
 }
 
-function getFileCodes($f, $fp) {
-	return [$f, md5_file($fp), filesize($fp)];
-}
-
-function getDirsCodes($list, $filesList) {
-	$dirs = preg_split("/\s+/", $list);
-	$a = [];
-	foreach ($dirs as $d) {
-		$r = [];
-		$dir = "../" . $d;
-		$files = scandir($dir);
-		foreach ($files as $f) {
-			if ($f == '.' || $f == '..') {
-				continue;
-			}
-			$fp = "$dir/$f";
-			if (is_dir($fp)) {
-				continue;
-			}
-			$r[] = getFileCodes($f, $fp);
-		}
-		$a[$d] = $r;
-	}
-	$a['files'] = getFilesCodes($filesList);
-	return json_encode($a, JSON_UNESCAPED_UNICODE);
-}
-
-function getFilesCodes($list) {
-	$files = preg_split("/\s+/", $list);
-	$r = [];
-	if (!empty($list)) {
-		foreach ($files as $f) {
-			$r[] = getFileCodes($f, $f);
-		}
-	}
-	return $r;
-}
-
 function getTablesCodes($tableString) {
 	global $mysqli;
 	$o = [];

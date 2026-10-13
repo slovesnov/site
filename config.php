@@ -1,5 +1,7 @@
 <?php
 include("logpass.php");
+//for valid config time
+date_default_timezone_set('Europe/Moscow');
 
 const TYPE_NORMAL = 0;
 const TYPE_FULLSCREEN = 1;
@@ -240,4 +242,40 @@ function setCookies() {
 	$_COOKIE[JM_USER_COOKIE] = $jm_user;
 	setcookie(JM_PWD_COOKIE, $jm_pwd, time() + 86400 * 365, "/"); // 86400 = 1 day
 	$_COOKIE[JM_PWD_COOKIE] = $jm_pwd;
+}
+
+function getFileCodes($f, $fp) {
+	return [$f, md5_file($fp), filesize($fp)];
+}
+
+function getFilesCodes($list, $callback = 'getFileCodes') {
+	$files = preg_split("/\s+/", $list);
+	$r = [];
+	if (!empty($list)) {
+		foreach ($files as $f) {
+			$r[] = $callback($f, $f);
+		}
+	}
+	return $r;
+}
+
+function getDirsCodes($list, $filesList, $callback = 'getFileCodes') {
+	$dirs = preg_split("/\s+/", $list);
+	$a = [];
+	foreach ($dirs as $d) {
+		$r = [];
+		$dir = "../" . $d;
+		foreach (glob("$dir/*") as $fp) {
+			if (is_dir($fp) || str_ends_with(strtolower($fp), '.txt')) {
+				continue;
+			}
+			$f = basename($fp);
+			// Вызываем кастомную или дефолтную функцию
+			$r[] = $callback($f, $fp);
+		}
+		$a[$d] = $r;
+	}
+	// Передаем callback дальше в getFilesCodes
+	$a['files'] = getFilesCodes($filesList, $callback);
+	return json_encode($a, JSON_UNESCAPED_UNICODE);
 }
