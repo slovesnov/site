@@ -56,7 +56,7 @@ join(select count(*) as t from pages)as t2;`, '')
 	SELECT count(*), 'only in english' FROM pages WHERE name not in(select name from pages where language = 'russian') and language='english' union
 	SELECT count(*), 'only in russain' FROM pages WHERE name not in(select name from pages where language = 'english') and language='russian' union
 	SELECT count(*), 'in english and russian' FROM pages WHERE name in(select name from pages where language = 'english') and language='russian'`
-	,tablecalendar:`SELECT 
+	, tablecalendar: `SELECT 
     CASE 
         WHEN COALESCE(script REGEXP '\\\\btable\\\\b', 0) = 1 AND COALESCE(script REGEXP '\\\\bcalendar\\\\b', 0) = 1 THEN 'table+calendar'
         WHEN COALESCE(script REGEXP '\\\\btable\\\\b', 0) = 1 THEN 'table'
@@ -482,14 +482,14 @@ function fileUploadCB(s, time) {
 	else {
 		try {
 			a = JSON.parse(s);
-			remote = a.pop()			
-			gfiles = getPages(a.filter(e => e[2]), 0)
-			s = a.reduce((a,e, i) => {
+			remote = a.pop()
+			gfiles = getWhere(a.filter(e => e[2]), O_FILES)
+			s = a.reduce((a, e, i) => {
 				p = e[0]
 				l = e[1]
 				r = e[2]
 				return a + `<tr><td>${i + 1}<td><a href='../index.php?${p + ',' + l}' target='_blank'>${p + ' ' + l}</a><td>${r}`
-			},'<table>') + '</table>' + remote + timefull(time)
+			}, '<table>') + '</table>' + remote + timefull(time)
 		} catch (e) {
 			//alert(e)
 			//output s which passed to function can be die() in php
@@ -691,30 +691,27 @@ function directories_outData(p) {
 				ap(remote[i], 'local not found', false)
 			}
 		})
-		s1 += '<p>Table ' + table + ' local ' + local.length + ', remote ' + remote.length + '.'
-			+ (a.length ? new Table([...columns, 'status'], a, { o: "bcn", class: 'table' }).html() : ' Tables are the same.');
+		s1 += '<br>Table ' + table
+			+ (a.length ? new Table([...columns, 'status'], a, { o: "bcn", class: 'table' }).html() : ' is the same.');
+		// s1 += '<p>Table ' + table + ' local ' + local.length + ', remote ' + remote.length + '.'
+		// 	+ (a.length ? new Table([...columns, 'status'], a, { o: "bcn", class: 'table' }).html() : ' Tables are the same.');
 		//pages includes only 'different' and 'remote not found'. Status 'local not found' is not in pages
 		if (pages.length) {
 			if (['pages', 'videos'].includes(table)) {
-				where = getPages(pages, 2)
-				//['index','russian'].toString()='index,russian'
-				s1 += table + ': ' + getPages(pages, 1).join(' ');
+				where = getWhere(pages, O_PAGES)
+				//s1 += table + ': ' + getWhere(pages, O_PAGES_OUT).join(' ');
 			}
 			else {
 				if (table == 'calorie_slovesno') {
 					where = pages.map(e => ['date', 'datetime'].map((q, i) => q + `='${e[i]}'`).join(' and ')).join(' or ')
 				}
 				else {
-					if (table == 'money_goods_slovesno') {
-						j = 1
-					}
-					else {
-						j = 0
-					}
+					j = +['money_goods_slovesno', 'code'].includes(table)
 					where = (j == 1 ? 'name' : 'id') + ' IN(' + pages.map(e => j ? JSON.stringify(e[0]) : e[0]).join(', ') + ')'
-					s1 += '<span style=" display: inline-block;max-width:800px">SELECT * FROM ' + table + ' WHERE ' + where + '</span>'
+					//s1 += '<span style=" display: inline-block;max-width:800px">SELECT * FROM ' + table + ' WHERE ' + where + '</span>'
 				}
 			}
+			//console.log(table, where)
 			gdiff[1][table] = where
 		}
 	}
@@ -984,12 +981,14 @@ function getExchangeRow(j) {
 		+ `<button class="comboboxbutton" style="margin-left:2px;" onclick="exchangeButtonClick(this,'${e}')"><img src="../img/jm/${e}16.png"></button>`, '') + '<td>'
 }
 
-function getPages(a, par) {
+const O_FILES = 0;
+const O_PAGES_OUT = 1;
+const O_PAGES = 2;
+
+function getWhere(a, par) {
 	let f = []
 	a.forEach(a => {
-		let p, l, i
-		p = a[0]
-		l = a[1]
+		let i
 		i = f.findIndex(e => e[0] == a[0]);
 		if (i == -1) {
 			f.push(a.slice(0, 2))
@@ -998,10 +997,10 @@ function getPages(a, par) {
 			f[i] = a[0]//remove language
 		}
 	})
-	if (par == 1) {
+	if (par == O_PAGES_OUT) {
 		f = f.map(e => Array.isArray(e) ? e[0] + ',' + e[1].substr(0, 1) : e)
 	}
-	else if (par == 2) {
+	else if (par == O_PAGES) {
 		f = f.map(e => 'name="' + (Array.isArray(e) ? e[0] + '" AND language="' + e[1] : e) + '"').join(' OR ');
 	}
 	return f
