@@ -16,6 +16,7 @@ function callback(s) {
 		el('p', String(e))
 		return
 	}
+	q = Object.values(q).flat()
 	fn = e => [formatString(e), e]
 	const u = [...new Set(q.map(e => e[1]))];
 	length = u.length + 1
@@ -37,7 +38,7 @@ function callback(s) {
 	});
 	s = d.reduce((a, e, i) => {
 		title = { up: ln.slice(0, q[0].length), down: ['', ln[3], formatString(t[i])] }
-		return a + `<td><h3>${i == AI ? ln[4] : u[i-ALL_INDEX0]}</h3>` + new Table(title, e, "nsbc").html()
+		return a + `<td><h3>${i == AI ? ln[4] : u[i - ALL_INDEX0]}</h3>` + new Table(title, e, "nsbc").html()
 	}
 		, '<table class="m"><tr>') + '</table>'
 	el('p', s)

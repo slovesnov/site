@@ -1,19 +1,6 @@
 <?php
+include_once "../config.php";
 
-// $type = ['php' => '.', 'js' => '../scripts', 'css' => '../css'];
-
-// $d = [];
-// foreach ($type as $ex => $dir) {
-//     foreach (glob("$dir/*.$ex") as $f) {
-//         if (is_file($f)) {
-//             $d[] = fi($f);
-//         }
-//     }
-// }
-// foreach (['index', 'config', 'logpass'] as $e) {
-//     $d[] = fi("../$e.php");
-// }
-// die(json_encode($d, JSON_UNESCAPED_UNICODE));
 function fi($f) {
     $info = pathinfo($f);
     return [
@@ -23,9 +10,8 @@ function fi($f) {
         filemtime($f)
     ];
 }
+//"php scripts css" differs from DIFFERENCE['directories']
+die(getDirsCodes("php scripts css", DIFFERENCE['files'], 'fi'));
 
-die(getDirsCodes(". ../scripts ../css",'','fi'));
-
-	// foreach (['m', 'c', 'a'] as $e)
-	// 	echo '<td align="right">' . dateFormat("file{$e}time"($fp));
-
+// foreach (['m', 'c', 'a'] as $e)
+// 	echo '<td align="right">' . dateFormat("file{$e}time"($fp));

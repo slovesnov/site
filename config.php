@@ -19,6 +19,12 @@ define('DB_HOST', IS_LOCAL ? 'localhost' : 'sql104.infinityfree.com');
 const ALWAYS_ADMIN_LOCAL = 0; //if ALWAYS_ADMIN_LOCAL=1 then not need to login for edit jm on localhost, test for potencial other users
 define('ALWAYS_ADMIN', IS_LOCAL ? ALWAYS_ADMIN_LOCAL : 0);
 
+const DIFFERENCE = [
+	'tables' => 'code videos pages money_slovesno money_goods_slovesno calorie_slovesno',
+	'directories' => 'php scripts css articles',
+	'files' => '../index.php ../config.php ../logpass.php'
+];
+
 function isJmValidUser() {
 	global $jm_user, $jm_pwd;
 	if (ALWAYS_ADMIN) {
@@ -244,38 +250,37 @@ function setCookies() {
 	$_COOKIE[JM_PWD_COOKIE] = $jm_pwd;
 }
 
-function getFileCodes($f, $fp) {
-	return [$f, md5_file($fp), filesize($fp)];
+function getFileCodes($fp) {
+	return [basename($fp), md5_file($fp), filesize($fp)];
 }
 
-function getFilesCodes($list, $callback = 'getFileCodes') {
-	$files = preg_split("/\s+/", $list);
-	$r = [];
-	if (!empty($list)) {
-		foreach ($files as $f) {
-			$r[] = $callback($f, $f);
-		}
-	}
-	return $r;
-}
-
-function getDirsCodes($list, $filesList, $callback = 'getFileCodes') {
-	$dirs = preg_split("/\s+/", $list);
+function getFilesCodes($files, $callback = 'getFileCodes') {
 	$a = [];
-	foreach ($dirs as $d) {
-		$r = [];
-		$dir = "../" . $d;
-		foreach (glob("$dir/*") as $fp) {
-			if (is_dir($fp) || str_ends_with(strtolower($fp), '.txt')) {
-				continue;
-			}
-			$f = basename($fp);
-			// Вызываем кастомную или дефолтную функцию
-			$r[] = $callback($f, $fp);
+	if (!empty($files)) {
+		$files = preg_split("/\s+/", $files);
+		foreach ($files as $f) {
+			$a[] = $callback($f);
 		}
-		$a[$d] = $r;
 	}
-	// Передаем callback дальше в getFilesCodes
-	$a['files'] = getFilesCodes($filesList, $callback);
+	return $a;
+}
+
+function getDirsCodes($dirs, $files, $callback = 'getFileCodes') {
+	$a = [];
+	if (!empty($dirs)) {
+		$dirs = preg_split("/\s+/", $dirs);
+		foreach ($dirs as $d) {
+			$r = [];
+			$dir = "../" . $d;
+			foreach (glob("$dir/*") as $fp) {
+				if (is_dir($fp) || str_ends_with(strtolower($fp), '.txt')) {
+					continue;
+				}
+				$r[] = $callback($fp);
+			}
+			$a[$d] = $r;
+		}
+	}
+	$a['files'] = getFilesCodes($files, $callback);
 	return json_encode($a, JSON_UNESCAPED_UNICODE);
 }

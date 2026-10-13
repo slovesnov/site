@@ -37,11 +37,6 @@ const REMOTE_TYPE_ENCODE = 2;
 //MONTH_JS from  d.toLocaleString("ru-ru", { day: "numeric", month: "short" }).replace(/\.|\s/g, '')
 const	MONTH_JS = ['янв', 'февр', 'март', 'апр', 'май', 'июнь', 'июль', 'авг', 'сент', 'окт', 'нояб', 'дек'];
 
-const DIFFERENCE = [
-	'tables' => 'videos pages money_slovesno money_goods_slovesno calorie_slovesno',
-	"directories" => "php scripts css articles",
-	"files" => "../index.php ../config.php ../logpass.php"
-];
 const DIFFERENCE_FILE_NAME = 'remote.txt';
 const DIFFERENCE_UP = "../" . DIFFERENCE_FILE_NAME;
 
@@ -1586,7 +1581,7 @@ if (IS_LOCAL) {
 	}
 	defaultBody();
 } else { //remote
-	date_default_timezone_set('Europe/Moscow');
+	//todo date_default_timezone_set('Europe/Moscow');
 	$date = new DateTime();
 	$ds = $date->format(' H:i:s');
 	if (empty($qs)) {
@@ -2070,14 +2065,6 @@ function pageReferenceLevel() {
 				} elseif ($e == 'plants' && $lng == 'russian') {
 					$add[] = 'plants_images';
 				} elseif ($e == 'recipe' && $lng == 'russian') {
-					/*$s = file_get_contents('../scripts/recipe.js');
-					if (!preg_match("~el\\('p'\\)\\.innerHTML\\s*=\\s*\\[(.*?)\\]\\.sort~s", $s, $m)) {
-						die("line" . __LINE__);
-					}
-					if (!preg_match_all("~\\['(.*?)'~", $m[1], $m)) {
-						die("line" . __LINE__);
-					}
-					$add = array_merge($add, $m[1]);*/
 					$a = array_merge($add, getRecipesPages());
 				}
 			}
@@ -2771,7 +2758,6 @@ function codeUpdate($pageLanguageText) {
 			$array[$v] = $t[$n][$k];
 		}
 	}
-	//printlog(upsert('code', $array, true));
 	$affected_rows = upsert('code', $array);
 	return [array_column($t, CI_FILE_CONTENT), $affected_rows];
 }
@@ -2790,8 +2776,6 @@ function codeInfo($text) {
 		$replacement = '<p id="c' . $i . '"></p>';
 		$text = substr_replace($text, $replacement, $start, $length);
 	}
-	// printlog($type, count($p),  strlen($code),  $language);
-	//printlog($text);
 	return [$text,  count($p), $code,  $language,  $width];
 }
 
