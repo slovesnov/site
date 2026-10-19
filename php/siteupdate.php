@@ -2780,7 +2780,8 @@ function codeInfo($text) {
 }
 
 function codePositions($text) {
-	$pattern = '~<pre class="code-container"( style="width:(?P<w0>\d+)px")?><code class="language-(?P<l0>\w+)">(?P<c0>.+?)' . END_CODE0 . '|<#(?P<l1>\w*)>(?P<c1>.*?)' . END_CODE1 . '~us';
+	//<#cpp><#> <#cpp1500><#> 
+	$pattern = '~<pre class="code-container"( style="width:(?P<w0>\d+)px")?><code class="language-(?P<l0>\w+)">(?P<c0>.+?)' . END_CODE0 . '|<#(?P<l1>[a-z]+)(?P<w1>\d+)?>(?P<c1>.*?)' . END_CODE1 . '~us';
 	$positions = [];
 
 	if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
@@ -2800,19 +2801,12 @@ function codePositions($text) {
 }
 
 function getPageLanguage($text) {
-	$l = null;
-	$p = null;
-	foreach (['gLanguage', 'gPageName'] as $e) {
-		if (!preg_match("/\b$e\s*=\s*'(\w+)'/", $text, $m)) {
-			die("Error: variable '$e' not found in text.");
-		}
-		if ($e === 'gLanguage') {
-			$l = $m[1];
-		} else {
-			$p = $m[1];
-		}
-	}
-	return [$p, $l];
+    return array_map(function($e) use ($text) {
+        if (!preg_match("/\b$e\s*=\s*(['`\"])(\w+)\\1/", $text, $m)) {
+            diec(1, "Error: variable '$e' not found in text.");
+        }
+        return $m[2];
+    }, ['gPageName', 'gLanguage']);
 }
 
 function nth_element_json(array $matrix, $n) {
