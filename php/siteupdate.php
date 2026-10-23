@@ -1,6 +1,8 @@
 <?php
 define("SEPARATOR", "\n");
-
+/*<#cpp><#> <#cpp1500><#> for code
+use replaceCodeKeywords($name) if update code using russian page with code
+*/
 const BUTTONS = ['update remote table', 'show query', 'query to file', 'query to clipboard', 'rows show', 'save pages', 'show pages'];
 $jsCode = '';
 foreach (BUTTONS as $index => $button) {
@@ -1394,7 +1396,6 @@ if (IS_LOCAL) {
 				}
 				$content[] = file_get_contents($path);
 			}
-		} else {
 		}
 		foreach ($content as $s) {
 			$e = updatePage($s);
@@ -1454,7 +1455,8 @@ if (IS_LOCAL) {
 			foreach (json_decode($f) as $k => $v) {
 				foreach ($v as $e) {
 					if ($k == 'files') {
-						$p = substr($e, 3);
+						$p = $e;
+						//$p = substr($e, 3);
 					} else {
 						$p = "$k/$e";
 					}
@@ -1462,6 +1464,7 @@ if (IS_LOCAL) {
 					$a[] = "put " . wrap(str_replace("/", "\\", $p), '""') . ' ' . wrap($p, '""');
 				}
 			}
+			// printlog(var_export($a, 1));
 			winscp($a);
 			$s .= "update files finished"; //returrncode=$retval";
 		}
@@ -1581,7 +1584,6 @@ if (IS_LOCAL) {
 	}
 	defaultBody();
 } else { //remote
-	//todo date_default_timezone_set('Europe/Moscow');
 	$date = new DateTime();
 	$ds = $date->format(' H:i:s');
 	if (empty($qs)) {
@@ -2791,6 +2793,7 @@ function codePositions($text) {
 			$endPos   = $startPos + strlen($fullText);
 			$i = (int)str_starts_with($fullText, '<#');
 			$code = htmlspecialchars_decode(trim($match['c' . $i][0]));
+			diec(preg_match("~[а-яё]~iu", $code), "error update code table, code has russian characters");
 			$lang = $match['l' . $i][0];
 			$width = (isset($match['w' . $i]) && $match['w' . $i][1] !== -1) ? (int)$match['w' . $i][0] : null;
 			//printlog($startPos, $endPos, $code, $lang, $width);
@@ -2801,12 +2804,12 @@ function codePositions($text) {
 }
 
 function getPageLanguage($text) {
-    return array_map(function($e) use ($text) {
-        if (!preg_match("/\b$e\s*=\s*(['`\"])(\w+)\\1/", $text, $m)) {
-            diec(1, "Error: variable '$e' not found in text.");
-        }
-        return $m[2];
-    }, ['gPageName', 'gLanguage']);
+	return array_map(
+		fn($e) => preg_match("/\b$e\s*=\s*(['`\"])(\w+)\\1/", $text, $m)
+			? $m[2]
+			: diec(1, "Error: variable '$e' not found in text."),
+		['gPageName', 'gLanguage']
+	);
 }
 
 function nth_element_json(array $matrix, $n) {
@@ -2845,4 +2848,42 @@ ON DUPLICATE KEY UPDATE $updateString";
 	}
 	$stmt->execute($values);
 	return $stmt->affected_rows;
+}
+
+//no used at the moment DO NOT REMOVE
+function replaceCodeKeywords($name) {
+	global $mysqli;
+	//$result = $mysqli->query("select code,map from code where name='aslov1'") or die('error line' . __LINE__ . $mysqli->error);
+	$result = $mysqli->query("select code,map from code where name='$name'") or die('error line' . __LINE__ . $mysqli->error);
+	diec(!$result->num_rows, "row not found");
+	$row = $result->fetch_row();
+	$code = $row[0];
+	//var_dump($code);
+	$c = json_decode($code);
+	// var_dump($c);
+
+	$has_cyrillic = false;
+	foreach ($c as $e) {
+		if (preg_match("~[а-я]~u", $e)) {
+			$has_cyrillic = true;
+			break;
+		}
+	}
+	diec(!$has_cyrillic, "russian chars not found");
+	$c = preg_replace("~“|”~u", '"', $c, -1, $count);
+	$c = preg_replace("~‘|’~u", "'", $c, -1, $count);
+	// var_dump($count);
+
+	$d = $row[1];
+	$r = json_decode($d, true);
+	$re = array_map(fn($e) => str_replace(array_values($r), array_keys($r), $e), $c);
+	// var_dump($re);
+	// $s = json_encode($re);
+	$s = json_encode($re, JSON_UNESCAPED_UNICODE);
+	$safe_json = $mysqli->real_escape_string($s);
+	// echo "<p>";
+	// var_dump($s);
+
+	$r = $mysqli->query("update code set code='$safe_json' where name='$name'") or die('error on line' . __LINE__ . $mysqli->error);
+	echo "affected rows " . $mysqli->affected_rows;
 }

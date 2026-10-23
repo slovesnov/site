@@ -87,6 +87,8 @@ function load() {
 	}
 	st += '</table>'
 	st += 'page <input id="page" type="text" onkeydown="page(this,event);return true;" style="width:110px;margin-top:4px" placeholder="amino">'
+	//if createUrl(REMOTE + 'admin.php', "remote adminer") open in new window then all remote adminer opens in new window
+		+ '<br>' + createUrl(REMOTE + 'admin.php', "remote adminer","")
 
 	el('p').innerHTML = '<table id="t">'
 		+ ('<tr>' + '<td>'.repeat(U.length)).repeat(m)
