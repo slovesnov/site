@@ -2733,7 +2733,7 @@ $rc
 }
 
 function codeUpdate($pageLanguageText) {
-	$t = array_map(fn($e) => codeInfo($e[2]), $pageLanguageText);
+	$t = array_map(fn($e) => codeInfo($e), $pageLanguageText);
 	$map = [
 		CI_COUNT => 'count',
 		CI_CODE => 'code',
@@ -2764,8 +2764,9 @@ function codeUpdate($pageLanguageText) {
 	return [array_column($t, CI_FILE_CONTENT), $affected_rows];
 }
 
-function codeInfo($text) {
-	$p = codePositions($text);
+function codeInfo($pageLanguageText) {
+	$text = $pageLanguageText[2];
+	$p = codePositions($pageLanguageText);
 	//start end code language width
 	$code = nth_element_json($p, CI_CODE);
 	$language = nth_element_json($p, CI_LANGUAGE);
@@ -2781,10 +2782,17 @@ function codeInfo($text) {
 	return [$text,  count($p), $code,  $language,  $width];
 }
 
-function codePositions($text) {
+function codePositions($pageLanguageText) {
 	//<#cpp><#> <#cpp1500><#> 
+	global $mysqli;
+	$text = $pageLanguageText[2];
 	$pattern = '~<pre class="code-container"( style="width:(?P<w0>\d+)px")?><code class="language-(?P<l0>\w+)">(?P<c0>.+?)' . END_CODE0 . '|<#(?P<l1>[a-z]+)(?P<w1>\d+)?>(?P<c1>.*?)' . END_CODE1 . '~us';
 	$positions = [];
+
+	$result = $mysqli->query("select count(*) from pages where name='$pageLanguageText[0]' ") or die('error line' . __LINE__ . $mysqli->error);
+	$row = $result->fetch_row();
+	$languages=$row[0];
+	//printlog($languages,$pageLanguageText[0]);
 
 	if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE)) {
 		foreach ($matches as $match) {
@@ -2793,7 +2801,7 @@ function codePositions($text) {
 			$endPos   = $startPos + strlen($fullText);
 			$i = (int)str_starts_with($fullText, '<#');
 			$code = htmlspecialchars_decode(trim($match['c' . $i][0]));
-			diec(preg_match("~[а-яё]~iu", $code), "error update code table, code has russian characters");
+			diec($languages==2 && preg_match("~[а-яё]~iu", $code), "error update code table, code has russian characters");
 			$lang = $match['l' . $i][0];
 			$width = (isset($match['w' . $i]) && $match['w' . $i][1] !== -1) ? (int)$match['w' . $i][0] : null;
 			//printlog($startPos, $endPos, $code, $lang, $width);
